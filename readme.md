@@ -84,8 +84,8 @@ This project is part of the [01 Edu](https://github.com/01-edu/public/tree/maste
 
 #### 🧪 Pre-Game UI (using custom mini-framework)
 
-- [ ] Implement nickname input and connection flow
-- [ ] Build lobby UI with player list and chat
+- [x] Implement nickname input and connection flow
+- [x] Build lobby UI with player list and chat
 - [ ] Listen for "start game" signal from server
 
 #### 🎮 Game Module (native DOM-based)
