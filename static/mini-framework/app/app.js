@@ -3,13 +3,17 @@ import { connectWebSocket, getSocket } from '../src/websocket.js';
 import { LobbyScreen } from '../app/routes/chat.js';
 import { JoinScreen } from '../app/routes/join.js';
 import { router } from '../src/router.js';
+import { update } from '../src/vdom.js';
 
+const root = document.getElementById('app');
 const { state, subscribe } = createStore({
   playerName: '',
   players: [],
   messages: [],
+  msgInput: '',
   connected: false,
-  errorMessage: ''
+  errorMessage: '',
+  retrigger: 0,
 });
 
 const joinLobby = (name) => {
@@ -63,19 +67,22 @@ const handleMessage = (event) => {
   } else if (data.action === 'offline') {
     state.messages.push({ text: `Player left: ${data.id}`, system: true });
   } else if (data.player_name && data.content) {
+    if (data.player_name === state.playerName) {
+      state.msgInput = '';
+    }
     state.messages.push({ name: data.player_name, text: data.content });
   }
 };
 
-const renderApp = () => {
-  if (!state.connected) {
-    // Show JoinScreen if not connected
-    return JoinScreen(state, joinLobby);
-  } else {
-    // Show LobbyScreen if connected
-    return LobbyScreen(state, sendMessage);
-  }
-};
+let oldVNode = null;
+
+function renderApp() {
+  const newVNode = state.connected
+    ? LobbyScreen(state, sendMessage)
+    : JoinScreen(state, joinLobby);
+
+  oldVNode = update(root, oldVNode, newVNode);
+}
 
 router.addRoute('', () => renderApp());
 router.setNotFoundHandler(() => {
@@ -87,7 +94,7 @@ router.setNotFoundHandler(() => {
   };
 });
 
-
+renderApp();
 subscribe(renderApp);
 
 router.start();

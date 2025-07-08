@@ -6,7 +6,7 @@
  * - Invalid nodes are handled gracefully with warnings.
  */
 
-export function h(tag, attrs = {}, children = [], key = undefined) {
+export function h(tag, attrs = {}, children = [], key = null) {
     return {
         tag,
         attrs,
@@ -341,7 +341,7 @@ export function update(parent, oldVNode, newVNode) {
         return newVNode;
     }
 
-    const oldEl = oldVNode._el || oldVNode.el; 
+    const oldEl = oldVNode._el; 
     console.log('[update] Found old DOM element:', oldEl);
 
     const patchObj = diff(oldVNode, newVNode);
@@ -351,6 +351,6 @@ export function update(parent, oldVNode, newVNode) {
     console.log('[update] Updated element:', updatedEl);
 
     newVNode._el = updatedEl;
-    return updatedEl;
+    return newVNode;
 }
 

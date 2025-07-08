@@ -17,12 +17,13 @@ export const LobbyScreen = (state, onSend) =>
     h('input', {
       id: 'chat-input',
       placeholder: 'Type your message...',
-      value: localMessage || '',
+      value: state.msgInput,
       oninput: (e) => localMessage = e.target.value
     }),
     h('button', { onclick: () => {
-        onSend(localMessage);
-        localMessage = ''; // Clear input after sending
+      state.msgInput = localMessage;
+      localMessage = '';
+      onSend(state.msgInput);
     } }, 'Send'),
     h('div', { id: 'players' }, [
       h('h3', {}, 'Players:'),
