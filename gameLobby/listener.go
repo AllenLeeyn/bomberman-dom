@@ -1,4 +1,4 @@
-package playerManager
+package gameLobby
 
 import (
 	"encoding/json"
@@ -6,35 +6,36 @@ import (
 	"log"
 )
 
-func (pm *PlayerManager) listener() {
-	for action := range pm.playerQueue {
+func (l *Lobby) listener() {
+	for action := range l.playerQueue {
 		switch action.kind {
 		case "join":
-			pm.sendClientList()
+			l.sendClientList()
 
 		case "offline":
-			delete(pm.players, action.player.PlayerName)
+			l.RemovePlayer(action.player.PlayerName)
 			content := fmt.Sprintf(`{"action": "offline", "id": "%s"}`, action.player.PlayerName)
-			pm.queuePublicMessage(content)
+			l.queuePublicMessage(content)
+
+		default:
+			log.Printf("Unknown action kind received: %s", action.kind)
 		}
 	}
 }
 
-func (pm *PlayerManager) sendClientList() {
+func (l *Lobby) sendClientList() {
 	type data struct {
 		Action     string   `json:"action"`
 		AllPlayers []string `json:"allPlayers"`
 	}
 
 	d := data{Action: "join"}
-	for playerName := range pm.players {
-		d.AllPlayers = append(d.AllPlayers, playerName)
-	}
+	d.AllPlayers = append(d.AllPlayers, l.GetAllPlayerNames()...)
 
 	jsonData, err := json.Marshal(d)
 	if err != nil {
 		log.Println("Error marshaling data to JSON:", err)
 		return
 	}
-	pm.queuePublicMessage(string(jsonData))
+	l.queuePublicMessage(string(jsonData))
 }
