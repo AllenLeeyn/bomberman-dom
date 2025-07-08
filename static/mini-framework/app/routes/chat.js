@@ -18,7 +18,14 @@ export const LobbyScreen = (state, onSend) =>
       id: 'chat-input',
       placeholder: 'Type your message...',
       value: state.msgInput,
-      oninput: (e) => localMessage = e.target.value
+      oninput: (e) => localMessage = e.target.value,
+      onkeydown: (e) => {
+        if (e.key === 'Enter' && localMessage.trim()) {
+          state.msgInput = localMessage;
+          onSend(localMessage.trim());
+          localMessage = ''; // Clear input after sending
+        }
+      }
     }),
     h('button', { onclick: () => {
       state.msgInput = localMessage;
