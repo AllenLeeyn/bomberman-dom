@@ -1,18 +1,14 @@
 package gameLobby
 
 import (
+	"bomberman-dom/gameManager"
 	"sync"
-
-	"github.com/gorilla/websocket"
 )
 
-type player struct {
-	PlayerName string
-	PlayerID   string
-	Conn       *websocket.Conn
-}
+type player = gameManager.Player
 
 type message struct {
+	Action     string `json:"action"`
 	PlayerName string `json:"player_name"`
 	Content    string `json:"content"`
 }

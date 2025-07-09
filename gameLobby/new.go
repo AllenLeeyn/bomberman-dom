@@ -1,6 +1,7 @@
 package gameLobby
 
 import (
+	"bomberman-dom/gameManager"
 	"log"
 	"net/http"
 
@@ -36,8 +37,13 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Name already taken", http.StatusConflict)
 		return
 	}
-	if playerCount := len(l.GetAllPlayerNames()); playerCount >= 4 {
-		http.Error(w, "Game is full", http.StatusForbidden)
+	if playerCount := len(l.players); playerCount >= 4 {
+		http.Error(w, "Lobby is full", http.StatusTooManyRequests)
+		return
+	}
+	color, ok := getNextAvailableColor()
+	if !ok {
+		http.Error(w, "No available colors", http.StatusServiceUnavailable)
 		return
 	}
 	playerID := uuid.NewString()
@@ -47,11 +53,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error upgrading connection: ", err)
 		return
 	}
-	pl := &player{
-		playerName,
-		playerID,
-		conn,
-	}
+	pl := gameManager.NewPlayer(playerName, playerID, color, conn)
 
 	l.AddPlayer(pl)
 	l.playerQueue <- action{"join", pl}
@@ -61,6 +63,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 
 func (l *Lobby) queuePublicMessage(content string) {
 	l.msgQueue <- message{
+		Action:     "chat",
 		PlayerName: "system",
 		Content:    content,
 	}

@@ -55,6 +55,12 @@ func (l *Lobby) processMessage(msgData *message) error {
 	}
 	msgData.Content = string(content)
 
+	// pass msgData to gameManager if action is "game"
+	if msgData.Action == "game" {
+		log.Printf("Game message from %s: %s", msgData.PlayerName, msgData.Content)
+		return nil
+	}
+
 	l.msgQueue <- *msgData
 	return nil
 }
