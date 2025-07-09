@@ -1,4 +1,4 @@
-import { update } from './vdom.js';
+import { update } from './domber.js';
 
 class Router {
     constructor(rootSelector = '#app') {

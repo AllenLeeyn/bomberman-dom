@@ -1,6 +1,6 @@
-import { createStore, connectWebSocket, getSocket, router, update  } from '../src/domber.js'
-import { LobbyScreen } from '../app/routes/chat.js';
-import { JoinScreen } from '../app/routes/join.js';
+import { createStore, connectWebSocket, getSocket, router, update  } from '../framework/domber.js'
+import { LobbyScreen } from './routes/chat.js';
+import { JoinScreen } from './routes/join.js';
 
 const root = document.getElementById('app');
 const { state, subscribe } = createStore({
