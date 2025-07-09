@@ -80,23 +80,27 @@ type Game struct {
 }
 
 const (
-	GridWidth                   = 13
-	GridHeight                  = 11
-	TileSize                    = 48
-	PlayerSize                  = 42
-	MapPixelWidth               = GridWidth * TileSize
-	MapPixelHeight              = GridHeight * TileSize
-	TileEmpty                   = "empty"
-	TileWall                    = "wall"
-	TileBlock                   = "block"
-	TileFlame                   = "flame"
-	DefaultSpeed                = 3
-	DefaultLives                = 3
-	DefaultBombRadius           = 2
-	BombFuseDuration            = 3 * time.Second
-	Waiting           GameState = "waiting"
-	Playing           GameState = "playing"
-	Ended             GameState = "ended"
+	GridWidth      = 13
+	GridHeight     = 11
+	TileSize       = 48
+	PlayerSize     = 42
+	MapPixelWidth  = GridWidth * TileSize
+	MapPixelHeight = GridHeight * TileSize
+
+	TileEmpty = "empty"
+	TileWall  = "wall"
+	TileBlock = "block"
+	TileFlame = "flame"
+
+	DefaultSpeed          = 3
+	DefaultLives          = 3
+	DefaultBombRadius     = 2
+	BombFuseDuration      = 3 * time.Second
+	BombExplosionDuration = 1 * time.Second
+
+	Waiting GameState = "waiting"
+	Playing GameState = "playing"
+	Ended   GameState = "ended"
 )
 
 var PlayerStartTiles = []Position{

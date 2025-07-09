@@ -24,6 +24,8 @@ const { state, subscribe } = createStore({
   msgInput: '',
   connected: false,
   errorMessage: '',
+  state: 'in_lobby',
+  timerDuration: 0,
 });
 
 const joinLobby = (name) => {
@@ -73,7 +75,10 @@ const handleMessage = (event) => {
   if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';
 
-  } else if (data.action === 'join') {
+  } else if (data.action === 'timer') {
+    setTimerState(data.state, data.duration);
+
+  }else if (data.action === 'join') {
     const players = [];
     const names = data.allPlayersNames || [];
     const colors = data.allPlayerColors || [];
@@ -102,6 +107,31 @@ const handleMessage = (event) => {
 };
 
 let oldVNode = null;
+let timerInterval = null;
+
+function setTimerState(newState, duration) {
+  if (state.state ===  'in_game') return;
+
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  state.state = newState;
+  state.timerDuration = duration;
+
+  timerInterval = setInterval(() => {
+    if (state.timerDuration > 0) {
+      state.timerDuration--;
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      if (state.state === 'starting') {
+        state.state = 'in_game';
+      }
+    }
+  }, 1000);
+}
 
 function renderApp() {
   const newVNode = state.connected

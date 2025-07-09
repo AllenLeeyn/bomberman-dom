@@ -76,16 +76,16 @@ func (l *Lobby) processColorChange(msgData *message) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if taken, exists := colorSet[newColor]; !exists {
+	if taken, exists := l.colorSet[newColor]; !exists {
 		return fmt.Errorf("color %s does not exist", newColor)
 	} else if taken {
 		return fmt.Errorf("color %s is already taken", newColor)
 	}
 
-	p := l.GetPlayer(msgData.PlayerName)
+	p := l.players[msgData.PlayerName]
 	oldColor := p.Color
 	p.Color = newColor
-	colorSet[newColor], colorSet[oldColor] = true, false
+	l.colorSet[newColor], l.colorSet[oldColor] = true, false
 	log.Printf("Player %s changed color to %s", p.PlayerName, newColor)
 
 	return nil
