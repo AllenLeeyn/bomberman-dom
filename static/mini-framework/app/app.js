@@ -109,6 +109,26 @@ function renderApp() {
     : JoinScreen(state, joinLobby);
 
   oldVNode = update(root, oldVNode, newVNode);
+  // Only run when JoinScreen is shown
+  if (!state.connected) {
+    setTimeout(() => {
+  const logo = document.querySelectorAll("#logo path");
+  for (let i = 0; i < logo.length; i++) {
+    console.log(`Element ${i}:`, logo[i]);
+    if (typeof logo[i].getTotalLength === "function") {
+      console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
+    } else {
+      console.warn(`Element ${i} does not support getTotalLength`);
+    }
+  }
+}, 0);
+    // setTimeout(() => {
+    //   const logo = document.querySelectorAll("#logo path");
+    //   for (let i = 0; i < logo.length; i++) {
+    //     console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
+    //   }
+    // }, 0);
+  }
 }
 
 router.addRoute('', () => renderApp());

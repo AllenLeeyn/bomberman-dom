@@ -16,6 +16,7 @@ export function h(tag, attrs = {}, children = [], key = null) {
 }
 
 function setAttributes(el, attrs = {}) {
+    const isSvg = el.namespaceURI === "http://www.w3.org/2000/svg";
     for (const [key, value] of Object.entries(attrs)) {
         if (typeof value === 'object' && value !== null) {
             value.current = el;
@@ -34,33 +35,37 @@ function setAttributes(el, attrs = {}) {
         } else if (value === undefined || value === null) {
             el.removeAttribute(key);
 
-        } else if (key in el) {
+        } else if (!isSvg && key in el) {
             el[key] = value;
 
         } else {
+            // Always use setAttribute for SVG
             el.setAttribute(key, value);
         }
     }
 }
 
-function prepareTargetElement(tag) {
+function prepareTargetElement(tag, isSvg = false) {
     if (tag === "body") {
         const el = document.body;
         while (el.firstChild) el.removeChild(el.firstChild);
         return el;
     }
+    if (isSvg) {
+        return document.createElementNS("http://www.w3.org/2000/svg", tag);
+    }
     return document.createElement(tag);
 }
 
-function renderChildren(parent, children = []) {
+function renderChildren(parent, children = [], isSvg = false) {
     children
         .filter(child => child !== null && child !== undefined && child !== false)
         .forEach(child => {
-            parent.appendChild(renderElement(child));
+            parent.appendChild(renderElement(child, isSvg));
         });
 }
 
-export function renderElement(node) {
+export function renderElement(node, isSvg = false) {
     console.log('renderElement called with node:', node);
     try {
         if (typeof node === "string") {
@@ -77,9 +82,11 @@ export function renderElement(node) {
             return document.createTextNode("");
         }
 
-        const el = prepareTargetElement(node.tag);
+        // If this node is <svg>, set isSvg = true for it and its children
+        const thisIsSvg = isSvg || node.tag === "svg";
+        const el = prepareTargetElement(node.tag, thisIsSvg);
         setAttributes(el, node.attrs);
-        renderChildren(el, node.children);
+        renderChildren(el, node.children, thisIsSvg);
         return el;
 
     } catch (error) {
