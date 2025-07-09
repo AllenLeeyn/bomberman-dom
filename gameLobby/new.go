@@ -27,32 +27,36 @@ func New() *Lobby {
 }
 
 func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
-
-	playerName := r.URL.Query().Get("name")
-	if playerName == "" {
-		http.Error(w, "Missing player name", http.StatusBadRequest)
-		return
-	}
-	if exists := l.HasPlayer(playerName); exists {
-		http.Error(w, "Name already taken", http.StatusConflict)
-		return
-	}
-	if playerCount := len(l.players); playerCount >= 4 {
-		http.Error(w, "Lobby is full", http.StatusTooManyRequests)
-		return
-	}
-	color, ok := getNextAvailableColor()
-	if !ok {
-		http.Error(w, "No available colors", http.StatusServiceUnavailable)
-		return
-	}
-	playerID := uuid.NewString()
-
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error upgrading connection: ", err)
 		return
 	}
+
+	playerName := r.URL.Query().Get("name")
+	if playerName == "" {
+		sendError(conn, "Missing player name")
+		conn.Close()
+		return
+	}
+	if exists := l.HasPlayer(playerName); exists {
+		sendError(conn, "Name already taken")
+		conn.Close()
+		return
+	}
+	if playerCount := len(l.players); playerCount >= 4 {
+		sendError(conn, "Lobby is full")
+		conn.Close()
+		return
+	}
+	color, ok := getNextAvailableColor()
+	if !ok {
+		sendError(conn, "No available colors")
+		conn.Close()
+		return
+	}
+	playerID := uuid.NewString()
+
 	pl := gameManager.NewPlayer(playerName, playerID, color, conn)
 
 	l.AddPlayer(pl)
@@ -66,5 +70,15 @@ func (l *Lobby) queuePublicMessage(content string) {
 		Action:     "chat",
 		PlayerName: "system",
 		Content:    content,
+	}
+}
+
+func sendError(conn *websocket.Conn, reason string) {
+	message := map[string]string{
+		"action": "reject",
+		"reason": reason,
+	}
+	if err := conn.WriteJSON(message); err != nil {
+		log.Println("Error sending rejection:", err)
 	}
 }

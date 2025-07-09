@@ -70,8 +70,8 @@ const safeParse = (data) => {
 const handleMessage = (event) => {
   const data = safeParse(event.data);
 
-  if (typeof data === 'string') {
-    state.messages.push({ text: data, system: true });
+  if (data.action === 'reject') {
+    state.errorMessage = data.reason || 'Connection rejected.';
 
   } else if (data.action === 'join') {
     const players = [];
