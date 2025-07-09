@@ -1,14 +1,15 @@
+const reactiveCache = new WeakMap();
+const IS_REACTIVE = Symbol('isReactive');
+
 function isObject(value) {
   return typeof value === 'object' && value !== null;
 }
-
-const reactiveCache = new WeakMap();
 
 // Enhances array mutators to call notify()
 function enhanceArray(arr, notify) {
   // Wrap elements
   for (let i = 0; i < arr.length; i++) {
-    if (isObject(arr[i])) {
+    if (isObject(arr[i])&& !arr[i][IS_REACTIVE]) {
       arr[i] = createReactive(arr[i], notify);
     }
   }
@@ -72,7 +73,7 @@ function createObjectHandler(notify) {
   return {
     get(target, prop, receiver) {
       const val = Reflect.get(target, prop, receiver);
-      if (isObject(val)) {
+      if (isObject(val) && !val[IS_REACTIVE]) {
         return createReactive(val, notify);
       }
       return val;
@@ -96,7 +97,7 @@ function createObjectHandler(notify) {
 }
 
 function createReactive(obj, notify) {
-  if (!isObject(obj)) return obj;
+  if (!isObject(obj) || obj[IS_REACTIVE]) return obj;
 
   if (reactiveCache.has(obj)) {
     return reactiveCache.get(obj);
@@ -114,6 +115,7 @@ function createReactive(obj, notify) {
     proxy = new Proxy(obj, createObjectHandler(notify));
   }
   reactiveCache.set(obj, proxy);
+  proxy[IS_REACTIVE] = true;
 
   return proxy;
 }

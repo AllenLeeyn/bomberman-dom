@@ -5,15 +5,21 @@ let localMessage = '';
 export const LobbyScreen = (state, onSend) => 
   h('div', { id: 'lobby-screen', class: state.connected ? 'active' : '' }, [
     h('h2', {}, 'Lobby Chat'),
+
     h('div', { id: 'chat-log' }, 
       state.messages.map(msg => 
         h('div', { class: 'chat-message' + (msg.system ? ' system' : '') }, 
           msg.system 
             ? `[SYSTEM] ${msg.text}`
-            : [h('strong', {}, msg.name + ':'), ' ', msg.text]
+            : [
+                h('strong', { style: `color: ${getPlayerColor(state.players, msg.name)}` }, msg.name + ':'),
+                ' ',
+                msg.text
+              ]
         )
       )
     ),
+
     h('input', {
       id: 'chat-input',
       placeholder: 'Type your message...',
@@ -27,15 +33,25 @@ export const LobbyScreen = (state, onSend) =>
         }
       }
     }),
+
     h('button', { onclick: () => {
       state.msgInput = localMessage;
       localMessage = '';
       onSend(state.msgInput);
     } }, 'Send'),
+
     h('div', { id: 'players' }, [
       h('h3', {}, 'Players:'),
       h('ul', { id: 'player-list' }, 
-        state.players.map(name => h('li', {}, name))
+        state.players.map(player => 
+          h('li', { style: `color: ${player.color}` }, player.name)
+        )
       )
     ])
   ]);
+
+// Helper function to get player color by name
+function getPlayerColor(players, name) {
+  const player = players.find(p => p.name === name);
+  return player ? player.color : 'black';
+}

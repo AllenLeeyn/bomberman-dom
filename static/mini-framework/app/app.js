@@ -5,6 +5,17 @@ import { JoinScreen } from '../app/routes/join.js';
 import { router } from '../src/router.js';
 import { update } from '../src/vdom.js';
 
+const colorSet = {
+  red: '#e74c3c',
+  blue: '#3498db',
+  green: '#27ae60',
+  yellow: '#f1c40f',
+  purple: '#9b59b6',
+  orange: '#e67e22',
+  cyan: '#1abc9c',
+  pink: '#fd79a8',
+};
+
 const root = document.getElementById('app');
 const { state, subscribe } = createStore({
   playerName: '',
@@ -13,7 +24,6 @@ const { state, subscribe } = createStore({
   msgInput: '',
   connected: false,
   errorMessage: '',
-  retrigger: 0,
 });
 
 const joinLobby = (name) => {
@@ -59,13 +69,30 @@ const safeParse = (data) => {
 
 const handleMessage = (event) => {
   const data = safeParse(event.data);
+
   if (typeof data === 'string') {
     state.messages.push({ text: data, system: true });
+
   } else if (data.action === 'join') {
-    state.players = [...data.allPlayers];
+    const players = [];
+    const names = data.allPlayersNames || [];
+    const colors = data.allPlayerColors || [];
+
+    for (let i = 0; i < names.length; i++) {
+      players.push({ name: names[i], color: colors[i] || 'black' });
+    }
+    state.players = players;
+
     state.messages.push({ text: 'Player joined', system: true });
+
   } else if (data.action === 'offline') {
     state.messages.push({ text: `Player left: ${data.id}`, system: true });
+
+    const index = state.players.findIndex(p => p.name === data.id);
+    if (index !== -1) {
+      state.players.splice(index, 1); // triggers reactivity
+    }
+    
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
       state.msgInput = '';

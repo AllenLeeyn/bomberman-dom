@@ -34,6 +34,7 @@ func (l *Lobby) AddPlayer(p *player) {
 func (l *Lobby) RemovePlayer(playerName string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	colorSet[l.players[playerName].Color] = false
 	delete(l.players, playerName)
 }
 
