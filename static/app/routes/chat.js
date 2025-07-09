@@ -1,4 +1,4 @@
-import { h } from '../../src/vdom.js';
+import { h } from '../../mini-framework/src/domber.js';
 
 let localMessage = '';
 
