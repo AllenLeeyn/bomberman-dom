@@ -10,7 +10,10 @@ func (l *Lobby) listener() {
 	for action := range l.playerQueue {
 		switch action.kind {
 		case "join":
-			l.sendClientList()
+			l.sendClientList("join")
+
+		case "colorChange":
+			l.sendClientList("colorChange")
 
 		case "offline":
 			l.RemovePlayer(action.player.PlayerName)
@@ -23,14 +26,19 @@ func (l *Lobby) listener() {
 	}
 }
 
-func (l *Lobby) sendClientList() {
+func (l *Lobby) sendClientList(action string) {
 	type data struct {
-		Action     string   `json:"action"`
-		AllPlayers []string `json:"allPlayers"`
+		Action          string   `json:"action"`
+		AllPlayerNames  []string `json:"allPlayersNames"`
+		AllPlayerColors []string `json:"allPlayerColors"`
 	}
 
-	d := data{Action: "join"}
-	d.AllPlayers = append(d.AllPlayers, l.GetAllPlayerNames()...)
+	d := data{Action: action}
+	playerInfos := l.GetAllPlayerInfos()
+	for _, info := range playerInfos {
+		d.AllPlayerNames = append(d.AllPlayerNames, info[0])
+		d.AllPlayerColors = append(d.AllPlayerColors, info[1])
+	}
 
 	jsonData, err := json.Marshal(d)
 	if err != nil {

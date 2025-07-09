@@ -25,39 +25,36 @@ type Lobby struct {
 	mu          sync.RWMutex
 }
 
-// AddPlayer safely adds a player to the players map
 func (l *Lobby) AddPlayer(p *player) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.players[p.PlayerName] = p
 }
 
-// RemovePlayer safely removes a player from the players map
 func (l *Lobby) RemovePlayer(playerName string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	delete(l.players, playerName)
 }
 
-// GetPlayer safely retrieves a player by name, returns nil if not found
 func (l *Lobby) GetPlayer(playerName string) *player {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.players[playerName]
 }
 
-// GetAllPlayerNames safely returns a slice of all player names
-func (l *Lobby) GetAllPlayerNames() []string {
+func (l *Lobby) GetAllPlayerInfos() [][]string {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	names := make([]string, 0, len(l.players))
-	for name := range l.players {
-		names = append(names, name)
+
+	infos := make([][]string, 0, len(l.players))
+	for _, player := range l.players {
+		entry := []string{player.PlayerName, player.Color}
+		infos = append(infos, entry)
 	}
-	return names
+	return infos
 }
 
-// HasPlayer safely checks if a player exists by name
 func (l *Lobby) HasPlayer(playerName string) bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
