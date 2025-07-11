@@ -83,14 +83,20 @@
 }
 
 /* Assign colors via class or inline style */
-.player.red    { background-color: #e74c3c; } /* red */
-.player.blue   { background-color: #3498db; } /* blue */
-.player.green  { background-color: #2ecc71; } /* green */
-.player.yellow { background-color: #f1c40f; } /* yellow */
-.player.purple { background-color: #9b59b6; } /* purple */
-.player.orange { background-color: #e67e22; } /* orange */
-.player.cyan   { background-color: #1abc9c; } /* cyan */
-.player.pink   { background-color: #ff69b4; } /* pink */
+/* .player.pink   { background-color: #FF1493; }
+.player.blue  { background-color: #00BFFF; }
+.player.yellow { background-color: #FFD700; }
+.player.green { background-color: #32CD32; }
+.player.red { background-color: #FF4500; }
+.player.purple { background-color: #8A2BE2; } */
+.player.red    { background-color: #FF1493; } 
+.player.blue   { background-color: #00BFFF; } 
+.player.green  { background-color: #2ecc71; }
+.player.yellow { background-color: #f1c40f; } 
+.player.purple { background-color: #9b59b6; } 
+.player.orange { background-color: #e67e22; } 
+.player.cyan   { background-color: #1abc9c; } 
+.player.pink   { background-color: #ff69b4; } 
 
 /* --- Flame flicker animation --- */
 @keyframes flicker {

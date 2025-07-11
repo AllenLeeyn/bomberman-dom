@@ -4,6 +4,13 @@ import { JoinScreen } from './routes/join.js';
 import { startGameApp, updateGameState } from './routes/game.js';
 
 const colorSet = {
+  // pink: '#FF1493',
+  // blue: '#3498db',
+  // yellow: '#FFD700',
+  // green: '#32CD32',
+  // red: '#FF4500',
+  // purple: '#8A2BE2',
+
   red: '#e74c3c',
   blue: '#3498db',
   green: '#27ae60',
@@ -158,25 +165,20 @@ function renderApp() {
     }
 
   oldVNode = update(root, oldVNode, newVNode);
+
   // Only run when JoinScreen is shown
   if (!state.connected) {
     setTimeout(() => {
-  const logo = document.querySelectorAll("#logo path");
-  for (let i = 0; i < logo.length; i++) {
-    console.log(`Element ${i}:`, logo[i]);
-    if (typeof logo[i].getTotalLength === "function") {
-      console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
-    } else {
-      console.warn(`Element ${i} does not support getTotalLength`);
-    }
-  }
-}, 0);
-    // setTimeout(() => {
-    //   const logo = document.querySelectorAll("#logo path");
-    //   for (let i = 0; i < logo.length; i++) {
-    //     console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
-    //   }
-    // }, 0);
+      const logo = document.querySelectorAll("#logo path");
+      for (let i = 0; i < logo.length; i++) {
+        console.log(`Element ${i}:`, logo[i]);
+        if (typeof logo[i].getTotalLength === "function") {
+          console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
+        } else {
+          console.warn(`Element ${i} does not support getTotalLength`);
+        }
+      }
+    }, 0);
   }
 }
 

@@ -10,7 +10,14 @@ export const LobbyScreen = (state, onSend) =>
     state.timerDuration > 0
       ? h('div', { id: 'timer' }, `Timer (${state.state}): ${state.timerDuration}s`)
       : h('div', { id: 'timer' }, 'Waiting for players to join...'),
-
+    h('div', { id: 'players' }, [
+      h('h3', {}, 'Players:'),
+      h('ul', { id: 'player-list' }, 
+        state.players.map(player => 
+          h('li', { style: `color: ${player.color}` }, player.name)
+        )
+      )
+    ]),
     h('div', { id: 'chat-log' }, 
       state.messages.map(msg => 
         h('div', { class: 'chat-message' + (msg.system ? ' system' : '') }, 
@@ -25,35 +32,27 @@ export const LobbyScreen = (state, onSend) =>
       )
     ),
 
-    h('input', {
-      id: 'chat-input',
-      placeholder: 'Type your message...',
-      value: state.msgInput,
-      oninput: (e) => localMessage = e.target.value,
-      onkeydown: (e) => {
-        if (e.key === 'Enter' && localMessage.trim()) {
+    h('div', { class: 'chat-input-row' }, [
+      h('input', {
+        id: 'chat-input',
+        placeholder: 'Type your message...',
+        value: state.msgInput,
+        oninput: (e) => localMessage = e.target.value,
+        onkeydown: (e) => {
+          if (e.key === 'Enter' && localMessage.trim()) {
+            state.msgInput = localMessage;
+            onSend(localMessage.trim());
+            localMessage = '';
+          }
+        }
+      }),
+      h('button', { onclick: () => {
+        if (localMessage.trim()) {
           state.msgInput = localMessage;
           onSend(localMessage.trim());
-          localMessage = ''; // Clear input after sending
+          localMessage = '';
         }
-      }
-    }),
-
-    h('button', { onclick: () => {
-      if (localMessage.trim()) {
-        state.msgInput = localMessage;
-        onSend(localMessage.trim());
-        localMessage = '';
-      }
-    } }, 'Send'),
-
-    h('div', { id: 'players' }, [
-      h('h3', {}, 'Players:'),
-      h('ul', { id: 'player-list' }, 
-        state.players.map(player => 
-          h('li', { style: `color: ${player.color}` }, player.name)
-        )
-      )
+      } }, 'Send')
     ])
   ]);
 

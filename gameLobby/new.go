@@ -18,6 +18,12 @@ var upgrader = websocket.Upgrader{
 func New() *Lobby {
 	l := &Lobby{
 		colorSet: map[string]bool{
+			// "#FF1493": false,
+			// "#00BFFF": false,
+			// "#FFD700": false,
+			// "#32CD32": false,
+			// "#FF4500": false,
+			// "#8A2BE2": false,
 			"red":    false,
 			"blue":   false,
 			"green":  false,
