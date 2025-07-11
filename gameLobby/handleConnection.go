@@ -43,14 +43,16 @@ func (l *Lobby) handleConnection(pl *player) {
 }
 
 func (l *Lobby) processMessage(msgData *Message) error {
-	if msgData.Action == "colorChange" {
-		log.Printf("Color change request from %s: %s", msgData.PlayerName, msgData.Content)
-		l.processColorChange(msgData)
-	}
-
 	// pass msgData to gameManager if action is "game"
 	if msgData.Action == "game" {
 		log.Printf("Game message from %s: %s", msgData.PlayerName, msgData.Content)
+		l.game.UpdatePlayerKeys(msgData.PlayerName, msgData.Content)
+		return nil
+	}
+
+	if msgData.Action == "colorChange" {
+		log.Printf("Color change request from %s: %s", msgData.PlayerName, msgData.Content)
+		l.processColorChange(msgData)
 		return nil
 	}
 
@@ -88,6 +90,7 @@ func (l *Lobby) processColorChange(msgData *Message) error {
 	l.colorSet[newColor], l.colorSet[oldColor] = true, false
 	log.Printf("Player %s changed color to %s", p.PlayerName, newColor)
 
+	l.playerQueue <- action{"colorChange", p}
 	return nil
 }
 

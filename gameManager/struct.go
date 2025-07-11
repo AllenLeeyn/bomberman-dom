@@ -1,6 +1,7 @@
 package gameManager
 
 import (
+	"bomberman-dom/shared"
 	"sync"
 	"time"
 
@@ -9,11 +10,7 @@ import (
 
 type GameState string
 
-type message struct {
-	Action     string `json:"action"`
-	PlayerName string `json:"player_name"`
-	Content    string `json:"content"`
-}
+type message = shared.Message
 
 type Position struct {
 	X int `json:"x"`
@@ -48,7 +45,7 @@ type Player struct {
 	Position      Position        `json:"position"`
 	Direction     string          `json:"direction"`
 	MovementSpeed int             `json:"movementSpeed"`
-	KeyPresses    map[string]bool `json:"-"`
+	KeyPresses    []string        `json:"-"`
 	Lives         int             `json:"lives"`
 	Alive         bool            `json:"alive"`
 	MaxBombCount  int             `json:"maxBombs"`

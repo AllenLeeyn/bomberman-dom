@@ -1,33 +1,6 @@
 package gameManager
 
-import (
-	"encoding/json"
-	"log"
-
-	"github.com/gorilla/websocket"
-)
-
-/* const TickRate = time.Second / 60 // ~16.67ms per tick
-
-func (g *Game) RunGameLoop() {
-	ticker := time.NewTicker(TickRate)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		g.mu.Lock()
-		if g.State != Playing {
-			g.mu.Unlock()
-			break
-		}
-		g.TickCount++
-		stateSnapshot := g.createGameStateSnapshot()
-		g.mu.Unlock()
-
-		// Send updated game state to all players
-		g.Broadcast("game_tick", stateSnapshot)
-	}
-} */
-
+/*
 func (g *Game) Broadcaster() {
 	for msg := range g.stateQueue {
 		data, err := json.Marshal(msg)
@@ -53,8 +26,9 @@ func (g *Game) Broadcaster() {
 				}
 			}
 
-			log.Printf("Game state broadcast to %s", player.PlayerName)
+			//log.Printf("Game state broadcast to %s", player.PlayerName)
 		}
 		g.mu.RUnlock()
 	}
 }
+*/
