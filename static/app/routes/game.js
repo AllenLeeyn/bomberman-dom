@@ -86,11 +86,19 @@ function renderLoop() {
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 
+const validKeys = [
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'w','a', 's', 'd',
+  'W', 'A', 'S', 'D'
+];
 const  keysPressed = [];
 
 function handleKeyDown(e) {
   const key = e.key;
-  if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+  if (!validKeys.includes(key)) {
     return;
   }
 
@@ -102,7 +110,7 @@ function handleKeyDown(e) {
 
 function handleKeyUp(e) {
   const key = e.key;
-  if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) return;
+  if (!validKeys.includes(key)) return;
 
   const index = keysPressed.indexOf(key);
   if (index > -1) {
@@ -119,15 +127,23 @@ function updateCurrentPlayer(players) {
   const lastKey = keysPressed[keysPressed.length - 1]
   switch (lastKey) {
     case 'ArrowUp':
+    case 'w':
+    case 'W':
       player.position.y -= speed;
       break;
     case 'ArrowDown':
+    case 's':
+    case 'S':
       player.position.y += speed;
       break;
     case 'ArrowLeft':
+    case 'a':
+    case 'A':
       player.position.x -= speed;
       break;
     case 'ArrowRight':
+    case 'd':
+    case 'D':
       player.position.x += speed;
       break;
   }
