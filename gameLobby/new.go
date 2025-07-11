@@ -104,6 +104,6 @@ func sendError(conn *websocket.Conn, reason string) {
 }
 
 func (l *Lobby) startGame() {
-	g := gameManager.NewGame(l.players, l.endQueue)
-	g.Start()
+	l.game = gameManager.NewGame(l.players, l.msgQueue, l.endQueue)
+	l.game.Start()
 }

@@ -1,20 +1,24 @@
+import { getSocket } from '../../framework/domber.js'
+
 const gameRoot = document.getElementById('game-root');
 const tileLayer = document.getElementById('tile-layer');
 const playerLayer = document.getElementById('player-layer');
+let socket = null;
 let currentPlayer = "";
 let gameData = {};
 let animationFrameId = null;
 
 export function startGameApp(data, playerName) {
-  if (!gameRoot || !tileLayer || !playerLayer) {
+  socket = getSocket('lobby')
+  if (!gameRoot || !tileLayer || !playerLayer || !socket) {
     console.error('[Game] Missing root element');
     return;
   }
-  if (!data || !data.content) {
+  if (!data) {
     console.error('[Game] Invalid game data');
     return;
   }
-  gameData = JSON.parse(data.content);
+  gameData = data;
   currentPlayer = playerName
 
   gameRoot.setAttribute('tabindex', '0');
@@ -70,9 +74,7 @@ function drawPlayers(players) {
 }
 
 export function updateGameState(data) {
-  // handle game rendering from WS messages
-  console.log('Render game frame:', data);
-  gameState = newData;
+  gameData = data;
 }
 
 // Rendering function
@@ -105,6 +107,14 @@ function handleKeyDown(e) {
   e.preventDefault();
   if (!keysPressed.includes(key)) {
     keysPressed.push(key);
+    
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.sendMessage({
+        action: 'game',
+        player_name: currentPlayer,
+        content: JSON.stringify(keysPressed),
+      });
+    }
   }
 }
 
@@ -115,6 +125,14 @@ function handleKeyUp(e) {
   const index = keysPressed.indexOf(key);
   if (index > -1) {
     keysPressed.splice(index, 1);  // Remove the key
+    
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.sendMessage({
+        action: 'game',
+        player_name: currentPlayer,
+        content: JSON.stringify(keysPressed),
+      });
+    }
   }
 }
 

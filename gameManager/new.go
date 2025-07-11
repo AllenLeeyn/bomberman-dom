@@ -2,6 +2,7 @@ package gameManager
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -16,7 +17,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		Position:      Position{X: 0, Y: 0},
 		Direction:     "down",
 		MovementSpeed: DefaultSpeed,
-		KeyPresses:    make(map[string]bool),
+		KeyPresses:    []string{},
 		Lives:         DefaultLives,
 		Alive:         true,
 		MaxBombCount:  1,
@@ -25,7 +26,9 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 	}
 }
 
-func NewGame(players map[string]*Player, msgQueue chan struct{}) *Game {
+func NewGame(players map[string]*Player,
+	stateQueue chan message,
+	endQueue chan struct{}) *Game {
 	g := &Game{
 		Action:     "game",
 		Players:    players,
@@ -34,8 +37,9 @@ func NewGame(players map[string]*Player, msgQueue chan struct{}) *Game {
 		TickCount:  0,
 		State:      Waiting,
 		Winner:     "",
-		stateQueue: make(chan message, 100),
-		eventQueue: make(chan message, 100),
+		stateQueue: stateQueue,
+		eventQueue: make(chan message, 10),
+		endQueue:   endQueue,
 	}
 
 	i := 0
@@ -51,13 +55,11 @@ func NewGame(players map[string]*Player, msgQueue chan struct{}) *Game {
 		player.MaxBombCount = 1
 		player.Bombs = []*Bomb{}
 		player.PowerUps = []*PowerUp{}
-		player.KeyPresses = make(map[string]bool)
+		player.KeyPresses = []string{}
 		i++
 	}
 
-	go g.Broadcaster()
-	//go g.Listener()
-	//go g.GameLoop()
+	go g.gameLoop()
 
 	return g
 }
@@ -70,6 +72,7 @@ func (g *Game) Start() {
 		return
 	}
 
+	g.Action = "game_start"
 	g.State = Playing
 	g.CreatedAt = time.Now()
 	g.TickCount = 0
@@ -77,10 +80,13 @@ func (g *Game) Start() {
 
 	content, err := json.Marshal(g)
 	if err != nil {
+		log.Println("[error:abort] Error starting game:", err)
+		return
 	}
-	g.stateQueue <- message{
+	msg := message{
 		Action:     "game_start",
-		PlayerName: "system", // Optional: specify who initiated start
+		PlayerName: "system",
 		Content:    string(content),
 	}
+	g.stateQueue <- msg
 }

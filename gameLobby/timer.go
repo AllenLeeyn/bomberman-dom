@@ -26,7 +26,7 @@ func (l *Lobby) timer() {
 			l.state = StateWaiting
 			l.mu.Unlock()
 
-			timer = time.AfterFunc(20*time.Second, func() {
+			timer = time.AfterFunc(5*time.Second, func() {
 				l.mu.Lock()
 				defer l.mu.Unlock()
 
@@ -35,7 +35,7 @@ func (l *Lobby) timer() {
 					l.timerCh <- gameStartTimer
 				}
 			})
-			l.queuePublicMessage(`{"action":"timer","state":"waiting","duration":20}`)
+			l.queuePublicMessage(`{"action":"timer","state":"waiting","duration":5}`)
 
 			log.Println("Waiting timer started (20s)")
 
@@ -44,7 +44,7 @@ func (l *Lobby) timer() {
 			l.state = StateStarting
 			l.mu.Unlock()
 
-			timer = time.AfterFunc(10*time.Second, func() {
+			timer = time.AfterFunc(5*time.Second, func() {
 				l.mu.Lock()
 				defer l.mu.Unlock()
 
@@ -53,7 +53,7 @@ func (l *Lobby) timer() {
 					l.startGame()
 				}
 			})
-			l.queuePublicMessage(`{"action":"timer","state":"starting","duration":10}`)
+			l.queuePublicMessage(`{"action":"timer","state":"starting","duration":5}`)
 
 			log.Println("Starting timer started (10s)")
 

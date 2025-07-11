@@ -16,7 +16,7 @@ func (l *Lobby) broadcaster() {
 			if pl == nil {
 				continue
 			}
-			log.Printf("Broadcasting message to %s: %s", playerInfos[0], msg.Content)
+			//log.Printf("Broadcasting message to %s: %s", playerInfos[0], msg.Content)
 			err := pl.Conn.WriteMessage(websocket.TextMessage, []byte(msg.Content))
 			if err != nil {
 				log.Printf("Error sending message to %v: %v", playerInfos[0], err)
