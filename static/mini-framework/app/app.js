@@ -2,6 +2,7 @@ import { createStore } from '../src/store.js';
 import { connectWebSocket, getSocket } from '../src/websocket.js';
 import { LobbyScreen } from '../app/routes/chat.js';
 import { JoinScreen } from '../app/routes/join.js';
+import { startGameApp } from '../app/routes/game.js';
 import { router } from '../src/router.js';
 import { update } from '../src/vdom.js';
 
@@ -17,6 +18,8 @@ const colorSet = {
 };
 
 const root = document.getElementById('app');
+const gameRoot = document.getElementById('game-root');
+
 const { state, subscribe } = createStore({
   playerName: '',
   players: [],
@@ -98,6 +101,18 @@ const handleMessage = (event) => {
       state.players.splice(index, 1); // triggers reactivity
     }
     
+  } else if (data.action === "game_start"){
+    if (!gameRoot) {
+      console.error('Missing #game-root');
+      return;
+    }
+
+    state.state = 'in_game';
+    startGameApp(data, state.playerName);
+
+  } else if (data.action === "game_update"){
+    console.warn(data.content)
+
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
       state.msgInput = '';
@@ -106,7 +121,6 @@ const handleMessage = (event) => {
   }
 };
 
-let oldVNode = null;
 let timerInterval = null;
 
 function setTimerState(newState, duration) {
@@ -133,10 +147,18 @@ function setTimerState(newState, duration) {
   }, 1000);
 }
 
+let oldVNode = null;
+
 function renderApp() {
   const newVNode = state.connected
     ? LobbyScreen(state, sendMessage)
     : JoinScreen(state, joinLobby);
+
+    if (state.state === "in_game") {
+      gameRoot.classList.remove('hidden');
+    } else {
+      gameRoot.classList.add('hidden');
+    }
 
   oldVNode = update(root, oldVNode, newVNode);
 }

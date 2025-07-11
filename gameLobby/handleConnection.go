@@ -24,7 +24,7 @@ func (l *Lobby) handleConnection(pl *player) {
 			break
 		}
 
-		msgData := message{}
+		msgData := Message{}
 		if err := json.Unmarshal(msg, &msgData); err != nil {
 			log.Printf("Invalid message format from %s", pl.PlayerName)
 			continue
@@ -42,7 +42,7 @@ func (l *Lobby) handleConnection(pl *player) {
 	l.playerQueue <- action{"offline", pl}
 }
 
-func (l *Lobby) processMessage(msgData *message) error {
+func (l *Lobby) processMessage(msgData *Message) error {
 	if msgData.Action == "colorChange" {
 		log.Printf("Color change request from %s: %s", msgData.PlayerName, msgData.Content)
 		l.processColorChange(msgData)
@@ -70,7 +70,7 @@ func (l *Lobby) processMessage(msgData *message) error {
 	return nil
 }
 
-func (l *Lobby) processColorChange(msgData *message) error {
+func (l *Lobby) processColorChange(msgData *Message) error {
 	newColor := msgData.Content
 
 	l.mu.Lock()

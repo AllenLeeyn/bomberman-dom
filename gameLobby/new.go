@@ -28,9 +28,10 @@ func New() *Lobby {
 			"pink":   false,
 		},
 		players:     make(map[string]*player),
-		msgQueue:    make(chan message, 100),
+		msgQueue:    make(chan Message, 100),
 		playerQueue: make(chan action, 10),
 		timerCh:     make(chan timerAction, 10),
+		endQueue:    make(chan struct{}, 1),
 		state:       StateInLobby,
 	}
 	go l.listener()
@@ -85,7 +86,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *Lobby) queuePublicMessage(content string) {
-	l.msgQueue <- message{
+	l.msgQueue <- Message{
 		Action:     "chat",
 		PlayerName: "system",
 		Content:    content,
@@ -100,4 +101,9 @@ func sendError(conn *websocket.Conn, reason string) {
 	if err := conn.WriteJSON(message); err != nil {
 		log.Println("Error sending rejection:", err)
 	}
+}
+
+func (l *Lobby) startGame() {
+	g := gameManager.NewGame(l.players, l.endQueue)
+	g.Start()
 }

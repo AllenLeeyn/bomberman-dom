@@ -8,16 +8,18 @@ func NewGMap(width, height int) *GMap {
 	for y := range height {
 		grid[y] = make([]*Tile, width)
 		for x := range width {
-			pos := Position{X: x, Y: y}
+			pos := TilePosition{X: x, Y: y}
 			tileType := TileEmpty
 
 			// Perimeter walls and inner fixed walls
 			if x == 0 || y == 0 || x == width-1 || y == height-1 || (x%2 == 0 && y%2 == 0) {
 				tileType = TileWall
-				tile := &Tile{Type: tileType, Position: pos}
-				grid[y][x] = tile
-				walls = append(walls, tile)
+			} else {
+				tileType = TileEmpty
 			}
+			tile := &Tile{Type: tileType, Position: pos}
+			grid[y][x] = tile
+			walls = append(walls, tile)
 		}
 	}
 

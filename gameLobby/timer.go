@@ -50,7 +50,7 @@ func (l *Lobby) timer() {
 
 				if l.state == StateStarting {
 					l.state = StateInGame
-					//l.startGame()
+					l.startGame()
 				}
 			})
 			l.queuePublicMessage(`{"action":"timer","state":"starting","duration":10}`)

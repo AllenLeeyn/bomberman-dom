@@ -7,7 +7,7 @@ import (
 
 type player = gameManager.Player
 
-type message struct {
+type Message struct {
 	Action     string `json:"action"`
 	PlayerName string `json:"player_name"`
 	Content    string `json:"content"`
@@ -21,8 +21,9 @@ type action struct {
 type Lobby struct {
 	colorSet    map[string]bool
 	players     map[string]*player
-	msgQueue    chan message
+	msgQueue    chan Message
 	playerQueue chan action
+	endQueue    chan struct{}
 
 	timerCh chan timerAction
 	state   LobbyState
