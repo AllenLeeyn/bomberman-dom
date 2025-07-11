@@ -1,10 +1,15 @@
-import { h } from '../../src/vdom.js';
+import { h } from '../../framework/domber.js';
 
 let localMessage = '';
 
 export const LobbyScreen = (state, onSend) => 
   h('div', { id: 'lobby-screen', class: state.connected ? 'active' : '' }, [
     h('h2', {}, 'Lobby Chat'),
+
+    // Timer display if active
+    state.timerDuration > 0
+      ? h('div', { id: 'timer' }, `Timer (${state.state}): ${state.timerDuration}s`)
+      : h('div', { id: 'timer' }, 'Waiting for players to join...'),
 
     h('div', { id: 'chat-log' }, 
       state.messages.map(msg => 
@@ -35,9 +40,11 @@ export const LobbyScreen = (state, onSend) =>
     }),
 
     h('button', { onclick: () => {
-      state.msgInput = localMessage;
-      localMessage = '';
-      onSend(state.msgInput);
+      if (localMessage.trim()) {
+        state.msgInput = localMessage;
+        onSend(localMessage.trim());
+        localMessage = '';
+      }
     } }, 'Send'),
 
     h('div', { id: 'players' }, [

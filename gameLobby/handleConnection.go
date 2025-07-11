@@ -24,7 +24,7 @@ func (l *Lobby) handleConnection(pl *player) {
 			break
 		}
 
-		msgData := message{}
+		msgData := Message{}
 		if err := json.Unmarshal(msg, &msgData); err != nil {
 			log.Printf("Invalid message format from %s", pl.PlayerName)
 			continue
@@ -42,7 +42,7 @@ func (l *Lobby) handleConnection(pl *player) {
 	l.playerQueue <- action{"offline", pl}
 }
 
-func (l *Lobby) processMessage(msgData *message) error {
+func (l *Lobby) processMessage(msgData *Message) error {
 	if msgData.Action == "colorChange" {
 		log.Printf("Color change request from %s: %s", msgData.PlayerName, msgData.Content)
 		l.processColorChange(msgData)
@@ -70,22 +70,22 @@ func (l *Lobby) processMessage(msgData *message) error {
 	return nil
 }
 
-func (l *Lobby) processColorChange(msgData *message) error {
+func (l *Lobby) processColorChange(msgData *Message) error {
 	newColor := msgData.Content
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if taken, exists := colorSet[newColor]; !exists {
+	if taken, exists := l.colorSet[newColor]; !exists {
 		return fmt.Errorf("color %s does not exist", newColor)
 	} else if taken {
 		return fmt.Errorf("color %s is already taken", newColor)
 	}
 
-	p := l.GetPlayer(msgData.PlayerName)
+	p := l.players[msgData.PlayerName]
 	oldColor := p.Color
 	p.Color = newColor
-	colorSet[newColor], colorSet[oldColor] = true, false
+	l.colorSet[newColor], l.colorSet[oldColor] = true, false
 	log.Printf("Player %s changed color to %s", p.PlayerName, newColor)
 
 	return nil

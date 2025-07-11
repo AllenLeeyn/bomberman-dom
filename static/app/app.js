@@ -1,9 +1,7 @@
-import { createStore } from '../src/store.js';
-import { connectWebSocket, getSocket } from '../src/websocket.js';
-import { LobbyScreen } from '../app/routes/chat.js';
-import { JoinScreen } from '../app/routes/join.js';
-import { router } from '../src/router.js';
-import { update } from '../src/vdom.js';
+import { createStore, connectWebSocket, getSocket, router, update  } from '../framework/domber.js'
+import { LobbyScreen } from './routes/chat.js';
+import { JoinScreen } from './routes/join.js';
+import { startGameApp } from './routes/game.js';
 
 const colorSet = {
   red: '#e74c3c',
@@ -17,6 +15,8 @@ const colorSet = {
 };
 
 const root = document.getElementById('app');
+const gameRoot = document.getElementById('game-root');
+
 const { state, subscribe } = createStore({
   playerName: '',
   players: [],
@@ -24,6 +24,8 @@ const { state, subscribe } = createStore({
   msgInput: '',
   connected: false,
   errorMessage: '',
+  state: 'in_lobby',
+  timerDuration: 0,
 });
 
 const joinLobby = (name) => {
@@ -73,7 +75,10 @@ const handleMessage = (event) => {
   if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';
 
-  } else if (data.action === 'join') {
+  } else if (data.action === 'timer') {
+    setTimerState(data.state, data.duration);
+
+  }else if (data.action === 'join') {
     const players = [];
     const names = data.allPlayersNames || [];
     const colors = data.allPlayerColors || [];
@@ -93,6 +98,18 @@ const handleMessage = (event) => {
       state.players.splice(index, 1); // triggers reactivity
     }
     
+  } else if (data.action === "game_start"){
+    if (!gameRoot) {
+      console.error('Missing #game-root');
+      return;
+    }
+
+    state.state = 'in_game';
+    startGameApp(data, state.playerName);
+
+  } else if (data.action === "game_update"){
+    console.warn(data.content)
+
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
       state.msgInput = '';
@@ -101,12 +118,44 @@ const handleMessage = (event) => {
   }
 };
 
+let timerInterval = null;
+
+function setTimerState(newState, duration) {
+  if (state.state ===  'in_game') return;
+
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  state.state = newState;
+  state.timerDuration = duration;
+
+  timerInterval = setInterval(() => {
+    if (state.timerDuration > 0) {
+      state.timerDuration--;
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      if (state.state === 'starting') {
+        state.state = 'in_game';
+      }
+    }
+  }, 1000);
+}
+
 let oldVNode = null;
 
 function renderApp() {
   const newVNode = state.connected
     ? LobbyScreen(state, sendMessage)
     : JoinScreen(state, joinLobby);
+
+    if (state.state === "in_game") {
+      gameRoot.classList.remove('hidden');
+    } else {
+      gameRoot.classList.add('hidden');
+    }
 
   oldVNode = update(root, oldVNode, newVNode);
   // Only run when JoinScreen is shown

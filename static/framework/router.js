@@ -1,4 +1,4 @@
-import { update } from './vdom.js';
+import { update } from './domber.js';
 
 class Router {
     constructor(rootSelector = '#app') {
@@ -41,11 +41,7 @@ class Router {
         const path = this.getCurrentPath();
         console.warn(`Handling route for path: ${path}`);
         const handler = this.routes[path] || this.notFoundHandler;
-        const vnode = handler(path);
-
-        if (!vnode) return;
-
-        this.currentVNode = update(this.root, this.currentVNode, vnode);
+        handler(path);
     }
 
     start() {

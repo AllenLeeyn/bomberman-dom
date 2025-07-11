@@ -1,0 +1,105 @@
+#game-root {
+  margin-top: 30px;
+  position: relative;
+  border: 2px solid #333;
+  background-color: #1e1e1e;
+  user-select: none;
+  overflow: hidden;
+  display: inline-block;
+}
+
+#tile-layer {
+  display: grid;
+  grid-template-columns: repeat(15, 48px);
+  grid-template-rows: repeat(13, 48px);
+  width: 720px;
+  height: 624px;
+  border: 2px solid #555;
+  background-color: #1e1e1e;
+  position: relative;
+}
+
+#player-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 720px;
+  height: 624px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tile {
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #2c2c2c;
+}
+
+/* --- Tile Types --- */
+.tile.empty {
+  background-color: #1e1e1e;
+}
+
+.tile.wall {
+  background-color: #555;
+}
+
+.tile.block {
+  background-color: #888;
+}
+
+.tile.bomb {
+  background-color: #000;
+  position: relative;
+}
+.tile.bomb::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+}
+
+.tile.powerup {
+  background-color: #6a0dad;
+}
+
+.tile.flame {
+  background-color: orange;
+  animation: flicker 0.4s infinite;
+}
+
+/* --- Players --- */
+.player {
+  width: 42px;
+  height: 42px;
+  border-radius: 5px;
+  position: absolute;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+/* Assign colors via class or inline style */
+.player.red    { background-color: #e74c3c; } /* red */
+.player.blue   { background-color: #3498db; } /* blue */
+.player.green  { background-color: #2ecc71; } /* green */
+.player.yellow { background-color: #f1c40f; } /* yellow */
+.player.purple { background-color: #9b59b6; } /* purple */
+.player.orange { background-color: #e67e22; } /* orange */
+.player.cyan   { background-color: #1abc9c; } /* cyan */
+.player.pink   { background-color: #ff69b4; } /* pink */
+
+/* --- Flame flicker animation --- */
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Hide when not in use */
+.hidden {
+  display: none !important;
+}

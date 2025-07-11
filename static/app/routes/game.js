@@ -1,0 +1,167 @@
+const gameRoot = document.getElementById('game-root');
+const tileLayer = document.getElementById('tile-layer');
+const playerLayer = document.getElementById('player-layer');
+let currentPlayer = "";
+let gameData = {};
+let animationFrameId = null;
+
+export function startGameApp(data, playerName) {
+  if (!gameRoot || !tileLayer || !playerLayer) {
+    console.error('[Game] Missing root element');
+    return;
+  }
+  if (!data || !data.content) {
+    console.error('[Game] Invalid game data');
+    return;
+  }
+  gameData = JSON.parse(data.content);
+  currentPlayer = playerName
+
+  gameRoot.setAttribute('tabindex', '0');
+  gameRoot.focus();
+
+  gameRoot.addEventListener('keydown', handleKeyDown, { passive: false });
+  gameRoot.addEventListener('keyup', handleKeyUp);
+
+  drawTiles(gameData)
+  drawPlayers(gameData.players)
+
+  // TODO: Implement real game rendering logic here using gameData state
+  console.log('[Game] Initialized game container with dimensions:');
+
+  // Start render loop
+  animationFrameId = requestAnimationFrame(renderLoop);
+}
+
+function drawTiles(gameData) {
+  tileLayer.innerHTML = '';
+  const gridWidth = gameData.gridWidth || 15;
+  const gridHeight = gameData.gridHeight || 13;
+
+  for (let y = 0; y < gridHeight; y++) {
+    for (let x = 0; x < gridWidth; x++) {
+      const tile = document.createElement('div');
+
+      // Get the type from game map
+      const tileType = gameData.game_map.grid[y][x]?.type || 'empty';
+
+      // Assign tile class (fallback to 'empty')
+      tile.className = `tile ${tileType}`;
+
+      tileLayer.appendChild(tile);
+    }
+  }
+}
+
+function drawPlayers(players) {
+  playerLayer.innerHTML = '';
+  
+  const playerIds = Object.keys(players);
+  for (const id of playerIds) {
+    const player = players[id];
+    const el = document.createElement('div');
+    el.className = `player ${player.color}`;
+
+    // Pixel-based position
+    el.style.transform = `translate(${player.position.x}px, ${player.position.y}px)`;
+
+    playerLayer.appendChild(el);
+  }
+}
+
+export function updateGameState(data) {
+  // handle game rendering from WS messages
+  console.log('Render game frame:', data);
+  gameState = newData;
+}
+
+// Rendering function
+function renderLoop() {
+  if (!gameData || !gameRoot) return;
+
+  updateCurrentPlayer(gameData.players, currentPlayer);
+  drawPlayers(gameData.players);
+  
+  // Schedule next frame
+  animationFrameId = requestAnimationFrame(renderLoop);
+}
+
+const validKeys = [
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'w','a', 's', 'd',
+  'W', 'A', 'S', 'D'
+];
+const  keysPressed = [];
+
+function handleKeyDown(e) {
+  const key = e.key;
+  if (!validKeys.includes(key)) {
+    return;
+  }
+
+  e.preventDefault();
+  if (!keysPressed.includes(key)) {
+    keysPressed.push(key);
+  }
+}
+
+function handleKeyUp(e) {
+  const key = e.key;
+  if (!validKeys.includes(key)) return;
+
+  const index = keysPressed.indexOf(key);
+  if (index > -1) {
+    keysPressed.splice(index, 1);  // Remove the key
+  }
+}
+
+function updateCurrentPlayer(players) {
+  const player = players[currentPlayer];
+  if (!player || keysPressed.length === 0) return;
+
+  const speed = player.movementSpeed || 3;
+
+  const lastKey = keysPressed[keysPressed.length - 1]
+  switch (lastKey) {
+    case 'ArrowUp':
+    case 'w':
+    case 'W':
+      player.position.y -= speed;
+      break;
+    case 'ArrowDown':
+    case 's':
+    case 'S':
+      player.position.y += speed;
+      break;
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      player.position.x -= speed;
+      break;
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      player.position.x += speed;
+      break;
+  }
+
+  // Optional: clamp position within game bounds
+}
+
+// Stop the render loop if needed (e.g. game ends)
+export function stopGameApp() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+}
+
+export function destroyGameApp() {
+  if (gameContainer) {
+    gameContainer.innerHTML = '';
+  }
+}
+

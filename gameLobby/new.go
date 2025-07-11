@@ -17,12 +17,26 @@ var upgrader = websocket.Upgrader{
 
 func New() *Lobby {
 	l := &Lobby{
+		colorSet: map[string]bool{
+			"red":    false,
+			"blue":   false,
+			"green":  false,
+			"yellow": false,
+			"purple": false,
+			"orange": false,
+			"cyan":   false,
+			"pink":   false,
+		},
 		players:     make(map[string]*player),
-		msgQueue:    make(chan message, 100),
+		msgQueue:    make(chan Message, 100),
 		playerQueue: make(chan action, 10),
+		timerCh:     make(chan timerAction, 10),
+		endQueue:    make(chan struct{}, 1),
+		state:       StateInLobby,
 	}
 	go l.listener()
 	go l.broadcaster()
+	go l.timer()
 	return l
 }
 
@@ -30,6 +44,12 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error upgrading connection: ", err)
+		return
+	}
+
+	if state := l.GetState(); state != StateInLobby && state != StateWaiting {
+		sendError(conn, "Lobby is not accepting new players")
+		conn.Close()
 		return
 	}
 
@@ -44,12 +64,12 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 		return
 	}
-	if playerCount := len(l.players); playerCount >= 4 {
+	if playerCount := len(l.GetAllPlayerInfos()); playerCount >= 4 {
 		sendError(conn, "Lobby is full")
 		conn.Close()
 		return
 	}
-	color, ok := getNextAvailableColor()
+	color, ok := l.getNextAvailableColor()
 	if !ok {
 		sendError(conn, "No available colors")
 		conn.Close()
@@ -66,7 +86,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *Lobby) queuePublicMessage(content string) {
-	l.msgQueue <- message{
+	l.msgQueue <- Message{
 		Action:     "chat",
 		PlayerName: "system",
 		Content:    content,
@@ -81,4 +101,9 @@ func sendError(conn *websocket.Conn, reason string) {
 	if err := conn.WriteJSON(message); err != nil {
 		log.Println("Error sending rejection:", err)
 	}
+}
+
+func (l *Lobby) startGame() {
+	g := gameManager.NewGame(l.players, l.endQueue)
+	g.Start()
 }

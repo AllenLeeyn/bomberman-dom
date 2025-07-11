@@ -1,20 +1,12 @@
 package gameLobby
 
-var colorSet = map[string]bool{
-	"red":    false,
-	"blue":   false,
-	"green":  false,
-	"yellow": false,
-	"purple": false,
-	"orange": false,
-	"cyan":   false,
-	"pink":   false,
-}
+func (l *Lobby) getNextAvailableColor() (string, bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
-func getNextAvailableColor() (string, bool) {
-	for color, used := range colorSet {
+	for color, used := range l.colorSet {
 		if !used {
-			colorSet[color] = true // Mark it as used
+			l.colorSet[color] = true // Mark it as used
 			return color, true
 		}
 	}

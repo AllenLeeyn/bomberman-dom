@@ -20,19 +20,24 @@ type Position struct {
 	Y int `json:"y"`
 }
 
+type TilePosition struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
 type Bomb struct {
-	BombID        string   `json:"bombId"`
-	PlayerID      string   `json:"playerId"`
-	Position      Position `json:"position"`
-	Radius        int      `json:"radius"`
-	PlacedAt      int64    `json:"placedAt"`
-	ExplosionTime int64    `json:"explosionTime"`
-	Exploded      bool     `json:"exploded"`
+	BombID        string       `json:"bombId"`
+	PlayerID      string       `json:"playerId"`
+	Position      TilePosition `json:"position"`
+	Radius        int          `json:"radius"`
+	PlacedAt      time.Time    `json:"placedAt"`
+	ExplosionTime time.Time    `json:"explosionTime"`
+	Exploded      bool         `json:"exploded"`
 }
 
 type PowerUp struct {
-	Type     string   `json:"type"`
-	Position Position `json:"position"`
+	Type     string       `json:"type"`
+	Position TilePosition `json:"position"`
 }
 
 type Player struct {
@@ -41,6 +46,7 @@ type Player struct {
 	Conn          *websocket.Conn `json:"-"`
 	Color         string          `json:"color"`
 	Position      Position        `json:"position"`
+	Direction     string          `json:"direction"`
 	MovementSpeed int             `json:"movementSpeed"`
 	KeyPresses    map[string]bool `json:"-"`
 	Lives         int             `json:"lives"`
@@ -51,9 +57,8 @@ type Player struct {
 }
 
 type Tile struct {
-	Type      string   `json:"type"`
-	Position  Position `json:"position"`
-	Destroyed bool     `json:"destroyed"`
+	Type     string       `json:"type"`
+	Position TilePosition `json:"position"`
 }
 
 type GMap struct {
@@ -61,47 +66,59 @@ type GMap struct {
 	Height   int        `json:"height"`
 	Grid     [][]*Tile  `json:"grid"`
 	Blocks   []*Tile    `json:"blocks"`
-	Walls    []*Tile    `json:"walls"`
+	Walls    []*Tile    `json:"-"`
 	Bombs    []*Bomb    `json:"bombs"`
 	PowerUps []*PowerUp `json:"powerUps"`
 }
 
 type Game struct {
-	Players   map[string]*Player
-	State     GameState
-	GMap      *GMap
-	CreatedAt time.Time
-	TickCount int64
-	Winner    string
+	Action    string             `json:"action"`
+	Players   map[string]*Player `json:"players"`
+	State     GameState          `json:"game_state"`
+	GMap      *GMap              `json:"game_map"`
+	CreatedAt time.Time          `json:"created_at"`
+	TickCount int64              `json:"tick_count"`
+	Winner    string             `json:"winner"`
 
-	stateQueue chan message //broadcast to clients
-	eventQueue chan message //events for game logic
-	mu         sync.RWMutex
+	stateQueue chan message  `json:"-"` //broadcast to clients
+	eventQueue chan message  `json:"-"` //events for game logic
+	endQueue   chan struct{} `json:"-"`
+	mu         sync.RWMutex  `json:"-"`
 }
 
 const (
-	GridWidth                   = 13
-	GridHeight                  = 11
-	TileSize                    = 48
-	PlayerSize                  = 42
-	MapPixelWidth               = GridWidth * TileSize
-	MapPixelHeight              = GridHeight * TileSize
-	TileEmpty                   = "empty"
-	TileWall                    = "wall"
-	TileBlock                   = "block"
-	TileFlame                   = "flame"
-	DefaultSpeed                = 3
-	DefaultLives                = 3
-	DefaultBombRadius           = 2
-	BombFuseDuration            = 3 * time.Second
-	Waiting           GameState = "waiting"
-	Playing           GameState = "playing"
-	Ended             GameState = "ended"
+	GridWidth      = 15
+	GridHeight     = 13
+	TileSize       = 48
+	PlayerSize     = 42
+	MapPixelWidth  = GridWidth * TileSize
+	MapPixelHeight = GridHeight * TileSize
+
+	TileEmpty   = "empty"
+	TileWall    = "wall"
+	TileBlock   = "block"
+	TileBomb    = "bomb"
+	TilePowerUp = "powerup"
+	TileFlame   = "flame"
+
+	DefaultSpeed          = 3
+	DefaultLives          = 3
+	DefaultBombRadius     = 2
+	BombFuseDuration      = 3 * time.Second
+	BombExplosionDuration = 1 * time.Second
+
+	Waiting GameState = "waiting"
+	Playing GameState = "playing"
+	Ended   GameState = "ended"
 )
 
 var PlayerStartTiles = []Position{
-	{X: 0, Y: 0},
-	{X: GridWidth - 1, Y: 0},
-	{X: 0, Y: GridHeight - 1},
-	{X: GridWidth - 1, Y: GridHeight - 1},
+	GridToPixel(Position{X: 1, Y: 1}),
+	GridToPixel(Position{X: GridWidth - 2, Y: 1}),
+	GridToPixel(Position{X: 1, Y: GridHeight - 2}),
+	GridToPixel(Position{X: GridWidth - 2, Y: GridHeight - 2}),
+}
+
+func GridToPixel(pos Position) Position {
+	return Position{(pos.X * TileSize) + 3, (pos.Y * TileSize) + 3}
 }
