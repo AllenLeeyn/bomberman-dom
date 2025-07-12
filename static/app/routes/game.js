@@ -82,7 +82,7 @@ export function updateGameState(data) {
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
-  updateCurrentPlayer(gameData.players, currentPlayer);
+  updatePlayerPosition(gameData.players);
   drawPlayers(gameData.players);
   
   // Schedule next frame
@@ -137,36 +137,43 @@ function handleKeyUp(e) {
   }
 }
 
-function updateCurrentPlayer(players) {
-  const player = players[currentPlayer];
-  if (!player || keysPressed.length === 0) return;
+function updatePlayerPosition(players) {
+  for (const id in players) {
+    const player = players[id];
+    const keys = player.keys_pressed;
 
-  const speed = player.spd || 3;
+    if (!Array.isArray(keys) || keys.length === 0) continue;
 
-  const lastKey = keysPressed[keysPressed.length - 1]
-  switch (lastKey) {
-    case 'ArrowUp':
-    case 'w':
-    case 'W':
-      player.y -= speed;
-      break;
-    case 'ArrowDown':
-    case 's':
-    case 'S':
-      player.y += speed;
-      break;
-    case 'ArrowLeft':
-    case 'a':
-    case 'A':
-      player.x -= speed;
-      break;
-    case 'ArrowRight':
-    case 'd':
-    case 'D':
-      player.x += speed;
-      break;
+    const speed = player.spd || 3;
+    const lastKey = keys[keys.length - 1];
+
+    switch (lastKey) {
+      case "ArrowUp":
+      case "w":
+      case "W":
+        player.y -= speed;
+        player.dir = "up";
+        break;
+      case "ArrowDown":
+      case "s":
+      case "S":
+        player.y += speed;
+        player.dir = "down";
+        break;
+      case "ArrowLeft":
+      case "a":
+      case "A":
+        player.x -= speed;
+        player.dir = "left";
+        break;
+      case "ArrowRight":
+      case "d":
+      case "D":
+        player.x += speed;
+        player.dir = "right";
+        break;
+    }
   }
-
   // Optional: clamp position within game bounds
 }
 

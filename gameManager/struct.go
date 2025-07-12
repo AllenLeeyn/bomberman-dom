@@ -8,9 +8,23 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type message = shared.Message
+
 type GameState string
 
-type message = shared.Message
+const (
+	Waiting GameState = "waiting"
+	Playing GameState = "playing"
+	Ended   GameState = "ended"
+)
+
+type gameAction string
+
+const (
+	gameStart  gameAction = "game_start"
+	gameUpdate gameAction = "game_update"
+	gameMini   gameAction = "game_mini"
+)
 
 type PlayerState string
 
@@ -85,14 +99,6 @@ type GMap struct {
 	PowerUps []*PowerUp `json:"p_ups"`
 }
 
-type gameAction string
-
-const (
-	gameStart  gameAction = "game_start"
-	gameUpdate gameAction = "game_update"
-	gameMini   gameAction = "game_mini"
-)
-
 type Game struct {
 	Action    gameAction         `json:"action"`
 	Players   map[string]*Player `json:"players"`
@@ -139,10 +145,6 @@ const (
 	DefaultBombRadius     = 2
 	BombFuseDuration      = 3 * time.Second
 	BombExplosionDuration = 1 * time.Second
-
-	Waiting GameState = "waiting"
-	Playing GameState = "playing"
-	Ended   GameState = "ended"
 )
 
 var PlayerStartTiles = [][]int{
