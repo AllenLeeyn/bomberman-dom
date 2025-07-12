@@ -39,15 +39,15 @@ export function startGameApp(data, playerName) {
 
 function drawTiles(gameData) {
   tileLayer.innerHTML = '';
-  const gridWidth = gameData.g_map.w || 15;
-  const gridHeight = gameData.g_map.h || 13;
+  const gridWidth = gameData.map.w || 15;
+  const gridHeight = gameData.map.h || 13;
 
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
       const tile = document.createElement('div');
 
       // Get the type from game map
-      const tileType = gameData.g_map.grid[y][x]?.typ || 'empty';
+      const tileType = gameData.map.grid[y][x]?.typ || 'empty';
 
       // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
@@ -67,7 +67,7 @@ function drawPlayers(players) {
     el.className = `player ${player.col}`;
 
     // Pixel-based position
-    el.style.transform = `translate(${player.pos.x}px, ${player.pos.y}px)`;
+    el.style.transform = `translate(${player.x}px, ${player.y}px)`;
 
     playerLayer.appendChild(el);
   }
@@ -141,29 +141,29 @@ function updateCurrentPlayer(players) {
   const player = players[currentPlayer];
   if (!player || keysPressed.length === 0) return;
 
-  const speed = player.movementSpeed || 3;
+  const speed = player.spd || 3;
 
   const lastKey = keysPressed[keysPressed.length - 1]
   switch (lastKey) {
     case 'ArrowUp':
     case 'w':
     case 'W':
-      player.pos.y -= speed;
+      player.y -= speed;
       break;
     case 'ArrowDown':
     case 's':
     case 'S':
-      player.pos.y += speed;
+      player.y += speed;
       break;
     case 'ArrowLeft':
     case 'a':
     case 'A':
-      player.pos.x -= speed;
+      player.x -= speed;
       break;
     case 'ArrowRight':
     case 'd':
     case 'D':
-      player.pos.x += speed;
+      player.x += speed;
       break;
   }
 
@@ -184,3 +184,15 @@ export function destroyGameApp() {
   }
 }
 
+export function updateGameMini(data) {
+  gameData.ticks = data.ticks
+
+  for (const [id, miniPlayer] of Object.entries(data.players)) {
+    gameData.players[id].x = miniPlayer.x;
+    gameData.players[id].y = miniPlayer.y;
+    gameData.players[id].dir = miniPlayer.dir;
+    gameData.players[id].keys_pressed = miniPlayer.keys_pressed;
+    gameData.players[id].lives = miniPlayer.lives;
+    gameData.players[id].state = miniPlayer.state;
+  }
+}

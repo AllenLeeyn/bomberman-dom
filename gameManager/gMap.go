@@ -13,9 +13,8 @@ func NewGMap(width, height int) *GMap {
 			// Perimeter walls and inner fixed walls
 			if x == 0 || y == 0 || x == width-1 || y == height-1 || (x%2 == 0 && y%2 == 0) {
 				tileType = TileWall
-			} else {
-				tileType = TileEmpty
 			}
+
 			tile := &Tile{Type: tileType}
 			grid[y][x] = tile
 			walls = append(walls, tile)

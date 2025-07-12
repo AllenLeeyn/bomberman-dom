@@ -14,23 +14,39 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		PlayerID:      id,
 		Conn:          conn,
 		Color:         color,
-		Position:      Position{X: 0, Y: 0},
+		X:             0,
+		Y:             0,
 		Direction:     "down",
 		MovementSpeed: DefaultSpeed,
 		KeyPresses:    []string{},
 		Lives:         DefaultLives,
-		Alive:         true,
+		State:         PlayerAlive,
 		MaxBombCount:  1,
 		Bombs:         []*Bomb{},
 		PowerUps:      []*PowerUp{},
 	}
 }
 
+func NewPlayerMini(players map[string]*Player) map[string]*PlayerMini {
+	minis := make(map[string]*PlayerMini, len(players))
+	for id, p := range players {
+		minis[id] = &PlayerMini{
+			PlayerName: &p.PlayerName,
+			X:          &p.X,
+			Y:          &p.Y,
+			Direction:  &p.Direction,
+			KeyPresses: p.KeyPresses,
+			Lives:      &p.Lives,
+			State:      &p.State,
+		}
+	}
+	return minis
+}
+
 func NewGame(players map[string]*Player,
 	stateQueue chan message,
 	endQueue chan struct{}) *Game {
 	g := &Game{
-		Action:     "game",
 		Players:    players,
 		GMap:       NewGMap(GridWidth, GridHeight),
 		CreatedAt:  time.Now(),
@@ -42,16 +58,25 @@ func NewGame(players map[string]*Player,
 		endQueue:   endQueue,
 	}
 
+	g.Mini = &MiniState{
+		Action:    gameMini,
+		Players:   NewPlayerMini(players),
+		Bombs:     []*BombMini{},
+		State:     &g.State,
+		TickCount: &g.TickCount,
+	}
+
 	i := 0
 	for _, player := range players {
 		if i >= len(PlayerStartTiles) {
+			log.Println("Max for for players allowed")
 			break // Support max 4 players for now
 		}
-		player.Position = PlayerStartTiles[i]
+		player.X, player.Y = PlayerStartTiles[i][0], PlayerStartTiles[i][1]
 		player.Direction = "down"
 		player.MovementSpeed = DefaultSpeed
 		player.Lives = DefaultLives
-		player.Alive = true
+		player.State = PlayerAlive
 		player.MaxBombCount = 1
 		player.Bombs = []*Bomb{}
 		player.PowerUps = []*PowerUp{}
@@ -72,7 +97,7 @@ func (g *Game) Start() {
 		return
 	}
 
-	g.Action = "game_start"
+	g.Action = gameStart
 	g.State = Playing
 	g.CreatedAt = time.Now()
 	g.TickCount = 0
@@ -83,10 +108,7 @@ func (g *Game) Start() {
 		log.Println("[error:abort] Error starting game:", err)
 		return
 	}
-	msg := message{
-		Action:     "game_start",
-		PlayerName: "system",
-		Content:    string(content),
+	g.stateQueue <- message{
+		Content: string(content),
 	}
-	g.stateQueue <- msg
 }

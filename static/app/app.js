@@ -1,7 +1,7 @@
 import { createStore, connectWebSocket, getSocket, router, update  } from '../framework/domber.js'
 import { LobbyScreen } from './routes/chat.js';
 import { JoinScreen } from './routes/join.js';
-import { startGameApp, updateGameState } from './routes/game.js';
+import { startGameApp, updateGameState, updateGameMini } from './routes/game.js';
 
 const colorSet = {
   // pink: '#FF1493',
@@ -119,6 +119,9 @@ const handleMessage = (event) => {
 
   } else if (data.action === "game_update"){
     updateGameState(data)
+
+  }  else if (data.action === "game_mini"){
+    updateGameMini(data)
 
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
