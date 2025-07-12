@@ -4,6 +4,7 @@ import (
 	"bomberman-dom/gameManager"
 	"bomberman-dom/shared"
 	"sync"
+	"time"
 )
 
 type player = gameManager.Player
@@ -19,6 +20,7 @@ type Lobby struct {
 	colorSet map[string]bool
 	players  map[string]*player
 	game     *gameManager.Game
+	timer    *time.Timer
 
 	msgQueue    chan Message
 	playerQueue chan action
@@ -31,6 +33,9 @@ type Lobby struct {
 type timerAction string
 
 const (
+	waitDuration  int = 3
+	startDuration int = 2
+
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"
 	gameStartTimer timerAction = "game_start"
@@ -40,9 +45,10 @@ type LobbyState string
 
 const (
 	StateInLobby  LobbyState = "in_lobby"
-	StateWaiting  LobbyState = "waiting"  // waiting for players to join. 20sec timer
-	StateStarting LobbyState = "starting" // starting the game. 10sec timer
+	StateWaiting  LobbyState = "waiting"
+	StateStarting LobbyState = "starting"
 	StateInGame   LobbyState = "in_game"
+	StateEndGame  LobbyState = "end_game"
 )
 
 func (l *Lobby) AddPlayer(p *player) {
@@ -87,4 +93,10 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	defer l.mu.RUnlock()
 	_, exists := l.players[playerName]
 	return exists
+}
+
+func (l *Lobby) setState(state LobbyState) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.state = state
 }

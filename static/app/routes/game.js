@@ -11,7 +11,7 @@ let animationFrameId = null;
 export function startGameApp(data, playerName) {
   socket = getSocket('lobby')
   if (!gameRoot || !tileLayer || !playerLayer || !socket) {
-    console.error('[Game] Missing root element');
+    console.error('[Game] Missing elements');
     return;
   }
   if (!data) {
@@ -39,15 +39,15 @@ export function startGameApp(data, playerName) {
 
 function drawTiles(gameData) {
   tileLayer.innerHTML = '';
-  const gridWidth = gameData.gridWidth || 15;
-  const gridHeight = gameData.gridHeight || 13;
+  const gridWidth = gameData.g_map.w || 15;
+  const gridHeight = gameData.g_map.h || 13;
 
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
       const tile = document.createElement('div');
 
       // Get the type from game map
-      const tileType = gameData.game_map.grid[y][x]?.type || 'empty';
+      const tileType = gameData.g_map.grid[y][x]?.typ || 'empty';
 
       // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
@@ -64,16 +64,17 @@ function drawPlayers(players) {
   for (const id of playerIds) {
     const player = players[id];
     const el = document.createElement('div');
-    el.className = `player ${player.color}`;
+    el.className = `player ${player.col}`;
 
     // Pixel-based position
-    el.style.transform = `translate(${player.position.x}px, ${player.position.y}px)`;
+    el.style.transform = `translate(${player.pos.x}px, ${player.pos.y}px)`;
 
     playerLayer.appendChild(el);
   }
 }
 
 export function updateGameState(data) {
+  console.log(data)
   gameData = data;
 }
 
@@ -147,22 +148,22 @@ function updateCurrentPlayer(players) {
     case 'ArrowUp':
     case 'w':
     case 'W':
-      player.position.y -= speed;
+      player.pos.y -= speed;
       break;
     case 'ArrowDown':
     case 's':
     case 'S':
-      player.position.y += speed;
+      player.pos.y += speed;
       break;
     case 'ArrowLeft':
     case 'a':
     case 'A':
-      player.position.x -= speed;
+      player.pos.x -= speed;
       break;
     case 'ArrowRight':
     case 'd':
     case 'D':
-      player.position.x += speed;
+      player.pos.x += speed;
       break;
   }
 

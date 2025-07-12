@@ -23,28 +23,28 @@ type TilePosition struct {
 }
 
 type Bomb struct {
-	BombID        string       `json:"bombId"`
-	PlayerID      string       `json:"playerId"`
-	Position      TilePosition `json:"position"`
-	Radius        int          `json:"radius"`
+	BombID        string       `json:"id"`
+	PlayerName    string       `json:"by"`
+	Position      TilePosition `json:"pos"`
+	Radius        int          `json:"r"`
 	PlacedAt      time.Time    `json:"placedAt"`
 	ExplosionTime time.Time    `json:"explosionTime"`
 	Exploded      bool         `json:"exploded"`
 }
 
 type PowerUp struct {
-	Type     string       `json:"type"`
-	Position TilePosition `json:"position"`
+	Type     string       `json:"typ"`
+	Position TilePosition `json:"pos"`
 }
 
 type Player struct {
 	PlayerName    string          `json:"name"`
 	PlayerID      string          `json:"-"`
 	Conn          *websocket.Conn `json:"-"`
-	Color         string          `json:"color"`
-	Position      Position        `json:"position"`
-	Direction     string          `json:"direction"`
-	MovementSpeed int             `json:"movementSpeed"`
+	Color         string          `json:"col"`
+	Position      Position        `json:"pos"`
+	Direction     string          `json:"dir"`
+	MovementSpeed int             `json:"spd"`
 	KeyPresses    []string        `json:"-"`
 	Lives         int             `json:"lives"`
 	Alive         bool            `json:"alive"`
@@ -54,27 +54,26 @@ type Player struct {
 }
 
 type Tile struct {
-	Type     string       `json:"type"`
-	Position TilePosition `json:"position"`
+	Type string `json:"typ"`
 }
 
 type GMap struct {
-	Width    int        `json:"width"`
-	Height   int        `json:"height"`
+	Width    int        `json:"w"`
+	Height   int        `json:"h"`
 	Grid     [][]*Tile  `json:"grid"`
-	Blocks   []*Tile    `json:"blocks"`
+	Blocks   []*Tile    `json:"-"`
 	Walls    []*Tile    `json:"-"`
 	Bombs    []*Bomb    `json:"bombs"`
-	PowerUps []*PowerUp `json:"powerUps"`
+	PowerUps []*PowerUp `json:"p_ups"`
 }
 
 type Game struct {
 	Action    string             `json:"action"`
 	Players   map[string]*Player `json:"players"`
-	State     GameState          `json:"game_state"`
-	GMap      *GMap              `json:"game_map"`
+	State     GameState          `json:"g_state"`
+	GMap      *GMap              `json:"g_map"`
 	CreatedAt time.Time          `json:"created_at"`
-	TickCount int64              `json:"tick_count"`
+	TickCount int64              `json:"ticks"`
 	Winner    string             `json:"winner"`
 
 	stateQueue chan message  `json:"-"` //broadcast to clients
@@ -110,12 +109,12 @@ const (
 )
 
 var PlayerStartTiles = []Position{
-	GridToPixel(Position{X: 1, Y: 1}),
-	GridToPixel(Position{X: GridWidth - 2, Y: 1}),
-	GridToPixel(Position{X: 1, Y: GridHeight - 2}),
-	GridToPixel(Position{X: GridWidth - 2, Y: GridHeight - 2}),
+	GridToPixel(TilePosition{X: 1, Y: 1}),
+	GridToPixel(TilePosition{X: GridWidth - 2, Y: 1}),
+	GridToPixel(TilePosition{X: 1, Y: GridHeight - 2}),
+	GridToPixel(TilePosition{X: GridWidth - 2, Y: GridHeight - 2}),
 }
 
-func GridToPixel(pos Position) Position {
+func GridToPixel(pos TilePosition) Position {
 	return Position{(pos.X * TileSize) + 3, (pos.Y * TileSize) + 3}
 }

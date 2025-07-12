@@ -77,6 +77,9 @@ const safeParse = (data) => {
 };
 
 const handleMessage = (event) => {
+  const dataSizeBytes = new TextEncoder().encode(event.data).length;
+  console.log(`event.data size: ${dataSizeBytes} bytes`);
+
   const data = safeParse(event.data);
 
   if (data.action === 'reject') {
@@ -95,12 +98,12 @@ const handleMessage = (event) => {
     }
     state.players = players;
 
-    state.messages.push({ text: 'Player joined', system: true });
+    state.messages.push({ text: 'New player joined', system: true });
 
   } else if (data.action === 'offline') {
-    state.messages.push({ text: `Player left: ${data.id}`, system: true });
+    state.messages.push({ text: `Player left: ${data.player_name}`, system: true });
 
-    const index = state.players.findIndex(p => p.name === data.id);
+    const index = state.players.findIndex(p => p.name === data.player_name);
     if (index !== -1) {
       state.players.splice(index, 1); // triggers reactivity
     }
