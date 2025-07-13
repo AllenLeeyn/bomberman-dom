@@ -192,7 +192,7 @@ export function patch(parent, domNode, patchObj, index = 0) {
     }
 
     try {
-        console.log(`[patch] Applying patch of type "${patchObj.type}" at index ${index} on DOM node:`, domNode);
+        // console.log(`[patch] Applying patch of type "${patchObj.type}" at index ${index} on DOM node:`, domNode);
 
         switch (patchObj.type) {
             case "CREATE":
