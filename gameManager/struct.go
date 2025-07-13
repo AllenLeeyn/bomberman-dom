@@ -125,17 +125,20 @@ type MiniState struct {
 }
 
 const (
-	GridWidth      = 15
-	GridHeight     = 13
-	TileSize       = 48
-	TileSizeHalf   = TileSize / 2
-	PlayerSize     = 36
-	MapPixelWidth  = GridWidth * TileSize
-	MapPixelHeight = GridHeight * TileSize
-	TopBound       = TileSize
-	BottomBound    = MapPixelHeight - TileSize
-	LeftBound      = TileSize
-	RightBound     = MapPixelWidth - TileSize
+	GridWidth           = 15
+	GridHeight          = 13
+	TileSize            = 48
+	TileSizeHalf        = TileSize / 2
+	PlayerSize          = 36
+	MapPixelWidth       = GridWidth * TileSize
+	MapPixelHeight      = GridHeight * TileSize
+	TopBound            = TileSize
+	BottomBound         = MapPixelHeight - TileSize
+	LeftBound           = TileSize
+	RightBound          = MapPixelWidth - TileSize
+	SlideThreshold      = 12
+	SlideShift          = 2
+	SlideDiffCorrection = TileSize - PlayerSize
 
 	TileEmpty   = "empty"
 	TileWall    = "wall"
