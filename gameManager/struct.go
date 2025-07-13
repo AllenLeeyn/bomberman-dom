@@ -162,6 +162,13 @@ var PlayerStartTiles = [][]int{
 	GridToPixel(GridWidth-2, GridHeight-2),
 }
 
+var safeSpots = map[[2]int]bool{
+	{1, 1}: true, {1, 2}: true, {2, 1}: true,
+	{1, 12}: true, {1, 13}: true, {2, 13}: true,
+	{10, 1}: true, {11, 1}: true, {11, 2}: true,
+	{10, 13}: true, {11, 12}: true, {11, 13}: true,
+}
+
 func GridToPixel(gridX, gridY int) []int {
 	return []int{(gridX * TileSize) + 6, (gridY * TileSize) + 6}
 }
