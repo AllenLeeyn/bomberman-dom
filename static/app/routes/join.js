@@ -81,5 +81,5 @@ export const JoinScreen = (state, onJoin) =>
       }
     }),
     h('button', { onclick: () => onJoin(localName) }, 'Join Lobby'),
-    h('p', { id: 'join-error', style: 'color:red;' }, state.errorMessage || '')
+    h('p', { id: 'join-error' }, state.errorMessage || null)
   ]);

@@ -18,9 +18,14 @@ body {
   min-height: 100vh;
   width: 100vw;
   transition: flex-direction 0.3s;
+  background-image: url('DOMBersCity4.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-.in-game #app {
+body.in-game #app{
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
@@ -38,15 +43,32 @@ body {
 }
 
 #lobby-screen {
-  max-width: 400px;
+  max-width: 350px;
   width: 100%;
-  margin-top: 60px; 
+  height: 630px;
+  margin-top: 80px; 
   box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #join-screen.active,
 #lobby-screen.active {
   display: flex;
+}
+
+#join-error {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: red;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  padding: 10px;
+}
+
+#join-error:empty {
+  display: none;
 }
 
 input,
@@ -93,8 +115,8 @@ h2 {
   max-width: 800px;
   height: 300px;
   overflow-y: auto;
-  background: #2F343B;
-  border: 1px solid #444;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #555;
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -109,6 +131,19 @@ h2 {
 
 #players {
   margin-top: 10px;
+
+}
+
+#player-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  grid-template-rows: repeat(2, auto);   /* 2 rows */
+  gap: 20px; /* Optional: space between players */
+  width: max-content; /* Optional: shrink to fit content */
+  justify-content: center; /* Optional: center grid in parent */
 }
 
 /* SVG-animation */
@@ -170,10 +205,16 @@ h2 {
     }
 }
 
-@media (max-width: 700px) {
-  body.in-game #app {
+
+@media (max-width: 1100px) {
+  body.in-game #app{
     flex-direction: column;
     align-items: center;
     gap: 16px;
   }
+  #player-list {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
 }
+

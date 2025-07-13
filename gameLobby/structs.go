@@ -33,7 +33,7 @@ type Lobby struct {
 type timerAction string
 
 const (
-	waitDuration  int = 3
+	waitDuration  int = 10
 	startDuration int = 2
 
 	stopTimer      timerAction = "stop"
