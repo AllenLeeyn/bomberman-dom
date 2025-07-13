@@ -128,9 +128,14 @@ const (
 	GridWidth      = 15
 	GridHeight     = 13
 	TileSize       = 48
-	PlayerSize     = 42
+	TileSizeHalf   = TileSize / 2
+	PlayerSize     = 36
 	MapPixelWidth  = GridWidth * TileSize
 	MapPixelHeight = GridHeight * TileSize
+	TopBound       = TileSize
+	BottomBound    = MapPixelHeight - TileSize
+	LeftBound      = TileSize
+	RightBound     = MapPixelWidth - TileSize
 
 	TileEmpty   = "empty"
 	TileWall    = "wall"
@@ -155,5 +160,5 @@ var PlayerStartTiles = [][]int{
 }
 
 func GridToPixel(gridX, gridY int) []int {
-	return []int{(gridX * TileSize) + 3, (gridY * TileSize) + 3}
+	return []int{(gridX * TileSize) + 6, (gridY * TileSize) + 6}
 }

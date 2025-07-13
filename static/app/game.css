@@ -75,8 +75,8 @@
 
 /* --- Players --- */
 .player {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 5px;
   position: absolute;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
