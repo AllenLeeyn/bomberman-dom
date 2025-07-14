@@ -23,7 +23,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		State:         PlayerAlive,
 		MaxBombCount:  1,
 		Radius:        DefaultBombRadius,
-		Bombs:         []*Bomb{},
+		CurBombCount:  0,
 		PowerUps:      []*PowerUp{},
 	}
 }
@@ -32,7 +32,6 @@ func NewPlayerMini(players map[string]*Player) map[string]*PlayerMini {
 	minis := make(map[string]*PlayerMini, len(players))
 	for id, p := range players {
 		minis[id] = &PlayerMini{
-			PlayerName: &p.PlayerName,
 			X:          &p.X,
 			Y:          &p.Y,
 			Direction:  &p.Direction,
@@ -79,7 +78,7 @@ func NewGame(players map[string]*Player,
 		player.Lives = DefaultLives
 		player.State = PlayerAlive
 		player.MaxBombCount = 1
-		player.Bombs = []*Bomb{}
+		player.CurBombCount = 0
 		player.PowerUps = []*PowerUp{}
 		player.KeyPresses = []string{}
 		i++

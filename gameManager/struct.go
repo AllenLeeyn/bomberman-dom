@@ -48,18 +48,17 @@ type Player struct {
 	State         PlayerState     `json:"state"`
 	MaxBombCount  int             `json:"maxBombs"`
 	Radius        int             `json:"-"`
-	Bombs         []*Bomb         `json:"bombs,omitempty"`
+	CurBombCount  int             `json:"curBombs,omitempty"`
 	PowerUps      []*PowerUp      `json:"powerUps,omitempty"`
 }
 
 type PlayerMini struct {
-	PlayerName *string      `json:"name"`
 	X          *int         `json:"x"`
 	Y          *int         `json:"y"`
-	Direction  *string      `json:"dir"`
-	KeyPresses []string     `json:"keys_pressed"`
-	Lives      *int         `json:"lives"`
-	State      *PlayerState `json:"state"`
+	Direction  *string      `json:"d"`
+	KeyPresses []string     `json:"k"`
+	Lives      *int         `json:"l"`
+	State      *PlayerState `json:"s"`
 }
 
 type Bomb struct {
@@ -77,7 +76,7 @@ type BombMini struct {
 	X          *int    `json:"x"`
 	Y          *int    `json:"y"`
 	Radius     *int    `json:"r"`
-	Exploded   *bool   `json:"exploded"`
+	Exploded   *bool   `json:"e"`
 }
 
 type PowerUp struct {
@@ -119,10 +118,10 @@ type Game struct {
 
 type MiniState struct {
 	Action    gameAction             `json:"action"`
-	Players   map[string]*PlayerMini `json:"players"`
-	Bombs     []*BombMini            `json:"bombs"`
-	State     *GameState             `json:"state"`
-	TickCount *int64                 `json:"ticks"`
+	Players   map[string]*PlayerMini `json:"p"`
+	Bombs     []*BombMini            `json:"b"`
+	State     *GameState             `json:"s"`
+	TickCount *int64                 `json:"t"`
 }
 
 const (
@@ -153,7 +152,7 @@ const (
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
 	BombFuseDuration      = 3 * time.Second
-	BombExplosionDuration = 1 * time.Second
+	BombExplosionDuration = 2 * time.Second
 )
 
 var PlayerStartTiles = [][]int{

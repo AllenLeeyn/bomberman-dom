@@ -194,20 +194,22 @@ export function destroyGameApp() {
 }
 
 export function updateGameMini(data) {
-  gameData.ticks = data.ticks
+  gameData.ticks = data.t
 
-  for (const [id, miniPlayer] of Object.entries(data.players)) {
+  for (const [id, miniPlayer] of Object.entries(data.p)) {
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
-    gameData.players[id].dir = miniPlayer.dir;
-    gameData.players[id].keys_pressed = miniPlayer.keys_pressed;
-    gameData.players[id].lives = miniPlayer.lives;
-    gameData.players[id].state = miniPlayer.state;
+    gameData.players[id].dir = miniPlayer.d;
+    gameData.players[id].keys_pressed = miniPlayer.k;
+    gameData.players[id].lives = miniPlayer.l;
+    gameData.players[id].state = miniPlayer.s;
   }
   
-  for (const bomb of data.bombs) {
+  for (const bomb of data.b) {
     const x = bomb.x;
     const y = bomb.y;
     gameData.map.grid[y][x].typ = 'bomb';
+
+    if (bomb.e) gameData.map.grid[y][x].typ = 'empty'
   }
 }
