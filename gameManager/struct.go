@@ -125,17 +125,20 @@ type MiniState struct {
 }
 
 const (
-	GridWidth      = 15
-	GridHeight     = 13
-	TileSize       = 48
-	TileSizeHalf   = TileSize / 2
-	PlayerSize     = 36
-	MapPixelWidth  = GridWidth * TileSize
-	MapPixelHeight = GridHeight * TileSize
-	TopBound       = TileSize
-	BottomBound    = MapPixelHeight - TileSize
-	LeftBound      = TileSize
-	RightBound     = MapPixelWidth - TileSize
+	GridWidth           = 15
+	GridHeight          = 13
+	TileSize            = 48
+	TileSizeHalf        = TileSize / 2
+	PlayerSize          = 36
+	MapPixelWidth       = GridWidth * TileSize
+	MapPixelHeight      = GridHeight * TileSize
+	TopBound            = TileSize
+	BottomBound         = MapPixelHeight - TileSize
+	LeftBound           = TileSize
+	RightBound          = MapPixelWidth - TileSize
+	SlideThreshold      = 12
+	SlideShift          = 2
+	SlideDiffCorrection = TileSize - PlayerSize
 
 	TileEmpty   = "empty"
 	TileWall    = "wall"
@@ -157,6 +160,13 @@ var PlayerStartTiles = [][]int{
 	GridToPixel(GridWidth-2, 1),
 	GridToPixel(1, GridHeight-2),
 	GridToPixel(GridWidth-2, GridHeight-2),
+}
+
+var safeSpots = map[[2]int]bool{
+	{1, 1}: true, {1, 2}: true, {2, 1}: true,
+	{1, 12}: true, {1, 13}: true, {2, 13}: true,
+	{10, 1}: true, {11, 1}: true, {11, 2}: true,
+	{10, 13}: true, {11, 12}: true, {11, 13}: true,
 }
 
 func GridToPixel(gridX, gridY int) []int {

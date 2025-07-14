@@ -55,9 +55,22 @@ func (g *Game) updatePlayersPosition() {
 				newY = TopBound
 			} else {
 				newTileTop := newY / TileSize
-				if g.GMap.Grid[newTileTop][playerTileLeft].Type != TileEmpty ||
-					g.GMap.Grid[newTileTop][playerTileRight].Type != TileEmpty {
+				leftBlocked := g.GMap.Grid[newTileTop][playerTileLeft].Type != TileEmpty
+				rightBlocked := g.GMap.Grid[newTileTop][playerTileRight].Type != TileEmpty
+
+				if leftBlocked || rightBlocked {
 					newY = (newTileTop + 1) * TileSize
+					diff := player.X % TileSize
+
+					if leftBlocked && rightBlocked {
+						continue
+					} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
+						newY = player.Y - SlideShift
+						player.X += SlideShift
+					} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
+						newY = player.Y - SlideShift
+						player.X -= SlideShift
+					}
 				}
 			}
 			player.Y = newY
@@ -70,9 +83,22 @@ func (g *Game) updatePlayersPosition() {
 				newY = BottomBound - PlayerSize
 			} else {
 				newTileBottom := (newY + PlayerSize - 1) / TileSize
-				if g.GMap.Grid[newTileBottom][playerTileLeft].Type != TileEmpty ||
-					g.GMap.Grid[newTileBottom][playerTileRight].Type != TileEmpty {
+				leftBlocked := g.GMap.Grid[newTileBottom][playerTileLeft].Type != TileEmpty
+				rightBlocked := g.GMap.Grid[newTileBottom][playerTileRight].Type != TileEmpty
+
+				if leftBlocked || rightBlocked {
 					newY = newTileBottom*TileSize - PlayerSize
+					diff := player.X % TileSize
+
+					if leftBlocked && rightBlocked {
+						continue
+					} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
+						newY = player.Y + SlideShift
+						player.X += SlideShift
+					} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
+						newY = player.Y + SlideShift
+						player.X -= SlideShift
+					}
 				}
 			}
 			player.Y = newY
@@ -85,9 +111,22 @@ func (g *Game) updatePlayersPosition() {
 				newX = LeftBound
 			} else {
 				newTileLeft := newX / TileSize
-				if g.GMap.Grid[playerTileTop][newTileLeft].Type != TileEmpty ||
-					g.GMap.Grid[playerTileBottom][newTileLeft].Type != TileEmpty {
+				topBlocked := g.GMap.Grid[playerTileTop][newTileLeft].Type != TileEmpty
+				bottomBlocked := g.GMap.Grid[playerTileBottom][newTileLeft].Type != TileEmpty
+
+				if topBlocked || bottomBlocked {
 					newX = (newTileLeft + 1) * TileSize
+					diff := player.Y % TileSize
+
+					if topBlocked && bottomBlocked {
+						continue
+					} else if topBlocked && (TileSize-diff) <= SlideThreshold {
+						newX = player.X - SlideShift
+						player.Y += SlideShift
+					} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
+						newX = player.X - SlideShift
+						player.Y -= SlideShift
+					}
 				}
 			}
 			player.X = newX
@@ -100,9 +139,22 @@ func (g *Game) updatePlayersPosition() {
 				newX = RightBound - PlayerSize
 			} else {
 				newTileRight := (newX + PlayerSize - 1) / TileSize
-				if g.GMap.Grid[playerTileTop][newTileRight].Type != TileEmpty ||
-					g.GMap.Grid[playerTileBottom][newTileRight].Type != TileEmpty {
+				topBlocked := g.GMap.Grid[playerTileTop][newTileRight].Type != TileEmpty
+				bottomBlocked := g.GMap.Grid[playerTileBottom][newTileRight].Type != TileEmpty
+
+				if topBlocked || bottomBlocked {
 					newX = newTileRight*TileSize - PlayerSize
+					diff := player.Y % TileSize
+
+					if topBlocked && bottomBlocked {
+						continue
+					} else if topBlocked && (TileSize-diff) <= SlideThreshold {
+						newX = player.X + SlideShift
+						player.Y += SlideShift
+					} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
+						newX = player.X + SlideShift
+						player.Y -= SlideShift
+					}
 				}
 			}
 			player.X = newX
