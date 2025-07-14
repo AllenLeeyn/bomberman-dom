@@ -19,7 +19,7 @@ func (g *Game) gameLoop() {
 			break
 		}
 		g.Action = gameUpdate
-		g.updatePlayersPosition()
+		g.updatePlayersAction()
 		g.TickCount++
 
 		content, err := json.Marshal(g.Mini)
@@ -34,130 +34,64 @@ func (g *Game) gameLoop() {
 	}
 }
 
-func (g *Game) updatePlayersPosition() {
+func (g *Game) updatePlayersAction() {
 	for _, player := range g.Players {
 		if len(player.KeyPresses) == 0 {
 			continue
 		}
-		lastKey := player.KeyPresses[len(player.KeyPresses)-1]
+		lastIndex := len(player.KeyPresses) - 1
+		lastKey := player.KeyPresses[lastIndex]
 
-		playerTileTop := player.Y / TileSize
-		playerTileBottom := (player.Y + PlayerSize - 1) / TileSize
-		playerTileLeft := player.X / TileSize
-		playerTileRight := (player.X + PlayerSize - 1) / TileSize
+		if lastKey == " " || lastKey == "Space" {
+			g.placeBomb(player)
 
-		switch lastKey {
-		case "ArrowUp", "w", "W":
-			newY := player.Y - player.MovementSpeed
-			player.Direction = "up"
+			player.KeyPresses = player.KeyPresses[:lastIndex]
 
-			if newY < TopBound {
-				newY = TopBound
-			} else {
-				newTileTop := newY / TileSize
-				leftBlocked := g.GMap.Grid[newTileTop][playerTileLeft].Type != TileEmpty
-				rightBlocked := g.GMap.Grid[newTileTop][playerTileRight].Type != TileEmpty
-
-				if leftBlocked || rightBlocked {
-					newY = (newTileTop + 1) * TileSize
-					diff := player.X % TileSize
-
-					if leftBlocked && rightBlocked {
-						continue
-					} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
-						newY = player.Y - SlideShift
-						player.X += SlideShift
-					} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
-						newY = player.Y - SlideShift
-						player.X -= SlideShift
-					}
-				}
+			if len(player.KeyPresses) == 0 {
+				continue
 			}
-			player.Y = newY
-
-		case "ArrowDown", "s", "S":
-			newY := player.Y + player.MovementSpeed
-			player.Direction = "down"
-
-			if newY+PlayerSize > BottomBound {
-				newY = BottomBound - PlayerSize
-			} else {
-				newTileBottom := (newY + PlayerSize - 1) / TileSize
-				leftBlocked := g.GMap.Grid[newTileBottom][playerTileLeft].Type != TileEmpty
-				rightBlocked := g.GMap.Grid[newTileBottom][playerTileRight].Type != TileEmpty
-
-				if leftBlocked || rightBlocked {
-					newY = newTileBottom*TileSize - PlayerSize
-					diff := player.X % TileSize
-
-					if leftBlocked && rightBlocked {
-						continue
-					} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
-						newY = player.Y + SlideShift
-						player.X += SlideShift
-					} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
-						newY = player.Y + SlideShift
-						player.X -= SlideShift
-					}
-				}
-			}
-			player.Y = newY
-
-		case "ArrowLeft", "a", "A":
-			newX := player.X - player.MovementSpeed
-			player.Direction = "left"
-
-			if newX < LeftBound {
-				newX = LeftBound
-			} else {
-				newTileLeft := newX / TileSize
-				topBlocked := g.GMap.Grid[playerTileTop][newTileLeft].Type != TileEmpty
-				bottomBlocked := g.GMap.Grid[playerTileBottom][newTileLeft].Type != TileEmpty
-
-				if topBlocked || bottomBlocked {
-					newX = (newTileLeft + 1) * TileSize
-					diff := player.Y % TileSize
-
-					if topBlocked && bottomBlocked {
-						continue
-					} else if topBlocked && (TileSize-diff) <= SlideThreshold {
-						newX = player.X - SlideShift
-						player.Y += SlideShift
-					} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
-						newX = player.X - SlideShift
-						player.Y -= SlideShift
-					}
-				}
-			}
-			player.X = newX
-
-		case "ArrowRight", "d", "D":
-			newX := player.X + player.MovementSpeed
-			player.Direction = "right"
-
-			if newX+PlayerSize > RightBound {
-				newX = RightBound - PlayerSize
-			} else {
-				newTileRight := (newX + PlayerSize - 1) / TileSize
-				topBlocked := g.GMap.Grid[playerTileTop][newTileRight].Type != TileEmpty
-				bottomBlocked := g.GMap.Grid[playerTileBottom][newTileRight].Type != TileEmpty
-
-				if topBlocked || bottomBlocked {
-					newX = newTileRight*TileSize - PlayerSize
-					diff := player.Y % TileSize
-
-					if topBlocked && bottomBlocked {
-						continue
-					} else if topBlocked && (TileSize-diff) <= SlideThreshold {
-						newX = player.X + SlideShift
-						player.Y += SlideShift
-					} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
-						newX = player.X + SlideShift
-						player.Y -= SlideShift
-					}
-				}
-			}
-			player.X = newX
+			lastKey = player.KeyPresses[lastIndex-1]
 		}
+		g.movePlayer(player, lastKey)
 	}
+}
+
+func (g *Game) placeBomb(player *Player) {
+	tileY, tileX := g.findBombTile(player)
+
+	if len(player.Bombs) >= player.MaxBombCount {
+		return
+	}
+	if g.GMap.Grid[tileY][tileX].Type == TileBomb {
+		return
+	}
+	g.GMap.Grid[tileY][tileX].Type = TileBomb
+	log.Printf("Place bomb by: %s at tile X: %d, tile Y: %d\n", player.PlayerName, tileX, tileY)
+
+	newBomb := &Bomb{
+		PlayerName:    player.PlayerName,
+		X:             tileX,
+		Y:             tileY,
+		Radius:        player.Radius,
+		PlacedAt:      time.Now(),
+		ExplosionTime: time.Now().Add(BombExplosionDuration),
+		Exploded:      false,
+	}
+	player.Bombs = append(player.Bombs, newBomb)
+
+	g.Mini.Bombs = append(g.Mini.Bombs, &BombMini{
+		PlayerName: &newBomb.PlayerName,
+		X:          &newBomb.X,
+		Y:          &newBomb.Y,
+		Radius:     &newBomb.Radius,
+		Exploded:   &newBomb.Exploded,
+	})
+
+}
+
+func (g *Game) findBombTile(player *Player) (int, int) {
+	playerCenterY := player.Y + PlayerSize/2
+	playerCenterX := player.X + PlayerSize/2
+
+	return playerCenterY / TileSize, playerCenterX / TileSize
 }

@@ -47,6 +47,7 @@ type Player struct {
 	Lives         int             `json:"lives"`
 	State         PlayerState     `json:"state"`
 	MaxBombCount  int             `json:"maxBombs"`
+	Radius        int             `json:"-"`
 	Bombs         []*Bomb         `json:"bombs,omitempty"`
 	PowerUps      []*PowerUp      `json:"powerUps,omitempty"`
 }

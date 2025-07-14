@@ -22,6 +22,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		Lives:         DefaultLives,
 		State:         PlayerAlive,
 		MaxBombCount:  1,
+		Radius:        DefaultBombRadius,
 		Bombs:         []*Bomb{},
 		PowerUps:      []*PowerUp{},
 	}

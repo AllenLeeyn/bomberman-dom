@@ -1,7 +1,6 @@
 package gameManager
 
 import (
-	"log"
 	"math/rand/v2"
 )
 
@@ -33,7 +32,6 @@ func NewGMap(width, height int) *GMap {
 		candidates[i], candidates[j] = candidates[j], candidates[i]
 	})
 
-	log.Println(len(candidates))
 	numBlocks := 80
 	for i := 0; i < numBlocks && i < len(candidates); i++ {
 		y, x := candidates[i][0], candidates[i][1]
