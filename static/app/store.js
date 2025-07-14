@@ -12,13 +12,6 @@ export const { state, subscribe } = createStore({
 });
 
 const colorSet = {
-  // pink: '#FF1493',
-  // blue: '#3498db',
-  // yellow: '#FFD700',
-  // green: '#32CD32',
-  // red: '#FF4500',
-  // purple: '#8A2BE2',
-
   red: '#e74c3c',
   blue: '#3498db',
   green: '#27ae60',

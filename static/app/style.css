@@ -134,16 +134,30 @@ h2 {
 
 }
 
+#players h3 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
 #player-list {
-  list-style: none;
+  /* list-style: none; */
   padding: 0;
   margin: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2 columns */
   grid-template-rows: repeat(2, auto);   /* 2 rows */
-  gap: 20px; /* Optional: space between players */
+  gap: 40px; /* Optional: space between players */
   width: max-content; /* Optional: shrink to fit content */
   justify-content: center; /* Optional: center grid in parent */
+}
+
+#player-list li {
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-right: 30px;
 }
 
 /* SVG-animation */
@@ -211,10 +225,6 @@ h2 {
     flex-direction: column;
     align-items: center;
     gap: 16px;
-  }
-  #player-list {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
   }
 }
 
