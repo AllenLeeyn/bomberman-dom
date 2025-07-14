@@ -82,7 +82,8 @@ export function updateGameState(data) {
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
-  updatePlayerPosition(gameData.players);
+  //updatePlayerPosition(gameData.players);
+  drawTiles(gameData)
   drawPlayers(gameData.players);
   
   // Schedule next frame
@@ -95,7 +96,8 @@ const validKeys = [
   'ArrowLeft',
   'ArrowRight',
   'w','a', 's', 'd',
-  'W', 'A', 'S', 'D'
+  'W', 'A', 'S', 'D',
+  ' ', 'Space'
 ];
 const  keysPressed = [];
 
@@ -201,5 +203,11 @@ export function updateGameMini(data) {
     gameData.players[id].keys_pressed = miniPlayer.keys_pressed;
     gameData.players[id].lives = miniPlayer.lives;
     gameData.players[id].state = miniPlayer.state;
+  }
+  
+  for (const bomb of data.bombs) {
+    const x = bomb.x;
+    const y = bomb.y;
+    gameData.map.grid[y][x].typ = 'bomb';
   }
 }
