@@ -67,6 +67,10 @@ function drawTiles(gameData) {
 
       // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
+      if (tileType == TileEmpty){
+        const isDark = (x + y) % 2 === 0;
+        tile.style.opacity = isDark ? '0.6' : '0.8';
+      }
 
       tileLayer.appendChild(tile);
 
@@ -75,6 +79,8 @@ function drawTiles(gameData) {
         block.className = 'tile bl';
         block.style.gridRowStart = y + 1;
         block.style.gridColumnStart = x + 1;
+        if ((x + y) % 2 === 0) block.classList.add('bl-alt');
+
         blockLayer.appendChild(block);
       }
 
@@ -128,7 +134,7 @@ function renderLoop() {
   if (!gameData || !gameRoot) return;
 
   //updatePlayerPosition(gameData.players);
-  drawTiles(gameData)
+  //drawTiles(gameData)
   drawPlayers(gameData.players);
   
   // Schedule next frame

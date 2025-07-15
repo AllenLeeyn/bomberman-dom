@@ -4,10 +4,24 @@
   width: 720px;
   height: 624px;
   border: 2px solid #333;
-  background-color: #1e1e1e;
+  background: linear-gradient(0deg, #ff00cc, #00ffff, #39ff14);
+  background-size: 200% 200%;
+  animation: neonPulse 120s ease infinite;
+
+  box-shadow:
+  0 0 15px #fffacd,   /* pale yellow-white highlight */
+  0 0 30px #ffea00,   /* strong bright yellow */
+  0 0 50px #ffea00,   /* extended yellow glow */
+  0 0 70px #fffacd;   /* white highlight glow */
+  
   user-select: none;
   overflow: hidden;
   display: inline-block;
+  will-change: background-position, box-shadow;
+}
+
+#game-root:focus {
+  outline: none;
 }
 
 #tile-layer,
@@ -49,24 +63,52 @@
 }
 
 .tile {
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
+  margin: 5px;
   box-sizing: border-box;
-  border: 1px solid #2c2c2c;
+  background-color: #2a2a2a;
 }
 
 /* --- Tile Types --- */
 .tile.e { /* empty */
-  background-color: #1e1e1e;
+  width: 46px;
+  height: 46px;
+  margin: 1px;
+  background-color: #444;
 }
 
 .tile.w { /* wall */
-  background-color: #555;
+  width: 46px;
+  height: 46px;
+  margin: 1px;
+  background-color: #26294e; /* flat dark metal base */
+  box-shadow:
+    inset 4px 0px 0 #1b1a1a,
+    inset -4px -10px 0 #000;  /* bottom-right dark edge */
+  border-radius: 2px;
+  position: relative;
 }
 
 .tile.bl { /* block */
-  background-color: #888;
+  width: 46px;
+  height: 46px;
+  margin: 1px;
+  background-color: #eae548; /* deep pink */
+  box-shadow:
+    inset 4px 0px 0 #5c5b20,
+    inset -4px -10px 0 #54541b;
+  border-radius: 3px;
+  position: relative;
 }
+
+.tile.bl.bl-alt {
+  background-color: #f72585; /* neon pink */
+  box-shadow:
+    inset 4px 0px 0 #a01358,
+    inset -4px -10px 0 #780e3e;
+}
+
 
 .tile.b { /* bomb */
   background-color: #1e1e1e;
@@ -112,11 +154,13 @@
 .player.pink   { background-color: #ff69b4; } 
 
 /* --- Flame flicker animation --- */
-@keyframes flicker {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+@keyframes neonPulse {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
+
+
 
 /* Hide when not in use */
 .hidden {
