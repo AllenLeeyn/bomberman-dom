@@ -11,26 +11,16 @@ func (l *Lobby) listener() {
 		switch action.kind {
 		case "join":
 			l.sendClientList("join")
-
-			if players := l.GetAllPlayerInfos(); len(players) >= 4 {
-				l.timerCh <- gameStartTimer
-			} else if len(players) >= 2 {
-				l.timerCh <- resetTimer
-			}
+			l.setTimerState()
 
 		case "colorChange":
 			l.sendClientList("colorChange")
 
 		case "offline":
 			l.RemovePlayer(action.player.PlayerName)
-			content := fmt.Sprintf(`{"action": "offline", "id": "%s"}`, action.player.PlayerName)
+			content := fmt.Sprintf(`{"action": "offline", "player_name": "%s"}`, action.player.PlayerName)
 			l.queuePublicMessage(content)
-
-			if players := l.GetAllPlayerInfos(); len(players) < 2 {
-				l.timerCh <- stopTimer
-			} else if len(players) < 4 {
-				l.timerCh <- resetTimer
-			}
+			l.setTimerState()
 
 		default:
 			log.Printf("Unknown action kind received: %s", action.kind)

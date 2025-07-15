@@ -1,0 +1,124 @@
+#game-root {
+  margin-top: 80px;
+  position: relative;
+  width: 720px;
+  height: 624px;
+  border: 2px solid #333;
+  background-color: #1e1e1e;
+  user-select: none;
+  overflow: hidden;
+  display: inline-block;
+}
+
+#tile-layer,
+#bomb-layer,
+#block-layer,
+#player-layer,
+#explo-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 720px;
+  height: 624px;
+
+  display: grid;
+  grid-template-columns: repeat(15, 48px);
+  grid-template-rows: repeat(13, 48px);
+}
+
+/* Z-index for stacking order */
+#tile-layer {
+  z-index: 1;
+}
+
+#bomb-layer {
+  z-index: 2;
+}
+
+#block-layer {
+  z-index: 3;
+}
+
+#explo-layer {
+  z-index: 4;
+}
+
+#player-layer {
+  z-index: 5; /* On top of everything */
+  pointer-events: none;
+}
+
+.tile {
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #2c2c2c;
+}
+
+/* --- Tile Types --- */
+.tile.e { /* empty */
+  background-color: #1e1e1e;
+}
+
+.tile.w { /* wall */
+  background-color: #555;
+}
+
+.tile.bl { /* block */
+  background-color: #888;
+}
+
+.tile.b { /* bomb */
+  background-color: #1e1e1e;
+  position: relative;
+}
+.tile.b::after {
+  content: '';
+  width: 36px;
+  height: 36px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+}
+
+.tile.p { /* powerup */
+  background-color: #6a0dad;
+}
+
+.tile.f { /* flame */
+  background-color: orange;
+  animation: flicker 0.4s infinite;
+}
+
+/* --- Players --- */
+.player {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  position: absolute;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+/* Assign colors via class or inline style */
+.player.red    { background-color: #FF1493; } 
+.player.blue   { background-color: #00BFFF; } 
+.player.green  { background-color: #2ecc71; }
+.player.yellow { background-color: #f1c40f; } 
+.player.purple { background-color: #9b59b6; } 
+.player.orange { background-color: #e67e22; } 
+.player.cyan   { background-color: #1abc9c; } 
+.player.pink   { background-color: #ff69b4; } 
+
+/* --- Flame flicker animation --- */
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Hide when not in use */
+.hidden {
+  display: none !important;
+}

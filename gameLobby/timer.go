@@ -1,13 +1,12 @@
 package gameLobby
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
 
-func (l *Lobby) timer() {
-	var timer *time.Timer
-
+func (l *Lobby) timerController() {
 	for action := range l.timerCh {
 
 		if l.state == StateInGame {
@@ -15,54 +14,65 @@ func (l *Lobby) timer() {
 			continue
 		}
 
-		if timer != nil {
-			timer.Stop()
-			timer = nil
+		if l.timer != nil {
+			l.timer.Stop()
+			l.timer = nil
 		}
 
 		switch action {
-		case resetTimer: // waiting state, 20s
-			l.mu.Lock()
-			l.state = StateWaiting
-			l.mu.Unlock()
-
-			timer = time.AfterFunc(20*time.Second, func() {
-				l.mu.Lock()
-				defer l.mu.Unlock()
-
-				if l.state == StateWaiting {
-					l.state = StateStarting
-					l.timerCh <- gameStartTimer
-				}
-			})
-			l.queuePublicMessage(`{"action":"timer","state":"waiting","duration":20}`)
-
-			log.Println("Waiting timer started (20s)")
-
-		case gameStartTimer: // starting state, 10s
-			l.mu.Lock()
-			l.state = StateStarting
-			l.mu.Unlock()
-
-			timer = time.AfterFunc(10*time.Second, func() {
-				l.mu.Lock()
-				defer l.mu.Unlock()
-
-				if l.state == StateStarting {
-					l.state = StateInGame
-					//l.startGame()
-				}
-			})
-			l.queuePublicMessage(`{"action":"timer","state":"starting","duration":10}`)
-
-			log.Println("Starting timer started (10s)")
-
+		case resetTimer:
+			l.resetTimeHandler()
+		case gameStartTimer:
+			l.gameStartTimerHandler()
 		case stopTimer:
-			l.mu.Lock()
-			l.state = StateInLobby
-			l.mu.Unlock()
-			l.queuePublicMessage(`{"action":"timer","state":"stopped"}`)
-			log.Println("Timer stopped, back to in_lobby state")
+			l.stopTimerHandler()
 		}
+	}
+}
+
+func (l *Lobby) setTimerState() {
+	if playerCount := len(l.GetAllPlayerInfos()); playerCount == 4 {
+		l.timerCh <- gameStartTimer
+	} else if playerCount >= 2 {
+		l.timerCh <- resetTimer
+	} else if playerCount < 2 {
+		l.timerCh <- stopTimer
+	}
+}
+
+func (l *Lobby) resetTimeHandler() {
+	l.setState(StateWaiting)
+	l.timer = time.AfterFunc(time.Duration(waitDuration)*time.Second, l.timerCallback)
+	l.queuePublicMessage(fmt.Sprintf(`{"action":"timer","state":"waiting","duration":%d}`,
+		waitDuration))
+	log.Println("Waiting timer started")
+}
+
+func (l *Lobby) gameStartTimerHandler() {
+	l.setState(StateStarting)
+	l.timer = time.AfterFunc(time.Duration(startDuration)*time.Second, l.timerCallback)
+	l.queuePublicMessage(fmt.Sprintf(`{"action":"timer","state":"starting","duration":%d}`,
+		startDuration))
+	log.Println("Starting timer started")
+}
+
+func (l *Lobby) stopTimerHandler() {
+	l.setState(StateInLobby)
+	l.queuePublicMessage(`{"action":"timer","state":"stopped"}`)
+	log.Println("Timer stopped, back to in_lobby state")
+}
+
+func (l *Lobby) timerCallback() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	switch l.state {
+	case StateStarting:
+		l.state = StateInGame
+		l.startGame()
+
+	case StateWaiting:
+		l.state = StateStarting
+		l.timerCh <- gameStartTimer
 	}
 }

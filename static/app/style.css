@@ -1,13 +1,35 @@
 body {
   font-family: sans-serif;
-  background: #111;
+  /* background: #111; */
+  background: #1E1E1E;
   color: #eee;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  min-height: 100vh;
+  width: 100vw;
+  transition: flex-direction 0.3s;
+  background-image: url('DOMBersCity4.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+body.in-game #app{
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px; /* Space between game and chat */
 }
 
 #join-screen,
@@ -20,9 +42,33 @@ body {
   width: 100%;
 }
 
+#lobby-screen {
+  max-width: 350px;
+  width: 100%;
+  height: 630px;
+  margin-top: 80px; 
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 #join-screen.active,
 #lobby-screen.active {
   display: flex;
+}
+
+#join-error {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: red;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  padding: 10px;
+}
+
+#join-error:empty {
+  display: none;
 }
 
 input,
@@ -30,15 +76,47 @@ button {
   padding: 10px;
   font-size: 1rem;
   margin: 5px;
+  width: auto;
+  margin-top: 20px;
+}
+.chat-input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px; 
+  width: 100%;
+  margin-top: 0;
+}
+
+#chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.chat-input-row button {
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: whitesmoke;
+}
+
+#timer {
+  font-size: 1rem;
+  color: #f7fb11;
 }
 
 #chat-log {
-  width: 90%;
-  max-width: 600px;
+  width: 95%;
+  max-width: 800px;
   height: 300px;
   overflow-y: auto;
-  background: #222;
-  border: 1px solid #444;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #555;
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -52,5 +130,101 @@ button {
 }
 
 #players {
-  margin-top: 20px;
+  margin-top: 10px;
+
 }
+
+#players h3 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+#player-list {
+  /* list-style: none; */
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  grid-template-rows: repeat(2, auto);   /* 2 rows */
+  gap: 40px; /* Optional: space between players */
+  width: max-content; /* Optional: shrink to fit content */
+  justify-content: center; /* Optional: center grid in parent */
+}
+
+#player-list li {
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-right: 30px;
+}
+
+/* SVG-animation */
+#logo {
+    position: relative;
+    margin: 200px auto 24px auto;
+    display: block;
+    animation: fill 0.5s ease forwards 3s;
+}
+
+#logo path:nth-child(1) {
+    stroke-dasharray: 601.5969848632812;
+    stroke-dashoffset: 601.5969848632812;
+    animation: line-anim 2s ease forwards;
+}
+#logo path:nth-child(2) {
+    stroke-dasharray: 353.4831237792969;
+    stroke-dashoffset: 353.4831237792969;
+    animation: line-anim 2s ease forwards 0.3s;
+}
+#logo path:nth-child(3) {
+    stroke-dasharray: 715.0635986328125;
+    stroke-dashoffset: 715.0635986328125;
+    animation: line-anim 2s ease forwards 0.6s;
+}
+#logo path:nth-child(4) {
+    stroke-dasharray: 821.5455932617188;
+    stroke-dashoffset: 821.5455932617188;
+    animation: line-anim 2s ease forwards 0.9s;
+}
+#logo path:nth-child(5) {
+    stroke-dasharray: 1033.363525390625;
+    stroke-dashoffset: 1033.363525390625;
+    animation: line-anim 2s ease forwards 1.2s;
+}
+#logo path:nth-child(6) {
+    stroke-dasharray: 786.0420532226562;
+    stroke-dashoffset: 786.0420532226562;
+    animation: line-anim 2s ease forwards 1.5s;
+}
+#logo path:nth-child(7) {
+    stroke-dasharray: 793.8594970703125;
+    stroke-dashoffset: 793.8594970703125;
+    animation: line-anim 2s ease forwards 1.8s;
+    
+}
+
+@keyframes line-anim {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes fill {
+    from {
+        fill: transparent;
+    }
+    to {
+        fill: #f7fb11;
+    }
+}
+
+
+@media (max-width: 1100px) {
+  body.in-game #app{
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+}
+

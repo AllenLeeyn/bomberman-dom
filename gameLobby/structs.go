@@ -2,16 +2,14 @@ package gameLobby
 
 import (
 	"bomberman-dom/gameManager"
+	"bomberman-dom/shared"
 	"sync"
+	"time"
 )
 
 type player = gameManager.Player
 
-type message struct {
-	Action     string `json:"action"`
-	PlayerName string `json:"player_name"`
-	Content    string `json:"content"`
-}
+type Message = shared.Message
 
 type action struct {
 	kind   string
@@ -19,19 +17,25 @@ type action struct {
 }
 
 type Lobby struct {
-	colorSet    map[string]bool
-	players     map[string]*player
-	msgQueue    chan message
-	playerQueue chan action
+	colorSet map[string]bool
+	players  map[string]*player
+	game     *gameManager.Game
+	timer    *time.Timer
 
-	timerCh chan timerAction
-	state   LobbyState
-	mu      sync.RWMutex
+	msgQueue    chan Message
+	playerQueue chan action
+	endQueue    chan struct{}
+	timerCh     chan timerAction
+	state       LobbyState
+	mu          sync.RWMutex
 }
 
 type timerAction string
 
 const (
+	waitDuration  int = 10
+	startDuration int = 2
+
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"
 	gameStartTimer timerAction = "game_start"
@@ -41,9 +45,10 @@ type LobbyState string
 
 const (
 	StateInLobby  LobbyState = "in_lobby"
-	StateWaiting  LobbyState = "waiting"  // waiting for players to join. 20sec timer
-	StateStarting LobbyState = "starting" // starting the game. 10sec timer
+	StateWaiting  LobbyState = "waiting"
+	StateStarting LobbyState = "starting"
 	StateInGame   LobbyState = "in_game"
+	StateEndGame  LobbyState = "end_game"
 )
 
 func (l *Lobby) AddPlayer(p *player) {
@@ -88,4 +93,10 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	defer l.mu.RUnlock()
 	_, exists := l.players[playerName]
 	return exists
+}
+
+func (l *Lobby) setState(state LobbyState) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.state = state
 }
