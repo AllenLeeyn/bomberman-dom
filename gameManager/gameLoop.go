@@ -83,11 +83,10 @@ func (g *Game) placeBomb(player *Player) {
 	player.CurBombCount++
 
 	g.Mini.Bombs = append(g.Mini.Bombs, &BombMini{
-		PlayerName: &newBomb.PlayerName,
-		X:          &newBomb.X,
-		Y:          &newBomb.Y,
-		Radius:     &newBomb.Radius,
-		Exploded:   &newBomb.Exploded,
+		X:        &newBomb.X,
+		Y:        &newBomb.Y,
+		Radius:   &newBomb.Radius,
+		Exploded: &newBomb.Exploded,
 	})
 
 }

@@ -2,7 +2,19 @@ import { getSocket } from '../../framework/domber.js'
 
 const gameRoot = document.getElementById('game-root');
 const tileLayer = document.getElementById('tile-layer');
+const bombLayer = document.getElementById('bomb-layer');
+const blockLayer = document.getElementById('block-layer');
+const exploLayer = document.getElementById('explosion-layer');
 const playerLayer = document.getElementById('player-layer');
+
+const TileEmpty   = "e";
+const TileWall    = "w";
+const TileBlock   = "bl";
+const TileBomb    = "b";
+const TileDestroy = "d";
+const TilePowerUp = "p";
+const TileFlame   = "f";
+
 let socket = null;
 let currentPlayer = "";
 let gameData = {};
@@ -19,6 +31,7 @@ export function startGameApp(data, playerName) {
     return;
   }
   gameData = data;
+  console.warn(gameData)
   currentPlayer = playerName
 
   gameRoot.setAttribute('tabindex', '0');
@@ -29,6 +42,7 @@ export function startGameApp(data, playerName) {
 
   drawTiles(gameData)
   drawPlayers(gameData.players)
+  drawPowerUps(gameData.map.p_ups)
 
   // TODO: Implement real game rendering logic here using gameData state
   console.log('[Game] Initialized game container with dimensions:');
@@ -39,6 +53,8 @@ export function startGameApp(data, playerName) {
 
 function drawTiles(gameData) {
   tileLayer.innerHTML = '';
+  blockLayer.innerHTML = '';
+
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
 
@@ -47,13 +63,42 @@ function drawTiles(gameData) {
       const tile = document.createElement('div');
 
       // Get the type from game map
-      const tileType = gameData.map.grid[y][x]?.typ || 'empty';
+      const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
 
       // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
 
       tileLayer.appendChild(tile);
+
+      if (gameData.map.grid[y][x].typ === TileBlock){
+        const block = document.createElement('div');
+        block.className = 'tile bl';
+        block.style.gridRowStart = y + 1;
+        block.style.gridColumnStart = x + 1;
+        blockLayer.appendChild(block);
+      }
+
+      if (gameData.map.grid[y][x].typ === TileBomb){
+        const block = document.createElement('div');
+        block.className = 'tile b';
+        block.style.gridRowStart = y + 1;
+        block.style.gridColumnStart = x + 1;
+        blockLayer.appendChild(block);
+      }
     }
+  }
+}
+
+function drawPowerUps(powerUps) {
+  bombLayer.innerHTML = ''; // Clear previous power-ups
+
+  for (const pu of powerUps) {
+    console.warn("up up and away")
+    const powerUp = document.createElement('div');
+    powerUp.className = `tile p`; // e.g., p-bomb, p-flame
+    powerUp.style.gridRowStart = pu.y + 1;
+    powerUp.style.gridColumnStart = pu.x + 1;
+    bombLayer.appendChild(powerUp);
   }
 }
 
@@ -139,7 +184,43 @@ function handleKeyUp(e) {
   }
 }
 
-function updatePlayerPosition(players) {
+// Stop the render loop if needed (e.g. game ends)
+export function stopGameApp() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+}
+
+export function destroyGameApp() {
+  if (gameContainer) {
+    gameContainer.innerHTML = '';
+  }
+}
+
+export function updateGameMini(data) {
+  gameData.ticks = data.t
+
+  for (const [id, miniPlayer] of Object.entries(data.p)) {
+    gameData.players[id].x = miniPlayer.x;
+    gameData.players[id].y = miniPlayer.y;
+    gameData.players[id].dir = miniPlayer.d;
+    //gameData.players[id].keys_pressed = miniPlayer.k;
+    gameData.players[id].lives = miniPlayer.l;
+    gameData.players[id].state = miniPlayer.s;
+  }
+  
+  for (const bomb of data.b) {
+    const x = bomb.x;
+    const y = bomb.y;
+    gameData.map.grid[y][x].typ = TileBomb;
+
+    //bomb exploded
+    if (bomb.e) gameData.map.grid[y][x].typ = TileEmpty
+  }
+}
+
+/* function updatePlayerPosition(players) {
   for (const id in players) {
     const player = players[id];
     const keys = player.keys_pressed;
@@ -177,39 +258,4 @@ function updatePlayerPosition(players) {
     }
   }
   // Optional: clamp position within game bounds
-}
-
-// Stop the render loop if needed (e.g. game ends)
-export function stopGameApp() {
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
-  }
-}
-
-export function destroyGameApp() {
-  if (gameContainer) {
-    gameContainer.innerHTML = '';
-  }
-}
-
-export function updateGameMini(data) {
-  gameData.ticks = data.t
-
-  for (const [id, miniPlayer] of Object.entries(data.p)) {
-    gameData.players[id].x = miniPlayer.x;
-    gameData.players[id].y = miniPlayer.y;
-    gameData.players[id].dir = miniPlayer.d;
-    gameData.players[id].keys_pressed = miniPlayer.k;
-    gameData.players[id].lives = miniPlayer.l;
-    gameData.players[id].state = miniPlayer.s;
-  }
-  
-  for (const bomb of data.b) {
-    const x = bomb.x;
-    const y = bomb.y;
-    gameData.map.grid[y][x].typ = 'bomb';
-
-    if (bomb.e) gameData.map.grid[y][x].typ = 'empty'
-  }
-}
+} */

@@ -32,12 +32,12 @@ func NewPlayerMini(players map[string]*Player) map[string]*PlayerMini {
 	minis := make(map[string]*PlayerMini, len(players))
 	for id, p := range players {
 		minis[id] = &PlayerMini{
-			X:          &p.X,
-			Y:          &p.Y,
-			Direction:  &p.Direction,
-			KeyPresses: p.KeyPresses,
-			Lives:      &p.Lives,
-			State:      &p.State,
+			X:         &p.X,
+			Y:         &p.Y,
+			Direction: &p.Direction,
+			//KeyPresses: p.KeyPresses,
+			//Lives:      &p.Lives,
+			State: &p.State,
 		}
 	}
 	return minis

@@ -29,9 +29,9 @@ const (
 type PlayerState string
 
 const (
-	PlayerAlive      PlayerState = "alive"
-	PlayerRespawning PlayerState = "respawning"
-	PlayerDead       PlayerState = "dead"
+	PlayerAlive      PlayerState = "al"
+	PlayerRespawning PlayerState = "rs"
+	PlayerDead       PlayerState = "dd"
 )
 
 type Player struct {
@@ -53,12 +53,12 @@ type Player struct {
 }
 
 type PlayerMini struct {
-	X          *int         `json:"x"`
-	Y          *int         `json:"y"`
-	Direction  *string      `json:"d"`
-	KeyPresses []string     `json:"k"`
-	Lives      *int         `json:"l"`
-	State      *PlayerState `json:"s"`
+	X         *int    `json:"x"`
+	Y         *int    `json:"y"`
+	Direction *string `json:"d"`
+	//KeyPresses []string     `json:"-"`
+	//Lives      *int         `json:"l"`
+	State *PlayerState `json:"s"`
 }
 
 type Bomb struct {
@@ -72,17 +72,36 @@ type Bomb struct {
 }
 
 type BombMini struct {
-	PlayerName *string `json:"by"`
-	X          *int    `json:"x"`
-	Y          *int    `json:"y"`
-	Radius     *int    `json:"r"`
-	Exploded   *bool   `json:"e"`
+	X        *int  `json:"x"`
+	Y        *int  `json:"y"`
+	Radius   *int  `json:"r"`
+	Exploded *bool `json:"e"`
+}
+
+type PowerUpType string
+
+const (
+	PowerUpBomb      PowerUpType = "bombUp"
+	PowerUpFlame     PowerUpType = "flameUp"
+	PowerUpSpeed     PowerUpType = "speedUp"
+	PowerUpBombPass  PowerUpType = "bombPass"
+	PowerUpBlockPass PowerUpType = "blockPas"
+	PowerUpLiveUp    PowerUpType = "liveUp"
+)
+
+var PowerUpSetting = map[PowerUpType]int{
+	PowerUpBomb:      7,
+	PowerUpFlame:     5,
+	PowerUpSpeed:     3,
+	PowerUpBombPass:  3,
+	PowerUpBlockPass: 3,
+	PowerUpLiveUp:    2,
 }
 
 type PowerUp struct {
-	Type string `json:"typ"`
-	X    int    `json:"x"`
-	Y    int    `json:"y"`
+	Type PowerUpType `json:"typ"`
+	X    int         `json:"x"`
+	Y    int         `json:"y"`
 }
 
 type Tile struct {
@@ -140,13 +159,13 @@ const (
 	SlideShift          = 2
 	SlideDiffCorrection = TileSize - PlayerSize
 
-	TileEmpty   = "empty"
-	TileWall    = "wall"
-	TileBlock   = "block"
-	TileBomb    = "bomb"
-	TileDestroy = "destroy"
-	TilePowerUp = "powerup"
-	TileFlame   = "flame"
+	TileEmpty   = "e"
+	TileWall    = "w"
+	TileBlock   = "bl"
+	TileBomb    = "b"
+	TileDestroy = "d"
+	TilePowerUp = "p"
+	TileFlame   = "f"
 
 	DefaultSpeed          = 3
 	DefaultLives          = 3
@@ -171,4 +190,14 @@ var safeSpots = map[[2]int]bool{
 
 func GridToPixel(gridX, gridY int) []int {
 	return []int{(gridX * TileSize) + 6, (gridY * TileSize) + 6}
+}
+
+func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
+	var powerUps []PowerUpType
+	for puType, count := range counts {
+		for range count {
+			powerUps = append(powerUps, puType)
+		}
+	}
+	return powerUps
 }

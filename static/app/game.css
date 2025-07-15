@@ -1,6 +1,8 @@
 #game-root {
   margin-top: 30px;
   position: relative;
+  width: 720px;
+  height: 624px;
   border: 2px solid #333;
   background-color: #1e1e1e;
   user-select: none;
@@ -8,25 +10,42 @@
   display: inline-block;
 }
 
-#tile-layer {
-  display: grid;
-  grid-template-columns: repeat(15, 48px);
-  grid-template-rows: repeat(13, 48px);
-  width: 720px;
-  height: 624px;
-  border: 2px solid #555;
-  background-color: #1e1e1e;
-  position: relative;
-}
-
-#player-layer {
+#tile-layer,
+#bomb-layer,
+#block-layer,
+#player-layer,
+#explo-layer {
   position: absolute;
   top: 0;
   left: 0;
   width: 720px;
   height: 624px;
+
+  display: grid;
+  grid-template-columns: repeat(15, 48px);
+  grid-template-rows: repeat(13, 48px);
+}
+
+/* Z-index for stacking order */
+#tile-layer {
+  z-index: 1;
+}
+
+#bomb-layer {
+  z-index: 2;
+}
+
+#block-layer {
+  z-index: 3;
+}
+
+#explo-layer {
+  z-index: 4;
+}
+
+#player-layer {
+  z-index: 5; /* On top of everything */
   pointer-events: none;
-  z-index: 10;
 }
 
 .tile {
@@ -37,23 +56,23 @@
 }
 
 /* --- Tile Types --- */
-.tile.empty {
+.tile.e { /* empty */
   background-color: #1e1e1e;
 }
 
-.tile.wall {
+.tile.w { /* wall */
   background-color: #555;
 }
 
-.tile.block {
+.tile.bl { /* block */
   background-color: #888;
 }
 
-.tile.bomb {
+.tile.b { /* bomb */
   background-color: #1e1e1e;
   position: relative;
 }
-.tile.bomb::after {
+.tile.b::after {
   content: '';
   width: 36px;
   height: 36px;
@@ -64,11 +83,11 @@
   left: 6px;
 }
 
-.tile.powerup {
+.tile.p { /* powerup */
   background-color: #6a0dad;
 }
 
-.tile.flame {
+.tile.f { /* flame */
   background-color: orange;
   animation: flicker 0.4s infinite;
 }

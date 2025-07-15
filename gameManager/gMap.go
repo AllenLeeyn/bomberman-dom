@@ -38,6 +38,20 @@ func NewGMap(width, height int) *GMap {
 		grid[y][x].Type = TileBlock
 		blocks = append(blocks, grid[y][x])
 	}
+	powerUps := GetPowerUpsSlice(PowerUpSetting)
+
+	rand.Shuffle(len(powerUps), func(i, j int) {
+		powerUps[i], powerUps[j] = powerUps[j], powerUps[i]
+	})
+
+	var assignedPowerUps []*PowerUp
+	for i := 0; i < len(powerUps); i++ {
+		assignedPowerUps = append(assignedPowerUps, &PowerUp{
+			Type: powerUps[i],
+			X:    candidates[i][1],
+			Y:    candidates[i][0],
+		})
+	}
 
 	return &GMap{
 		Width:    width,
@@ -46,6 +60,6 @@ func NewGMap(width, height int) *GMap {
 		Blocks:   blocks,
 		Walls:    walls,
 		Bombs:    []*Bomb{},
-		PowerUps: []*PowerUp{},
+		PowerUps: assignedPowerUps,
 	}
 }
