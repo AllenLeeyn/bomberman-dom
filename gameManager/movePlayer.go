@@ -29,10 +29,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 				if leftBlocked && rightBlocked {
 					//do nothing
 				} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
-					newY = player.Y - SlideShift
 					player.X += SlideShift
 				} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
-					newY = player.Y - SlideShift
 					player.X -= SlideShift
 				}
 			}
@@ -61,10 +59,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 				if leftBlocked && rightBlocked {
 					//do nothing
 				} else if leftBlocked && (TileSize-diff) <= SlideThreshold {
-					newY = player.Y + SlideShift
 					player.X += SlideShift
 				} else if rightBlocked && diff-SlideDiffCorrection <= SlideThreshold {
-					newY = player.Y + SlideShift
 					player.X -= SlideShift
 				}
 			}
@@ -93,10 +89,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 				if topBlocked && bottomBlocked {
 					//do nothing
 				} else if topBlocked && (TileSize-diff) <= SlideThreshold {
-					newX = player.X - SlideShift
 					player.Y += SlideShift
 				} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
-					newX = player.X - SlideShift
 					player.Y -= SlideShift
 				}
 			}
@@ -125,10 +119,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 				if topBlocked && bottomBlocked {
 					//do nothing
 				} else if topBlocked && (TileSize-diff) <= SlideThreshold {
-					newX = player.X + SlideShift
 					player.Y += SlideShift
 				} else if bottomBlocked && (diff-SlideDiffCorrection) <= SlideThreshold {
-					newX = player.X + SlideShift
 					player.Y -= SlideShift
 				}
 			}

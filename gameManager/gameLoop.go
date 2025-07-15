@@ -19,6 +19,7 @@ func (g *Game) gameLoop() {
 			break
 		}
 		g.Action = gameUpdate
+		g.updateBombs()
 		g.updatePlayersAction()
 		g.TickCount++
 
@@ -57,9 +58,10 @@ func (g *Game) updatePlayersAction() {
 }
 
 func (g *Game) placeBomb(player *Player) {
+	now := time.Now()
 	tileY, tileX := g.findBombTile(player)
 
-	if len(player.Bombs) >= player.MaxBombCount {
+	if player.CurBombCount >= player.MaxBombCount {
 		return
 	}
 	if g.GMap.Grid[tileY][tileX].Type == TileBomb {
@@ -73,11 +75,12 @@ func (g *Game) placeBomb(player *Player) {
 		X:             tileX,
 		Y:             tileY,
 		Radius:        player.Radius,
-		PlacedAt:      time.Now(),
-		ExplosionTime: time.Now().Add(BombExplosionDuration),
+		PlacedAt:      now,
+		ExplosionTime: now.Add(BombExplosionDuration),
 		Exploded:      false,
 	}
-	player.Bombs = append(player.Bombs, newBomb)
+	g.GMap.Bombs = append(g.GMap.Bombs, newBomb)
+	player.CurBombCount++
 
 	g.Mini.Bombs = append(g.Mini.Bombs, &BombMini{
 		PlayerName: &newBomb.PlayerName,
@@ -87,6 +90,30 @@ func (g *Game) placeBomb(player *Player) {
 		Exploded:   &newBomb.Exploded,
 	})
 
+}
+
+func (g *Game) updateBombs() {
+	now := time.Now()
+
+	activeBombs := make([]*Bomb, 0)
+	activeMiniBombs := make([]*BombMini, 0)
+
+	for i, bomb := range g.GMap.Bombs {
+		if bomb.Exploded {
+			g.GMap.Grid[bomb.Y][bomb.X].Type = TileEmpty
+			g.Players[bomb.PlayerName].CurBombCount--
+			continue
+		}
+		activeBombs = append(activeBombs, bomb)
+		activeMiniBombs = append(activeMiniBombs, g.Mini.Bombs[i])
+
+		if !bomb.Exploded && (now.After(bomb.ExplosionTime)) {
+			log.Println("Doom")
+			bomb.Exploded = true
+			//g.explodeBomb(bomb)
+		}
+	}
+	g.GMap.Bombs, g.Mini.Bombs = activeBombs, activeMiniBombs
 }
 
 func (g *Game) findBombTile(player *Player) (int, int) {
