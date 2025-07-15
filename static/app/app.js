@@ -13,10 +13,12 @@ function renderApp() {
   const newVNode = state.connected
     ? LobbyScreen(state, sendMessage)
     : JoinScreen(state, joinLobby);
-
+    
     if (state.state === "in_game") {
+      document.body.classList.add('in-game');
       gameRoot.classList.remove('hidden');
     } else {
+      document.body.classList.remove('in-game');
       gameRoot.classList.add('hidden');
     }
 
@@ -26,14 +28,14 @@ function renderApp() {
   if (!state.connected) {
     setTimeout(() => {
       const logo = document.querySelectorAll("#logo path");
-      for (let i = 0; i < logo.length; i++) {
-        console.log(`Element ${i}:`, logo[i]);
-        if (typeof logo[i].getTotalLength === "function") {
-          console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
-        } else {
-          console.warn(`Element ${i} does not support getTotalLength`);
-        }
-      }
+      // for (let i = 0; i < logo.length; i++) {
+      //   console.log(`Element ${i}:`, logo[i]);
+      //   // if (typeof logo[i].getTotalLength === "function") {
+      //   //   // console.log(`Letter ${i} is ${logo[i].getTotalLength()}`);
+      //   // } else {
+      //   //   // console.warn(`Element ${i} does not support getTotalLength`);
+      //   // }
+      // }
     }, 0);
   }
 }

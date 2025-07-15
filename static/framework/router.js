@@ -39,7 +39,7 @@ class Router {
 
     handleRoute() {
         const path = this.getCurrentPath();
-        console.warn(`Handling route for path: ${path}`);
+        // console.warn(`Handling route for path: ${path}`);
         const handler = this.routes[path] || this.notFoundHandler;
         handler(path);
     }

@@ -1,5 +1,5 @@
 #game-root {
-  margin-top: 30px;
+  margin-top: 80px;
   position: relative;
   width: 720px;
   height: 624px;
@@ -102,12 +102,6 @@
 }
 
 /* Assign colors via class or inline style */
-/* .player.pink   { background-color: #FF1493; }
-.player.blue  { background-color: #00BFFF; }
-.player.yellow { background-color: #FFD700; }
-.player.green { background-color: #32CD32; }
-.player.red { background-color: #FF4500; }
-.player.purple { background-color: #8A2BE2; } */
 .player.red    { background-color: #FF1493; } 
 .player.blue   { background-color: #00BFFF; } 
 .player.green  { background-color: #2ecc71; }
