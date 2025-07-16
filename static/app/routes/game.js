@@ -31,7 +31,6 @@ export function startGameApp(data, playerName) {
     return;
   }
   gameData = data;
-  console.warn(gameData)
   currentPlayer = playerName
 
   gameRoot.setAttribute('tabindex', '0');
@@ -99,7 +98,6 @@ function drawPowerUps(powerUps) {
   bombLayer.innerHTML = ''; // Clear previous power-ups
 
   for (const pu of powerUps) {
-    console.warn("up up and away")
     const powerUp = document.createElement('div');
     powerUp.className = `tile p`; // e.g., p-bomb, p-flame
     powerUp.style.gridRowStart = pu.y + 1;
@@ -128,8 +126,10 @@ function drawPlayers(players) {
     const player = players[id];
     const el = document.getElementById(`player_${id}`);
 
-    if (el) {
-      el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+    const newTransform = `translate(${player.x}px, ${player.y}px)`;
+
+    if (el.style.transform !== newTransform) {
+      el.style.transform = newTransform;
     }
   }
 }
@@ -165,19 +165,13 @@ function drawBombs(bombs) {
 
 
 export function updateGameState(data) {
-  console.log(data)
   gameData = data;
 }
 
 // Rendering function
 function renderLoop() {
-  if (!gameData || !gameRoot) return;
-
-  //updatePlayerPosition(gameData.players);
-  //drawTiles(gameData)
   drawPlayers(gameData.players);
   drawBombs(gameData.map.bombs);
-  
   // Schedule next frame
   animationFrameId = requestAnimationFrame(renderLoop);
 }

@@ -105,7 +105,8 @@ type PowerUp struct {
 }
 
 type Tile struct {
-	Type string `json:"typ"`
+	Type       string    `json:"typ"`
+	ExpireTime time.Time `json:"-"`
 }
 
 type GMap struct {

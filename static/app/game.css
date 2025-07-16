@@ -3,7 +3,7 @@
   position: relative;
   width: 720px;
   height: 624px;
-  border: 2px solid #333;
+  border: 2px solid yellow;
   background: linear-gradient(0deg, #ff00cc, #00ffff, #39ff14);
   background-size: 200% 200%;
   animation: neonPulse 120s ease infinite;
@@ -144,8 +144,6 @@
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
-
 
 /* Hide when not in use */
 .hidden {

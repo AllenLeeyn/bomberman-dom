@@ -44,12 +44,22 @@ const safeParse = (data) => {
 };
 
 const handleMessage = (event) => {
-  const dataSizeBytes = new TextEncoder().encode(event.data).length;
-  console.log(`event.data size: ${dataSizeBytes} bytes`);
+  //const dataSizeBytes = new TextEncoder().encode(event.data).length;
+  //console.log(`event.data size: ${dataSizeBytes} bytes`);
 
   const data = safeParse(event.data);
 
-  if (data.action === 'reject') {
+  if (data.action === "game_mini"){
+    updateGameMini(data)
+
+  } else if (data.action === "game_update"){
+    updateGameState(data)
+
+  } else if (data.action === "game_start"){
+    state.state = 'in_game';
+    startGameApp(data, state.playerName);
+
+  } else if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';
 
   } else if (data.action === 'timer') {
@@ -73,16 +83,6 @@ const handleMessage = (event) => {
       state.players.splice(index, 1); // triggers reactivity
     }
     
-  } else if (data.action === "game_start"){
-    state.state = 'in_game';
-    startGameApp(data, state.playerName);
-
-  } else if (data.action === "game_update"){
-    updateGameState(data)
-
-  }  else if (data.action === "game_mini"){
-    updateGameMini(data)
-
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
       state.msgInput = '';

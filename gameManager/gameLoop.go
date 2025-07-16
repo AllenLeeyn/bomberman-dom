@@ -21,6 +21,7 @@ func (g *Game) gameLoop() {
 		g.Action = gameUpdate
 		g.updateBombs()
 		g.updatePlayersAction()
+		g.updateFlames()
 		g.TickCount++
 
 		content, err := json.Marshal(g.Mini)
@@ -109,10 +110,66 @@ func (g *Game) updateBombs() {
 		if !bomb.Exploded && (now.After(bomb.ExplosionTime)) {
 			log.Println("Doom")
 			bomb.Exploded = true
-			//g.explodeBomb(bomb)
+			g.explodeBomb(bomb)
 		}
 	}
 	g.GMap.Bombs, g.Mini.Bombs = activeBombs, activeMiniBombs
+}
+
+func (g *Game) explodeBomb(bomb *Bomb) {
+	x, y := bomb.X, bomb.Y
+	Radius := bomb.Radius
+	expire := time.Now().Add(BombExplosionDuration)
+
+	g.GMap.Grid[y][x].Type = TileFlame
+	g.GMap.Grid[y][x].ExpireTime = expire
+
+	directions := []struct{ dx, dy int }{
+		{0, -1}, // Up
+		{0, 1},  // Down
+		{-1, 0}, // Left
+		{1, 0},  // Right
+	}
+
+	for _, dir := range directions {
+		for i := 1; i <= Radius; i++ {
+			nx := x + dir.dx*i
+			ny := y + dir.dy*i
+
+			// Check bounds
+			if nx < 0 || ny < 0 || nx >= g.GMap.Width || ny >= g.GMap.Height {
+				break
+			}
+
+			tile := g.GMap.Grid[ny][nx]
+
+			if tile.Type == TileWall {
+				break
+			} else if tile.Type == TileBlock {
+				tile.Type = TileDestroy
+				tile.ExpireTime = expire
+				break
+			} else if tile.Type == TileEmpty || tile.Type == TilePowerUp {
+				tile.Type = TileFlame
+				tile.ExpireTime = expire
+			}
+		}
+	}
+}
+
+func (g *Game) updateFlames() {
+	now := time.Now()
+
+	for y := 0; y < g.GMap.Height; y++ {
+		for x := 0; x < g.GMap.Width; x++ {
+			tile := g.GMap.Grid[y][x]
+
+			if (tile.Type == TileFlame || tile.Type == TileDestroy) && now.After(tile.ExpireTime) {
+				tile.Type = TileEmpty
+				tile.ExpireTime = time.Time{} // reset
+			}
+		}
+	}
 }
 
 func (g *Game) findBombTile(player *Player) (int, int) {
