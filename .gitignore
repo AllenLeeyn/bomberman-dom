@@ -1,2 +1,4 @@
 eslint.config.js
 eslint.config.mjs
+static/app/.DS_Store
+.DS_Store

@@ -8,7 +8,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-image: url('DOMBersCity4.png');
+  background-image: url('assets/DOMBersCity4.png');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

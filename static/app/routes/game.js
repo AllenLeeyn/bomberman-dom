@@ -1,4 +1,5 @@
 import { getSocket } from '../../framework/domber.js'
+import { getAsset } from '../assetManager.js';
 
 const gameRoot = document.getElementById('game-root');
 const tileLayer = document.getElementById('tile-layer');
@@ -60,21 +61,36 @@ function drawTiles(gameData) {
 
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
-      const tile = document.createElement('div');
+      //const tile = document.createElement('div');
 
-      // Get the type from game map
-      const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
+      // // Get the type from game map
+      // const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
 
-      // Assign tile class (fallback to 'empty')
-      tile.className = `tile ${tileType}`;
-      if (tileType == TileEmpty){
-        const isDark = (x + y) % 2 === 0;
-        tile.style.opacity = isDark ? '0.6' : '0.8';
+      // // Assign tile class (fallback to 'empty')
+      // tile.className = `tile ${tileType}`;
+      // if (tileType == TileEmpty){
+      //   const isDark = (x + y) % 2 === 0;
+      //   tile.style.opacity = isDark ? '0.6' : '0.8';
+      // }
+      //  tileLayer.appendChild(tile);
+
+      const cell = gameData.map.grid[y][x];
+
+      // ✅ Only draw TileWall using an image
+      if (cell.typ === TileWall) {
+        const wallImg = document.createElement('img');
+        wallImg.src = getAsset(TileWall)?.src || '';
+        wallImg.alt = 'TileWall';
+        wallImg.className = 'tile-img'; // Style this via CSS
+        wallImg.style.gridRowStart = y + 1;
+        wallImg.style.gridColumnStart = x + 1;
+        wallImg.style.border = '1px solid red';
+        console.log(getAsset('w'));
+        tileLayer.appendChild(wallImg);
       }
 
-      tileLayer.appendChild(tile);
 
-      if (gameData.map.grid[y][x].typ === TileBlock){
+      if (cell.typ === TileBlock){
         const block = document.createElement('div');
         block.className = 'tile bl';
         block.style.gridRowStart = y + 1;
@@ -84,7 +100,7 @@ function drawTiles(gameData) {
         blockLayer.appendChild(block);
       }
 
-      if (gameData.map.grid[y][x].typ === TileBomb){
+      if (cell.typ === TileBomb){
         const block = document.createElement('div');
         block.className = 'tile b';
         block.style.gridRowStart = y + 1;
