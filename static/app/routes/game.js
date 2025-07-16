@@ -76,7 +76,6 @@ function drawTiles(gameData) {
 
       const cell = gameData.map.grid[y][x];
 
-      // ✅ Only draw TileWall using an image
       if (cell.typ === TileWall) {
         const wallImg = document.createElement('img');
         wallImg.src = getAsset(TileWall)?.src || '';
@@ -85,7 +84,7 @@ function drawTiles(gameData) {
         wallImg.style.gridRowStart = y + 1;
         wallImg.style.gridColumnStart = x + 1;
         wallImg.style.border = '1px solid red';
-        console.log(getAsset('w'));
+        // console.log(getAsset('w'));
         tileLayer.appendChild(wallImg);
       }
 
@@ -190,7 +189,7 @@ function renderLoop() {
   if (!gameData || !gameRoot) return;
 
   //updatePlayerPosition(gameData.players);
-  //drawTiles(gameData)
+  // drawTiles(gameData)
   drawPlayers(gameData.players);
   drawBombs(gameData.map.bombs);
   

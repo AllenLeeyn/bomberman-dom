@@ -11,14 +11,18 @@ const gameRoot = document.getElementById('game-root');
 let oldVNode = null;
 
 const assetList = [
-  { key: 'w', path: 'static/app/assets/pikachu-meme.gif' },
+    // { key: 'e', path: 'assets/TileEmpty.png' }, // TileEmpty
+    // { key: 'w', path: 'static/app/assets/pikachu-meme.gif' }, // TileWall
+    // { key: 'bl', path: 'assets/TileBlock.png' }, // TileBlock
+    // { key: 'b', path: 'assets/TileBomb.png' },  // TileBomb
+    // { key: 'd', path: 'assets/destroy.png' }, // TileDestroy
+    // { key: 'p', path: 'assets/powerUp.png' }, // TilePowerUp
+    // { key: 'f', path: 'assets/flame.png' }, // TileFlame
+
+    // { key: 'Player', path: 'assets/Player.png' },  // Player, before playerCreation: empty string; look for key
+    // { key: 'GameMusic', path: 'assets/background.mp3' }, // GameMusic
 ];
 
-  // { key: 'TileEmpty', path: 'assets/TileEmpty.png' },
-  // { key: 'TileBlock', path: 'assets/TileBlock.png' },
-  // { key: 'TileBomb', path: 'assets/TileBomb.png' },
-  // { key: 'Player', path: 'assets/Player.png' },
-  // { key: 'GameMusic', path: 'assets/background.mp3' },
 
 function renderApp() {
   const newVNode = state.connected
