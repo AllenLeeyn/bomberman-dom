@@ -41,7 +41,7 @@ export function startGameApp(data, playerName) {
   gameRoot.addEventListener('keyup', handleKeyUp);
 
   drawTiles(gameData)
-  drawPlayers(gameData.players)
+  createPlayers(gameData.players)
   drawPowerUps(gameData.map.p_ups)
 
   // TODO: Implement real game rendering logic here using gameData state
@@ -108,21 +108,61 @@ function drawPowerUps(powerUps) {
   }
 }
 
-function drawPlayers(players) {
+function createPlayers(players) {
   playerLayer.innerHTML = '';
-  
-  const playerIds = Object.keys(players);
-  for (const id of playerIds) {
+
+  for (const id in players) {
     const player = players[id];
     const el = document.createElement('div');
     el.className = `player ${player.col}`;
+    el.id = `player_${id}`;
 
-    // Pixel-based position
     el.style.transform = `translate(${player.x}px, ${player.y}px)`;
 
     playerLayer.appendChild(el);
   }
 }
+
+function drawPlayers(players) {
+  for (const id in players) {
+    const player = players[id];
+    const el = document.getElementById(`player_${id}`);
+
+    if (el) {
+      el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+    }
+  }
+}
+
+function drawBombs(bombs) {
+  const seenIds = new Set();
+
+  for (const bomb of bombs) {
+    const id = `bomb_${bomb.x}_${bomb.y}`;
+    seenIds.add(id);
+
+    const existing = document.getElementById(id);
+
+    if (bomb.e) {
+      if (existing) existing.remove();
+      // bomb explosion logic
+    } else if (!existing) {
+      const bombEl = document.createElement('div');
+      bombEl.className = 'tile b';
+      bombEl.id = id;
+      bombEl.style.gridRowStart = bomb.y + 1;
+      bombEl.style.gridColumnStart = bomb.x + 1;
+      bombLayer.appendChild(bombEl);
+    }
+  }
+
+  for (const el of Array.from(bombLayer.children)) {
+    if (!seenIds.has(el.id)) {
+      el.remove();
+    }
+  }
+}
+
 
 export function updateGameState(data) {
   console.log(data)
@@ -136,6 +176,7 @@ function renderLoop() {
   //updatePlayerPosition(gameData.players);
   //drawTiles(gameData)
   drawPlayers(gameData.players);
+  drawBombs(gameData.map.bombs);
   
   // Schedule next frame
   animationFrameId = requestAnimationFrame(renderLoop);
@@ -216,14 +257,7 @@ export function updateGameMini(data) {
     gameData.players[id].state = miniPlayer.s;
   }
   
-  for (const bomb of data.b) {
-    const x = bomb.x;
-    const y = bomb.y;
-    gameData.map.grid[y][x].typ = TileBomb;
-
-    //bomb exploded
-    if (bomb.e) gameData.map.grid[y][x].typ = TileEmpty
-  }
+  gameData.map.bombs = data.b;
 }
 
 /* function updatePlayerPosition(players) {

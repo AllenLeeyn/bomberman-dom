@@ -8,6 +8,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-image: url('DOMBersCity4.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 #app {
@@ -18,11 +23,6 @@ body {
   min-height: 100vh;
   width: 100vw;
   transition: flex-direction 0.3s;
-  background-image: url('DOMBersCity4.png');
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 body.in-game #app{

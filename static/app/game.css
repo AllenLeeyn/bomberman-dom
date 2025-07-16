@@ -7,21 +7,16 @@
   background: linear-gradient(0deg, #ff00cc, #00ffff, #39ff14);
   background-size: 200% 200%;
   animation: neonPulse 120s ease infinite;
-
-  box-shadow:
-  0 0 15px #fffacd,   /* pale yellow-white highlight */
-  0 0 30px #ffea00,   /* strong bright yellow */
-  0 0 50px #ffea00,   /* extended yellow glow */
-  0 0 70px #fffacd;   /* white highlight glow */
   
   user-select: none;
   overflow: hidden;
   display: inline-block;
-  will-change: background-position, box-shadow;
+  will-change: background-position;
 }
 
 #game-root:focus {
-  outline: none;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 #tile-layer,
@@ -83,9 +78,6 @@
   height: 46px;
   margin: 1px;
   background-color: #26294e; /* flat dark metal base */
-  box-shadow:
-    inset 4px 0px 0 #1b1a1a,
-    inset -4px -10px 0 #000;  /* bottom-right dark edge */
   border-radius: 2px;
   position: relative;
 }
@@ -95,23 +87,17 @@
   height: 46px;
   margin: 1px;
   background-color: #eae548; /* deep pink */
-  box-shadow:
-    inset 4px 0px 0 #5c5b20,
-    inset -4px -10px 0 #54541b;
   border-radius: 3px;
   position: relative;
 }
 
 .tile.bl.bl-alt {
   background-color: #f72585; /* neon pink */
-  box-shadow:
-    inset 4px 0px 0 #a01358,
-    inset -4px -10px 0 #780e3e;
 }
 
 
 .tile.b { /* bomb */
-  background-color: #1e1e1e;
+  background-color: transparent;
   position: relative;
 }
 .tile.b::after {
@@ -121,8 +107,7 @@
   background-color: red;
   border-radius: 50%;
   position: absolute;
-  top: 6px;
-  left: 6px;
+  margin: 1px;
 }
 
 .tile.p { /* powerup */
