@@ -105,13 +105,11 @@ function drawPowerUps(powerUps) {
   bombLayer.innerHTML = ''; // Clear previous power-ups
 
   for (const pu of powerUps) {
-  console.warn(pu)
     const powerUp = document.createElement('div');
     powerUp.className = `tile p`; // e.g., p-bomb, p-flame
     powerUp.style.gridRowStart = pu.y + 1;
     powerUp.style.gridColumnStart = pu.x + 1;
     bombLayer.appendChild(powerUp);
-    console.log(powerUp)
   }
 }
 
@@ -285,9 +283,8 @@ function renderExplosion(bomb) {
     for (let i = 1; i <= r; i++) {
       const nx = x + dx * i;
       const ny = y + dy * i;
-        const blockId = `block_${nx}_${ny}`;
+      const blockId = `block_${nx}_${ny}`;
 
-      console.log(nx, ny)
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
       const tileType = grid[ny][nx].typ;
 
