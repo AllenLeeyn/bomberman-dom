@@ -19,6 +19,7 @@ let socket = null;
 let currentPlayer = "";
 let gameData = {};
 let animationFrameId = null;
+let flameGrid = null
 
 export function startGameApp(data, playerName) {
   socket = getSocket('lobby')
@@ -57,6 +58,10 @@ function drawTiles(gameData) {
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
 
+  flameGrid = Array.from({ length: gridHeight }, () =>
+    Array(gridWidth).fill(0)
+  );
+  
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
       const tile = document.createElement('div');
@@ -75,6 +80,7 @@ function drawTiles(gameData) {
 
       if (gameData.map.grid[y][x].typ === TileBlock){
         const block = document.createElement('div');
+        block.id = `block_${x}_${y}`; 
         block.className = 'tile bl';
         block.style.gridRowStart = y + 1;
         block.style.gridColumnStart = x + 1;
@@ -95,14 +101,17 @@ function drawTiles(gameData) {
 }
 
 function drawPowerUps(powerUps) {
+  console.warn(powerUps)
   bombLayer.innerHTML = ''; // Clear previous power-ups
 
   for (const pu of powerUps) {
+  console.warn(pu)
     const powerUp = document.createElement('div');
     powerUp.className = `tile p`; // e.g., p-bomb, p-flame
     powerUp.style.gridRowStart = pu.y + 1;
     powerUp.style.gridColumnStart = pu.x + 1;
     bombLayer.appendChild(powerUp);
+    console.log(powerUp)
   }
 }
 
@@ -143,9 +152,9 @@ function drawBombs(bombs) {
 
     const existing = document.getElementById(id);
 
-    if (bomb.e) {
-      if (existing) existing.remove();
-      // bomb explosion logic
+    if (existing && bomb.e) {
+      existing.remove();
+      renderExplosion(bomb);
     } else if (!existing) {
       const bombEl = document.createElement('div');
       bombEl.className = 'tile b';
@@ -157,6 +166,7 @@ function drawBombs(bombs) {
   }
 
   for (const el of Array.from(bombLayer.children)) {
+    if (el.classList.contains('p')) continue;
     if (!seenIds.has(el.id)) {
       el.remove();
     }
@@ -252,6 +262,82 @@ export function updateGameMini(data) {
   }
   
   gameData.map.bombs = data.b;
+}
+
+function renderExplosion(bomb) {
+  const grid = gameData.map.grid
+
+  const { x, y, r } = bomb;
+  const width = grid[0].length;
+  const height = grid.length;
+
+  const tiles = [];
+  tiles.push({x, y});
+
+  const directions = [
+    { dx: 0, dy: -1 }, // up
+    { dx: 0, dy: 1 },  // down
+    { dx: -1, dy: 0 }, // left
+    { dx: 1, dy: 0 }   // right
+  ];
+
+  for (const { dx, dy } of directions) {
+    for (let i = 1; i <= r; i++) {
+      const nx = x + dx * i;
+      const ny = y + dy * i;
+        const blockId = `block_${nx}_${ny}`;
+
+      console.log(nx, ny)
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
+      const tileType = grid[ny][nx].typ;
+
+      if (tileType === TileWall) {
+        break;
+      } else if (tileType === TileBlock) {
+        gameData.map.grid[ny][nx].typ = TileEmpty
+        const blockEl = document.getElementById(blockId);
+        if (blockEl) blockEl.remove();
+
+        tiles.push({x: nx, y: ny});
+        break;
+      } else if (tileType === TileEmpty || tileType === TilePowerUp) {
+        gameData.map.grid[ny][nx].typ = TileEmpty
+        tiles.push({x: nx, y: ny});
+      }
+    }
+  }
+
+  for (const tile of tiles) {
+    const { x, y } = tile;
+    flameGrid[y][x]++;
+    let flame = document.getElementById(`flame_${x}_${y}`);
+
+    if (!flame) {
+      flame = document.createElement('div');
+      flame.className = 'tile f';
+      flame.style.gridRowStart = y + 1;
+      flame.style.gridColumnStart = x + 1;
+      flame.id = `flame_${x}_${y}`;
+      exploLayer.appendChild(flame);
+    } else {
+      flame.classList.remove('f');
+      void flame.offsetWidth;
+      flame.classList.add('f');
+    }
+  }
+
+  setTimeout(() => {
+    for (const tile of tiles) {
+      const { x, y } = tile;
+
+      flameGrid[y][x]--;
+      if (flameGrid[y][x] <= 0) {
+        const flame = document.getElementById(`flame_${x}_${y}`);
+        if (flame) flame.remove();
+        flameGrid[y][x] = 0;
+      }
+    }
+  }, 2000);
 }
 
 /* function updatePlayerPosition(players) {

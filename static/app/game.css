@@ -23,7 +23,7 @@
 #bomb-layer,
 #block-layer,
 #player-layer,
-#explo-layer {
+#explosion-layer {
   position: absolute;
   top: 0;
   left: 0;
@@ -139,6 +139,12 @@
 .player.pink   { background-color: #ff69b4; } 
 
 /* --- Flame flicker animation --- */
+@keyframes flicker {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.6; transform: scale(1.02); }
+  100% { opacity: 1; }
+}
+
 @keyframes neonPulse {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }

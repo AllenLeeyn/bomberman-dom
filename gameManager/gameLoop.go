@@ -137,7 +137,8 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 			ny := y + dir.dy*i
 
 			// Check bounds
-			if nx < 0 || ny < 0 || nx >= g.GMap.Width || ny >= g.GMap.Height {
+			if nx < 0 || ny < 0 ||
+				nx >= g.GMap.Width || ny >= g.GMap.Height {
 				break
 			}
 
