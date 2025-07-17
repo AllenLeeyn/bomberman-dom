@@ -98,4 +98,14 @@ func (l *Lobby) queuePublicMessage(content string) {
 func (l *Lobby) startGame() {
 	l.game = gameManager.NewGame(l.players, l.msgQueue, l.endQueue)
 	l.game.Start()
+
+	go func() {
+		<-l.endQueue
+		l.closeGame()
+	}()
+}
+
+func (l *Lobby) closeGame() {
+	l.state = StateInLobby
+	l.setTimerState()
 }

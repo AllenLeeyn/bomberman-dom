@@ -1,6 +1,6 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
-import { startGameApp, updateGameState, updateGameMini } from './routes/game.js';
+import { startGameApp, updateGameState, updateGameMini, stopGameApp } from './routes/game.js';
 
 export const joinLobby = (name) => {
   if (!name) {
@@ -48,9 +48,16 @@ const handleMessage = (event) => {
   //console.log(`event.data size: ${dataSizeBytes} bytes`);
 
   const data = safeParse(event.data);
+  console.warn(data)
 
   if (data.action === "game_mini"){
     updateGameMini(data)
+
+  } else if (data.action === "game_end"){
+    stopGameApp(data.winner)
+    setTimeout(() => {
+      state.state = 'in_lobby';
+    }, 2000); 
 
   } else if (data.action === "game_update"){
     updateGameState(data)

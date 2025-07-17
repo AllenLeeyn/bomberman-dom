@@ -233,18 +233,26 @@ function handleKeyUp(e) {
   }
 }
 
-// Stop the render loop if needed (e.g. game ends)
-export function stopGameApp() {
+export function stopGameApp(winnerName = "") {
+  console.warn(winnerName)
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
-}
 
-export function destroyGameApp() {
-  if (gameContainer) {
-    gameContainer.innerHTML = '';
-  }
+  const winnerOverlay = document.createElement("div");
+  winnerOverlay.className = "winner-overlay";
+  winnerOverlay.textContent = `🏆 Winner: ${winnerName}`;
+  gameRoot.appendChild(winnerOverlay);
+
+  setTimeout(() => {
+    winnerOverlay.remove();
+    tileLayer.innerHTML = "";
+    blockLayer.innerHTML = "";
+    bombLayer.innerHTML = "";
+    exploLayer.innerHTML = "";
+    playerLayer.innerHTML = "";
+  }, 2000); 
 }
 
 export function updateGameMini(data) {
@@ -254,7 +262,6 @@ export function updateGameMini(data) {
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;
-    //gameData.players[id].keys_pressed = miniPlayer.k;
     gameData.players[id].lives = miniPlayer.l;
     gameData.players[id].state = miniPlayer.s;
   }

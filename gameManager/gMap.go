@@ -25,7 +25,6 @@ func NewGMap(width, height int) *GMap {
 
 			grid[y][x] = tile
 		}
-
 	}
 
 	rand.Shuffle(len(candidates), func(i, j int) {

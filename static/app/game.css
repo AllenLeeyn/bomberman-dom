@@ -121,11 +121,10 @@
 
 /* --- Players --- */
 .player {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
   position: absolute;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 /* Assign colors via class or inline style */
@@ -154,4 +153,23 @@
 /* Hide when not in use */
 .hidden {
   display: none !important;
+}
+
+.winner-overlay {
+  position: absolute;
+  top: 0;       /* start at top */
+  left: 0;      /* start at left */
+  width: 100%;  /* full width */
+  height: 100%; /* full height */
+  background: rgba(0, 0, 0, 0.7); /* semi-transparent overlay */
+  color: gold;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  z-index: 999;
+  pointer-events: none;
+  user-select: none;
 }

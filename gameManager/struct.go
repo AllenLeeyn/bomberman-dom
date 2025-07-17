@@ -46,6 +46,7 @@ type Player struct {
 	KeyPresses    []string        `json:"-"`
 	Lives         int             `json:"lives"`
 	State         PlayerState     `json:"state"`
+	StateReset    time.Time       `json:"-"`
 	MaxBombCount  int             `json:"maxBombs"`
 	Radius        int             `json:"-"`
 	CurBombCount  int             `json:"curBombs,omitempty"`
@@ -129,7 +130,6 @@ type Game struct {
 	Winner    string             `json:"winner"`
 
 	stateQueue chan message  `json:"-"` //broadcast to clients
-	eventQueue chan message  `json:"-"` //events for game logic
 	endQueue   chan struct{} `json:"-"`
 	mu         sync.RWMutex  `json:"-"`
 

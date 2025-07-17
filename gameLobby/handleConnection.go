@@ -35,7 +35,9 @@ func (l *Lobby) handleConnection(pl *player) {
 
 		switch msgData.Action {
 		case "game":
-			l.game.UpdatePlayerKeys(msgData.PlayerName, msgData.Content)
+			if l.game != nil {
+				l.game.UpdatePlayerKeys(msgData.PlayerName, msgData.Content)
+			}
 
 		case "colorChange":
 			l.processColorChange(&msgData)

@@ -54,7 +54,6 @@ func NewGame(players map[string]*Player,
 		State:      Waiting,
 		Winner:     "",
 		stateQueue: stateQueue,
-		eventQueue: make(chan message, 10),
 		endQueue:   endQueue,
 	}
 
@@ -90,6 +89,7 @@ func NewGame(players map[string]*Player,
 }
 
 func (g *Game) Start() {
+	log.Println("game start")
 	g.mu.Lock()
 	defer g.mu.Unlock()
 

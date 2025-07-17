@@ -6,6 +6,10 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 	playerTileLeft := player.X / TileSize
 	playerTileRight := (player.X + PlayerSize - 1) / TileSize
 
+	if player.State == PlayerDead {
+		return
+	}
+
 	switch lastKey {
 	case "ArrowUp", "w", "W":
 		player.Direction = "up"
@@ -19,8 +23,9 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		if newY < TopBound {
 			newY = TopBound
 		} else {
-			leftBlocked := g.GMap.Grid[newTileTop][playerTileLeft].Type != TileEmpty
-			rightBlocked := g.GMap.Grid[newTileTop][playerTileRight].Type != TileEmpty
+			leftType := g.GMap.Grid[newTileTop][playerTileLeft].Type
+			rightType := g.GMap.Grid[newTileTop][playerTileRight].Type
+			leftBlocked, rightBlocked := isBlockingTile(leftType), isBlockingTile(rightType)
 
 			if leftBlocked || rightBlocked {
 				newY = (newTileTop + 1) * TileSize
@@ -49,8 +54,9 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		if newY+PlayerSize > BottomBound {
 			newY = BottomBound - PlayerSize
 		} else {
-			leftBlocked := g.GMap.Grid[newTileBottom][playerTileLeft].Type != TileEmpty
-			rightBlocked := g.GMap.Grid[newTileBottom][playerTileRight].Type != TileEmpty
+			leftType := g.GMap.Grid[newTileBottom][playerTileLeft].Type
+			rightType := g.GMap.Grid[newTileBottom][playerTileRight].Type
+			leftBlocked, rightBlocked := isBlockingTile(leftType), isBlockingTile(rightType)
 
 			if leftBlocked || rightBlocked {
 				newY = newTileBottom*TileSize - PlayerSize
@@ -79,8 +85,9 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		if newX < LeftBound {
 			newX = LeftBound
 		} else {
-			topBlocked := g.GMap.Grid[playerTileTop][newTileLeft].Type != TileEmpty
-			bottomBlocked := g.GMap.Grid[playerTileBottom][newTileLeft].Type != TileEmpty
+			topType := g.GMap.Grid[playerTileTop][newTileLeft].Type
+			bottomType := g.GMap.Grid[playerTileBottom][newTileLeft].Type
+			topBlocked, bottomBlocked := isBlockingTile(topType), isBlockingTile(bottomType)
 
 			if topBlocked || bottomBlocked {
 				newX = (newTileLeft + 1) * TileSize
@@ -109,8 +116,9 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		if newX+PlayerSize > RightBound {
 			newX = RightBound - PlayerSize
 		} else {
-			topBlocked := g.GMap.Grid[playerTileTop][newTileRight].Type != TileEmpty
-			bottomBlocked := g.GMap.Grid[playerTileBottom][newTileRight].Type != TileEmpty
+			topType := g.GMap.Grid[playerTileTop][newTileRight].Type
+			bottomType := g.GMap.Grid[playerTileBottom][newTileRight].Type
+			topBlocked, bottomBlocked := isBlockingTile(topType), isBlockingTile(bottomType)
 
 			if topBlocked || bottomBlocked {
 				newX = newTileRight*TileSize - PlayerSize
@@ -127,4 +135,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		}
 		player.X = newX
 	}
+}
+
+func isBlockingTile(t string) bool {
+	return t == TileWall || t == TileBlock || t == TileBomb
 }

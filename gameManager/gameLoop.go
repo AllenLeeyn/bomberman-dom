@@ -2,6 +2,7 @@ package gameManager
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 )
@@ -15,7 +16,13 @@ func (g *Game) gameLoop() {
 	for range ticker.C {
 		g.mu.Lock()
 		if g.State != Playing {
+
+			g.stateQueue <- message{
+				Content: fmt.Sprintf(`{"action":"game_end","winner":"%s"}`, g.Winner),
+			}
 			g.mu.Unlock()
+
+			g.endQueue <- struct{}{}
 			break
 		}
 		g.Action = gameUpdate
@@ -171,6 +178,13 @@ func (g *Game) updateFlames() {
 			}
 		}
 	}
+	for _, player := range g.Players {
+		tileTop := player.Y / TileSize
+		tileBottom := (player.Y + PlayerSize - 1) / TileSize
+		tileLeft := player.X / TileSize
+		tileRight := (player.X + PlayerSize - 1) / TileSize
+		g.checkFlames(player, tileTop, tileBottom, tileLeft, tileRight)
+	}
 }
 
 func (g *Game) findBombTile(player *Player) (int, int) {
@@ -178,4 +192,47 @@ func (g *Game) findBombTile(player *Player) (int, int) {
 	playerCenterX := player.X + PlayerSize/2
 
 	return playerCenterY / TileSize, playerCenterX / TileSize
+}
+
+func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRight int) {
+	now := time.Now()
+
+	if player.State == PlayerRespawning && now.After(player.StateReset) {
+		player.State = PlayerAlive
+	}
+	if player.State != PlayerAlive {
+		return
+	}
+
+	isHit := g.GMap.Grid[tileTop][tileLeft].Type == TileFlame ||
+		g.GMap.Grid[tileTop][tileRight].Type == TileFlame ||
+		g.GMap.Grid[tileBottom][tileLeft].Type == TileFlame ||
+		g.GMap.Grid[tileBottom][tileRight].Type == TileFlame
+
+	if isHit {
+		player.Lives--
+		if player.Lives < 0 {
+			player.State = PlayerDead
+			g.checkWinner()
+			return
+		}
+		player.State = PlayerRespawning
+		player.StateReset = now.Add(2 * time.Second)
+		log.Println(player.State)
+	}
+}
+
+func (g *Game) checkWinner() {
+	livingPlayers := []string{}
+
+	for id, player := range g.Players {
+		if player.State != PlayerDead {
+			livingPlayers = append(livingPlayers, id)
+		}
+	}
+
+	if len(livingPlayers) == 1 {
+		g.State = Ended
+		g.Winner = livingPlayers[0]
+	}
 }
