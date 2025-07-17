@@ -1,92 +1,216 @@
-const assets = {}; // Central store for all loaded assets
+class AssetManager {
+    constructor() {
+        this.assets = {};
 
-const assetTypes = {
-    IMAGE: 'image',
-    AUDIO: 'audio',
-};
-
-const typeFromExtension = {
-    '.png': assetTypes.IMAGE,
-    '.jpg': assetTypes.IMAGE,
-    '.jpeg': assetTypes.IMAGE,
-    '.gif': assetTypes.IMAGE,
-    '.webp': assetTypes.IMAGE,
-    '.mp3': assetTypes.AUDIO,
-    '.wav': assetTypes.AUDIO,
-    '.ogg': assetTypes.AUDIO,
-};
-
-function getFileExtension(path) {
-    return path.slice((Math.max(0, path.lastIndexOf(".")) || Infinity)).toLowerCase();
-}
-
-function loadImage(key, path) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-        assets[key] = img;
-        resolve({ key, asset: img });
+        this.assetTypes = {
+            IMAGE: 'image',
+            AUDIO: 'audio',
         };
-        img.onerror = (e) => {
-        console.warn(`Failed to load image: ${path}`);
-        reject(e);
-        };
-        img.src = path;
-    });
-}
 
-function loadAudio(key, path) {
-    return new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.oncanplaythrough = () => {
-        assets[key] = audio;
-        resolve({ key, asset: audio });
+        // Static extension-to-type mapping (object literal)
+        this.typeFromExtension = {
+            '.png': this.assetTypes.IMAGE,
+            '.jpg': this.assetTypes.IMAGE,
+            '.jpeg': this.assetTypes.IMAGE,
+            '.gif': this.assetTypes.IMAGE,
+            '.webp': this.assetTypes.IMAGE,
+            '.mp3': this.assetTypes.AUDIO,
+            '.wav': this.assetTypes.AUDIO,
+            '.ogg': this.assetTypes.AUDIO,
         };
-        audio.onerror = (e) => {
-        console.warn(`Failed to load audio: ${path}`);
-        reject(e);
-        };
-        audio.src = path;
-        audio.load();
-    });
-}
-
-async function load(assetList = [], onProgress = null) {
-    const tasks = assetList.map(({ key, path }, i) => {
-    const ext = getFileExtension(path);
-    const type = typeFromExtension[ext];
-
-    if (!type) {
-        throw new Error(`Unsupported asset type for: ${path}`);
     }
 
-    const loaderFn = type === assetTypes.IMAGE ? loadImage : loadAudio;
+    // file extension checker
+    getFileExtension(path) {
+        return path.slice((Math.max(0, path.lastIndexOf('.')) || Infinity)).toLowerCase();
+    }
 
-    return loaderFn(key, path).then(result => {
-        if (typeof onProgress === 'function') {
-            onProgress((i + 1) / assetList.length, result.key);
-        }
-        return result;
+    loadImage(key, path) {
+        return new Promise((resolve, reject) => {
+            const img = new window.Image();
+            img.onload = () => {
+                this.assets[key] = img;
+                resolve({ key, asset: img });
+            };
+            img.onerror = (e) => {
+                console.warn(`Failed to load image: ${path}`);
+                reject(e);
+            }
+            img.src = path;
         });
-    });
-
-    await Promise.all(tasks);
-}
-
-function getAsset(key) {
-    const asset = assets[key];
-    if (!asset) {
-        console.warn(`Asset not found: ${key}`);
     }
-    return asset;
-}
 
-// Reset or clear assets; if needed
-function clearAssets() {
-    for (const key in assets) {
-        delete assets[key];
+    loadAudio(key, path) {
+        return new Promise((resolve, reject) => {
+            const audio = new window.Audio();
+            audio.oncanplaythrough = () => {
+                this.assets[key] = audio;
+                resolve({ key, asset: audio });
+            };
+            audio.onerror = (e) => {
+                console.warn(`Failed to load audio: ${path}`);
+                reject(e);
+            };
+            audio.src = path;
+            audio.load();
+        });
+    }
+
+    async load(assetList = [], onProgress = null) {
+        let loaded = 0;
+        for (let i = 0; i < assetList.length; i++) {
+            const { key, path } = assetList[i];
+            const ext = this.getFileExtension(path).toLowerCase();
+            const type = this.typeFromExtension[ext];
+
+            if (!type) {
+                throw new Error(`Unsupported asset type for: ${path}`);
+            }
+            try {
+                if (type === this.assetTypes.IMAGE) {
+                    await this.loadImage(key, path);
+                } else if (type === this.assetTypes.AUDIO) {
+                    await this.loadAudio(key, path);
+                } // can add more types here with else if
+
+                loaded++;
+                if (typeof onProgress === 'function') {
+                    onProgress(loaded / assetList.length, key);
+                }
+            } catch (e) {
+                console.error(`Error loading asset [${key}]: ${e}`);
+            }
+        }
+    }
+
+    getAsset(key) {
+        const asset = this.assets[key];
+        if (!asset) {
+            console.warn(`Asset not found: ${key}`);
+        }
+        return asset;
+    }
+
+    clearAssets() {
+        this.assets = {};
     }
 }
 
-// Export as named module
-export { load, getAsset, clearAssets };
+export default AssetManager;
+
+// this is f
+// class AssetManager {
+//     constructor() {
+//         // this holds ALL assets for THIS instance only
+//         this.assets = {};
+
+//         // types supported; (can add more)
+//         this.assetTypes = {
+//             IMAGE: 'image',
+//             AUDIO: 'audio',
+//         };
+//     }
+
+//     typeFromExtension(ext) {
+//         switch (ext) {
+//             case '.png':
+//             case '.jpg':
+//             case '.jpeg':
+//             case '.gif':
+//             case '.webp':
+//                 return this.assetTypes.IMAGE;
+//             case '.mp3':
+//             case '.wav':
+//             case '.ogg':
+//                 return this.assetTypes.AUDIO;
+//             default:
+//                 return undefined;
+//         }
+//     }
+
+//     // file extension checker
+//     getFileExtension(path) {
+//         return path.slice((Math.max(0, path.lastIndexOf('.')) || Infinity)).toLowerCase();
+//     }
+
+//     // asset loader (image, audio); can add more in the future here
+//     loadImage(key, path) {
+//         return new Promise((resolve, reject) => {
+//             const img = new window.Image();
+//             img.onload = () => {
+//                 this.assets[key] = img;
+//                 resolve({ key, asset: img });
+//             };
+//             img.onerror = (e) => {
+//                 console.warn(`Failed to load image: ${path}`);
+//                 reject(e);
+//             }
+//             img.src = path;
+//         });
+//     }
+
+//     loadAudio(key, path) {
+//         return new Promise((resolve, reject) => {
+//             const audio = new window.Audio();
+//             audio.oncanplaythrough = () => { // canplay?
+//                 this.assets[key] = audio;
+//                 resolve({ key, asset: audio });
+//             };
+//             audio.onerror = (e) => {
+//                 console.warn(`Failed to load audio: ${path}`);
+//                 reject(e);
+//             };
+//             audio.src = path;
+//             audio.load()
+//         });
+//     }
+
+//     // public loader
+//     async load(assetList = [], onProgress = null) {
+//         let loaded = 0;
+//         for (let i = 0; i < assetList.length; i++) {
+//             const { key, path } = assetList[i];
+//             const ext = this.getFileExtension(path).toLowerCase();
+//             const type = this.typeFromExtension(ext);
+
+//             if (!type) {
+//                 throw new Error(`Unsupported asset type for: ${path}`);
+//             }
+//             try {
+//                 if (type === this.assetTypes.IMAGE) {
+//                     await this.loadImage(key, path);
+//                 } else if (type === this.assetTypes.AUDIO) {
+//                     await this.loadAudio(key, path);
+//                 } // can add more types using else if
+
+//                 loaded++;
+//                 if (typeof onProgress === 'function') {
+//                     onProgress(loaded / assetList.length, key);
+//                 }
+//             } catch (e) {
+//                 // let the loop continue even if one fails
+//                 console.error(`Error loading asset [${key}]: ${e}`);
+//             }
+//         }
+//     }
+
+//     getAsset(key) {
+//         const asset = this.assets[key];
+//         if (!asset) {
+//             console.warn(`Asset not found: ${key}`);
+//         }
+//         return asset;
+//     }
+
+//     clearAssets() {
+//         this.assets = {};
+//     }
+// }
+
+// export default AssetManager;
+
+// to use:
+// import AssetManager from "./assetManager.js";
+// const assets = new AssetManager();
+
+

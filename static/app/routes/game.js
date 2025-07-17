@@ -1,5 +1,6 @@
 import { getSocket } from '../../framework/domber.js'
-import { getAsset } from '../assetManager.js';
+import assets from "../assets.js";
+import gameAssetList from "../gameAssets.js";
 
 const gameRoot = document.getElementById('game-root');
 const tileLayer = document.getElementById('tile-layer');
@@ -21,7 +22,30 @@ let currentPlayer = "";
 let gameData = {};
 let animationFrameId = null;
 
-export function startGameApp(data, playerName) {
+console.log({ tileLayer, blockLayer, bombLayer, playerLayer });
+
+export async function launchGame(data, playerName) {
+  console.log("== launchGame data ==", data);
+  gameRoot.innerHTML = `<div class="loading-screen">Loading game assets...</div>`;
+  try {
+    await assets.load(gameAssetList, (progress, key) => {
+      // Optional: update real progress UI
+      gameRoot.innerHTML = `<div class="loading-screen">Loaded ${key} (${Math.round(progress*100)}%)</div>`;
+    });
+  } catch (err) {
+    gameRoot.innerHTML = `<div class="error-message">Could not load game assets!`;
+    return;
+  }
+  // After loading, call your "real" game start
+  startGameApp(data, playerName);
+}
+
+function startGameApp(data, playerName) {
+  console.log("== startGameApp data ==", data);
+  // clearing "existing" event
+  gameRoot.removeEventListener('keydown', handleKeyDown);
+  gameRoot.removeEventListener('keyup', handleKeyUp);
+
   socket = getSocket('lobby')
   if (!gameRoot || !tileLayer || !playerLayer || !socket) {
     console.error('[Game] Missing elements');
@@ -53,6 +77,16 @@ export function startGameApp(data, playerName) {
 }
 
 function drawTiles(gameData) {
+
+  console.log("== In drawTiles ==");
+  console.log("gameData.map:", gameData.map);
+  console.log("gameData.map.grid:", gameData.map && gameData.map.grid);
+
+  if (!gameData.map || !Array.isArray(gameData.map.grid)) {
+    console.error("drawTiles: missing or invalid gameData.map/grid", gameData.map);
+    return;
+  }
+
   tileLayer.innerHTML = '';
   blockLayer.innerHTML = '';
 
@@ -75,10 +109,11 @@ function drawTiles(gameData) {
       //  tileLayer.appendChild(tile);
 
       const cell = gameData.map.grid[y][x];
+      console.log(`cell [${y},${x}] typ:`, cell && cell.typ);
 
       if (cell.typ === TileWall) {
         const wallImg = document.createElement('img');
-        wallImg.src = getAsset(TileWall)?.src || '';
+        wallImg.src = assets.getAsset(TileWall)?.src || '';
         wallImg.alt = 'TileWall';
         wallImg.className = 'tile-img'; // Style this via CSS
         wallImg.style.gridRowStart = y + 1;
