@@ -234,5 +234,9 @@ func (g *Game) checkWinner() {
 	if len(livingPlayers) == 1 {
 		g.State = Ended
 		g.Winner = livingPlayers[0]
+
+	} else if len(livingPlayers) == 0 {
+		g.State = Ended
+		g.Winner = ""
 	}
 }

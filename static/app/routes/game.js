@@ -234,7 +234,6 @@ function handleKeyUp(e) {
 }
 
 export function stopGameApp(winnerName = "") {
-  console.warn(winnerName)
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
@@ -242,7 +241,9 @@ export function stopGameApp(winnerName = "") {
 
   const winnerOverlay = document.createElement("div");
   winnerOverlay.className = "winner-overlay";
-  winnerOverlay.textContent = `🏆 Winner: ${winnerName}`;
+  winnerOverlay.textContent = winnerName
+    ? `🏆 Winner: ${winnerName}`
+    : `🤝 It's a tie!`;
   gameRoot.appendChild(winnerOverlay);
 
   setTimeout(() => {
