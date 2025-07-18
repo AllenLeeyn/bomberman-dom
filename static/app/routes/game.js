@@ -25,22 +25,25 @@ let animationFrameId = null;
 console.log({ tileLayer, blockLayer, bombLayer, playerLayer });
 
 export async function launchGame(data, playerName) {
-  console.log("== launchGame data ==", data);
-  gameRoot.innerHTML = `<div class="loading-screen">Loading game assets...</div>`;
+  const loadingDiv = showLoadingOverlay(gameRoot);
+
   try {
     await assets.load(gameAssetList, (progress, key) => {
-      // Optional: update real progress UI
-      gameRoot.innerHTML = `<div class="loading-screen">Loaded ${key} (${Math.round(progress*100)}%)</div>`;
+      loadingDiv.textContent = `Loaded ${key} (${Math.round(progress*100)}%)`;
     });
   } catch (err) {
-    gameRoot.innerHTML = `<div class="error-message">Could not load game assets!`;
+    loadingDiv.textContent = 'Failed to load game assets!';
     return;
   }
-  // After loading, call your "real" game start
+
+  // After loading
+  loadingDiv.parentNode.removeChild(loadingDiv); // or loadingDiv.classList.add('hidden');
   startGameApp(data, playerName);
 }
 
-function startGameApp(data, playerName) {
+
+
+export function startGameApp(data, playerName) {
   console.log("== startGameApp data ==", data);
   // clearing "existing" event
   gameRoot.removeEventListener('keydown', handleKeyDown);
@@ -65,9 +68,11 @@ function startGameApp(data, playerName) {
   gameRoot.addEventListener('keydown', handleKeyDown, { passive: false });
   gameRoot.addEventListener('keyup', handleKeyUp);
 
+
+  // setupLayers();
   drawTiles(gameData)
   createPlayers(gameData.players)
-  drawPowerUps(gameData.map.p_ups)
+  // drawPowerUps(gameData.map.p_ups)
 
   // TODO: Implement real game rendering logic here using gameData state
   console.log('[Game] Initialized game container with dimensions:');
@@ -75,6 +80,28 @@ function startGameApp(data, playerName) {
   // Start render loop
   animationFrameId = requestAnimationFrame(renderLoop);
 }
+
+function setupLayers() {
+  gameRoot.innerHTML = ''; 
+  ['tile-layer', 'bomb-layer', 'block-layer', 'explosion-layer', 'player-layer'].forEach(id => {
+    const div = document.createElement('div');
+    div.id = id;
+    gameRoot.appendChild(div);
+  });
+}
+
+function showLoadingOverlay(parent) {
+  let div = document.getElementById('loading-overlay');
+  if (!div) {
+    div = document.createElement('div');
+    div.id = 'loading-overlay';
+    parent.appendChild(div);
+  }
+  div.classList.remove('hidden');
+  div.textContent = 'Loading game assets...';
+  return div;
+}
+
 
 function drawTiles(gameData) {
 
@@ -92,58 +119,110 @@ function drawTiles(gameData) {
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
-
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
-      //const tile = document.createElement('div');
-
-      // // Get the type from game map
-      // const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
-
-      // // Assign tile class (fallback to 'empty')
-      // tile.className = `tile ${tileType}`;
-      // if (tileType == TileEmpty){
-      //   const isDark = (x + y) % 2 === 0;
-      //   tile.style.opacity = isDark ? '0.6' : '0.8';
-      // }
-      //  tileLayer.appendChild(tile);
-
       const cell = gameData.map.grid[y][x];
-      console.log(`cell [${y},${x}] typ:`, cell && cell.typ);
-
+      // Only one append per cell per layer:
       if (cell.typ === TileWall) {
         const wallImg = document.createElement('img');
         wallImg.src = assets.getAsset(TileWall)?.src || '';
         wallImg.alt = 'TileWall';
-        wallImg.className = 'tile-img'; // Style this via CSS
+        wallImg.className = 'tile-img tile w';
         wallImg.style.gridRowStart = y + 1;
         wallImg.style.gridColumnStart = x + 1;
-        wallImg.style.border = '1px solid red';
-        // console.log(getAsset('w'));
         tileLayer.appendChild(wallImg);
-      }
-
-
-      if (cell.typ === TileBlock){
+      } else if (cell.typ === TileBlock) {
+        // Block is rendered onto the blockLayer!
         const block = document.createElement('div');
         block.className = 'tile bl';
         block.style.gridRowStart = y + 1;
         block.style.gridColumnStart = x + 1;
         if ((x + y) % 2 === 0) block.classList.add('bl-alt');
-
-        blockLayer.appendChild(block);
-      }
-
-      if (cell.typ === TileBomb){
-        const block = document.createElement('div');
-        block.className = 'tile b';
-        block.style.gridRowStart = y + 1;
-        block.style.gridColumnStart = x + 1;
-        blockLayer.appendChild(block);
+        // blockLayer.appendChild(block);
+        tileLayer.appendChild(block);
+      } else if (cell.typ === TileBomb) {
+        // Bomb is rendered onto the blockLayer or bombLayer as you wish
+        const bomb = document.createElement('div');
+        bomb.className = 'tile b';
+        bomb.style.gridRowStart = y + 1;
+        bomb.style.gridColumnStart = x + 1;
+        blockLayer.appendChild(bomb);
+      } else {
+        // Fallback: Empty/floor
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'tile e';
+        emptyDiv.style.gridRowStart = y + 1;
+        emptyDiv.style.gridColumnStart = x + 1;
+        tileLayer.appendChild(emptyDiv);
       }
     }
   }
+
+
+  // for (let y = 0; y < gridHeight; y++) {
+  //   for (let x = 0; x < gridWidth; x++) {
+  //     //const tile = document.createElement('div');
+
+  //     // // Get the type from game map
+  //     // const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
+
+  //     // // Assign tile class (fallback to 'empty')
+  //     // tile.className = `tile ${tileType}`;
+  //     // if (tileType == TileEmpty){
+  //     //   const isDark = (x + y) % 2 === 0;
+  //     //   tile.style.opacity = isDark ? '0.6' : '0.8';
+  //     // }
+  //     //  tileLayer.appendChild(tile);
+
+  //     const cell = gameData.map.grid[y][x];
+  //     console.log(`cell [${y},${x}] typ:`, cell && cell.typ);
+
+  //     if (cell.typ === TileWall) {
+  //       const wallImg = document.createElement('img');
+  //       wallImg.src = assets.getAsset(TileWall)?.src || '';
+  //       wallImg.alt = 'TileWall';
+  //       wallImg.className = 'tile-img'; // Style this via CSS
+  //       wallImg.style.gridRowStart = y + 1;
+  //       wallImg.style.gridColumnStart = x + 1;
+  //       wallImg.style.border = '1px solid red';
+  //       // console.log(getAsset('w'));
+  //       tileLayer.appendChild(wallImg);
+  //     }
+
+
+  //     if (cell.typ === TileBlock){
+  //       const block = document.createElement('div');
+  //       block.className = 'tile bl';
+  //       block.style.gridRowStart = y + 1;
+  //       block.style.gridColumnStart = x + 1;
+  //       if ((x + y) % 2 === 0) block.classList.add('bl-alt');
+
+  //       blockLayer.appendChild(block);
+  //     }
+
+  //     if (cell.typ === TileBomb){
+  //       const block = document.createElement('div');
+  //       block.className = 'tile b';
+  //       block.style.gridRowStart = y + 1;
+  //       block.style.gridColumnStart = x + 1;
+  //       blockLayer.appendChild(block);
+  //     }
+  //     // === FALLBACK: For all other tile types, draw "floor" ===
+  //     // You can handle 'e' or any unknown types here
+  //     const emptyDiv = document.createElement('div');
+  //     emptyDiv.className = 'tile e';
+  //     emptyDiv.style.gridRowStart = y + 1;
+  //     emptyDiv.style.gridColumnStart = x + 1;
+  //     emptyDiv.style.background = '#e0e0e0'; // Light floor color (customize as you wish)
+  //     tileLayer.appendChild(emptyDiv);
+
+  //     // Optional: For debugging, show the type if unknown
+  //     if (cell.typ !== TileEmpty) {
+  //       emptyDiv.textContent = cell.typ;
+  //       emptyDiv.style.background = '#f88';
+  //     }
 }
+
 
 function drawPowerUps(powerUps) {
   bombLayer.innerHTML = ''; // Clear previous power-ups
@@ -223,12 +302,9 @@ export function updateGameState(data) {
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
-  //updatePlayerPosition(gameData.players);
-  // drawTiles(gameData)
-  drawPlayers(gameData.players);
-  drawBombs(gameData.map.bombs);
-  
-  // Schedule next frame
+  drawPlayers(gameData.players); // update positions
+  drawBombs(gameData.map.bombs); // update bombs
+
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 

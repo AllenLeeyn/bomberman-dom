@@ -1,6 +1,6 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
-import { launchGame, updateGameState, updateGameMini } from './routes/game.js';
+import {  startGameApp,launchGame, updateGameState, updateGameMini } from './routes/game.js';
 
 export const joinLobby = (name) => {
   if (!name) {
@@ -75,6 +75,7 @@ const handleMessage = (event) => {
     
   } else if (data.action === "game_start"){
     state.state = 'in_game';
+    // startGameApp(data, state.playerName);
     launchGame(data, state.playerName);
 
   } else if (data.action === "game_update"){
