@@ -167,6 +167,9 @@ function drawBombs(bombs) {
     if (el.classList.contains('p')) continue;
     if (!seenIds.has(el.id)) {
       el.remove();
+      const [_, x, y] = el.id.split('_');
+      const bomb = { x: +x, y: +y, r: 1 }; 
+      renderExplosion(bomb);
     }
   }
 }

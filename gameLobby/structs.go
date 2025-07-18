@@ -34,11 +34,12 @@ type timerAction string
 
 const (
 	waitDuration  int = 3
-	startDuration int = 2
+	startDuration int = 3
 
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"
 	gameStartTimer timerAction = "game_start"
+	gameEndSignal  timerAction = "game_end"
 )
 
 type LobbyState string
@@ -93,10 +94,4 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	defer l.mu.RUnlock()
 	_, exists := l.players[playerName]
 	return exists
-}
-
-func (l *Lobby) setState(state LobbyState) {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	l.state = state
 }
