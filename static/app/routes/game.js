@@ -1,4 +1,5 @@
 import { getSocket } from '../../framework/domber.js'
+import { useLayers, renderTileLayer, createBombPool } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 
@@ -9,13 +10,17 @@ const blockLayer = document.getElementById('block-layer');
 const exploLayer = document.getElementById('explosion-layer');
 const playerLayer = document.getElementById('player-layer');
 
-const TileEmpty   = "e";
-const TileWall    = "w";
-const TileBlock   = "bl";
-const TileBomb    = "b";
+const layers = useLayers(gameRoot);
+
+const TileEmpty = "e";
+const TileWall = "w";
+const TileBlock = "bl";
+const TileBomb = "b";
 const TileDestroy = "d";
 const TilePowerUp = "p";
-const TileFlame   = "f";
+const TileFlame = "f";
+
+let bombPool = [];
 
 let socket = null;
 let currentPlayer = "";
@@ -29,7 +34,7 @@ export async function launchGame(data, playerName) {
 
   try {
     await assets.load(gameAssetList, (progress, key) => {
-      loadingDiv.textContent = `Loaded ${key} (${Math.round(progress*100)}%)`;
+      loadingDiv.textContent = `Loaded ${key} (${Math.round(progress * 100)}%)`;
     });
   } catch (err) {
     loadingDiv.textContent = 'Failed to load game assets!';
@@ -69,9 +74,27 @@ export function startGameApp(data, playerName) {
   gameRoot.addEventListener('keyup', handleKeyUp);
 
 
-  // setupLayers();
-  drawTiles(gameData)
-  createPlayers(gameData.players)
+  // drawTiles(gameData)
+  const board = assets.getAsset('board');
+  const player = assets.getAsset('player');
+  const bomb = assets.getAsset('b');
+  if (!board) {
+    console.error('Missing board asset!');
+    return;
+  }
+  if (!player) {
+    console.error('Missing player asset!');
+    return;
+  }
+    if (!bomb) {
+    console.error('Missing bomb asset!');
+    return;
+  }
+  bombPool = createBombPool(layers.bombLayer, 12, bomb.src);
+  renderTileLayer(layers.tileLayer, board.src);
+  drawTiles(gameData, layers.blockLayer, layers.bombLayer);
+  createPlayers(layers.playerLayer, gameData.players, assets.getAsset('player').src);
+
   // drawPowerUps(gameData.map.p_ups)
 
   // TODO: Implement real game rendering logic here using gameData state
@@ -81,14 +104,6 @@ export function startGameApp(data, playerName) {
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 
-function setupLayers() {
-  gameRoot.innerHTML = ''; 
-  ['tile-layer', 'bomb-layer', 'block-layer', 'explosion-layer', 'player-layer'].forEach(id => {
-    const div = document.createElement('div');
-    div.id = id;
-    gameRoot.appendChild(div);
-  });
-}
 
 function showLoadingOverlay(parent) {
   let div = document.getElementById('loading-overlay');
@@ -114,114 +129,51 @@ function drawTiles(gameData) {
     return;
   }
 
-  tileLayer.innerHTML = '';
   blockLayer.innerHTML = '';
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
+
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
       const cell = gameData.map.grid[y][x];
-      // Only one append per cell per layer:
-      if (cell.typ === TileWall) {
-        const wallImg = document.createElement('img');
-        wallImg.src = assets.getAsset(TileWall)?.src || '';
-        wallImg.alt = 'TileWall';
-        wallImg.className = 'tile-img tile w';
-        wallImg.style.gridRowStart = y + 1;
-        wallImg.style.gridColumnStart = x + 1;
-        tileLayer.appendChild(wallImg);
-      } else if (cell.typ === TileBlock) {
-        // Block is rendered onto the blockLayer!
-        const block = document.createElement('div');
-        block.className = 'tile bl';
-        block.style.gridRowStart = y + 1;
-        block.style.gridColumnStart = x + 1;
-        if ((x + y) % 2 === 0) block.classList.add('bl-alt');
-        // blockLayer.appendChild(block);
-        tileLayer.appendChild(block);
-      } else if (cell.typ === TileBomb) {
-        // Bomb is rendered onto the blockLayer or bombLayer as you wish
-        const bomb = document.createElement('div');
-        bomb.className = 'tile b';
-        bomb.style.gridRowStart = y + 1;
-        bomb.style.gridColumnStart = x + 1;
-        blockLayer.appendChild(bomb);
-      } else {
-        // Fallback: Empty/floor
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'tile e';
-        emptyDiv.style.gridRowStart = y + 1;
-        emptyDiv.style.gridColumnStart = x + 1;
-        tileLayer.appendChild(emptyDiv);
+      
+      switch (cell.typ) {
+        case TileBlock: { // 'bl'
+          const tileBlock = assets.getAsset('bl');
+          if (tileBlock && tileBlock.src) {
+            const img = document.createElement('img');
+            img.src = tileBlock.src;
+            img.className = 'tile bl';
+            img.style.gridRowStart = y + 1;
+            img.style.gridColumnStart = x + 1;
+            if ((x + y) % 2 === 0) img.classList.add('bl-alt');
+            blockLayer.appendChild(img);
+          } else {
+            // fallback to div if no asset found
+            const div = document.createElement('div');
+            div.className = 'tile bl';
+            div.style.gridRowStart = y + 1;
+            div.style.gridColumnStart = x + 1;
+            if ((x + y) % 2 === 0) div.classList.add('bl-alt');
+            blockLayer.appendChild(div);
+          }
+          break;
+        }
+        // More cases as you add more tile types (power-ups, flames, etc.)
+
+        // default: { // Default for empty/floor/unknown types
+        //   const div = document.createElement('div');
+        //   div.className = 'tile e';
+        //   div.style.gridRowStart = y + 1;
+        //   div.style.gridColumnStart = x + 1;
+        //   tileLayer.appendChild(div);
+        //   break;
+        }
       }
     }
   }
-
-
-  // for (let y = 0; y < gridHeight; y++) {
-  //   for (let x = 0; x < gridWidth; x++) {
-  //     //const tile = document.createElement('div');
-
-  //     // // Get the type from game map
-  //     // const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
-
-  //     // // Assign tile class (fallback to 'empty')
-  //     // tile.className = `tile ${tileType}`;
-  //     // if (tileType == TileEmpty){
-  //     //   const isDark = (x + y) % 2 === 0;
-  //     //   tile.style.opacity = isDark ? '0.6' : '0.8';
-  //     // }
-  //     //  tileLayer.appendChild(tile);
-
-  //     const cell = gameData.map.grid[y][x];
-  //     console.log(`cell [${y},${x}] typ:`, cell && cell.typ);
-
-  //     if (cell.typ === TileWall) {
-  //       const wallImg = document.createElement('img');
-  //       wallImg.src = assets.getAsset(TileWall)?.src || '';
-  //       wallImg.alt = 'TileWall';
-  //       wallImg.className = 'tile-img'; // Style this via CSS
-  //       wallImg.style.gridRowStart = y + 1;
-  //       wallImg.style.gridColumnStart = x + 1;
-  //       wallImg.style.border = '1px solid red';
-  //       // console.log(getAsset('w'));
-  //       tileLayer.appendChild(wallImg);
-  //     }
-
-
-  //     if (cell.typ === TileBlock){
-  //       const block = document.createElement('div');
-  //       block.className = 'tile bl';
-  //       block.style.gridRowStart = y + 1;
-  //       block.style.gridColumnStart = x + 1;
-  //       if ((x + y) % 2 === 0) block.classList.add('bl-alt');
-
-  //       blockLayer.appendChild(block);
-  //     }
-
-  //     if (cell.typ === TileBomb){
-  //       const block = document.createElement('div');
-  //       block.className = 'tile b';
-  //       block.style.gridRowStart = y + 1;
-  //       block.style.gridColumnStart = x + 1;
-  //       blockLayer.appendChild(block);
-  //     }
-  //     // === FALLBACK: For all other tile types, draw "floor" ===
-  //     // You can handle 'e' or any unknown types here
-  //     const emptyDiv = document.createElement('div');
-  //     emptyDiv.className = 'tile e';
-  //     emptyDiv.style.gridRowStart = y + 1;
-  //     emptyDiv.style.gridColumnStart = x + 1;
-  //     emptyDiv.style.background = '#e0e0e0'; // Light floor color (customize as you wish)
-  //     tileLayer.appendChild(emptyDiv);
-
-  //     // Optional: For debugging, show the type if unknown
-  //     if (cell.typ !== TileEmpty) {
-  //       emptyDiv.textContent = cell.typ;
-  //       emptyDiv.style.background = '#f88';
-  //     }
-}
+// }
 
 
 function drawPowerUps(powerUps) {
@@ -237,59 +189,50 @@ function drawPowerUps(powerUps) {
   }
 }
 
-function createPlayers(players) {
+function createPlayers(playerLayer, players, playerImgUrl) {
   playerLayer.innerHTML = '';
-
   for (const id in players) {
     const player = players[id];
-    const el = document.createElement('div');
-    el.className = `player ${player.col}`;
-    el.id = `player_${id}`;
-
-    el.style.transform = `translate(${player.x}px, ${player.y}px)`;
-
-    playerLayer.appendChild(el);
+    const img = document.createElement('img');
+    img.src = playerImgUrl;
+    img.style.position = "absolute";
+    img.style.width = "50px";
+    img.style.height = "50px";
+    img.className = 'player-img player ' + player.col;
+    img.id = `player_${id}`;
+    playerLayer.appendChild(img);
   }
 }
 
-function drawPlayers(players) {
+function drawPlayers(playerLayer, players) {
   for (const id in players) {
     const player = players[id];
-    const el = document.getElementById(`player_${id}`);
-
-    if (el) {
-      el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+    const img = document.getElementById(`player_${id}`);
+    if (img) {
+      img.style.left = player.x + "px";
+      img.style.top = player.y + "px";
     }
   }
 }
 
-function drawBombs(bombs) {
-  const seenIds = new Set();
-
-  for (const bomb of bombs) {
-    const id = `bomb_${bomb.x}_${bomb.y}`;
-    seenIds.add(id);
-
-    const existing = document.getElementById(id);
-
-    if (bomb.e) {
-      if (existing) existing.remove();
-      // bomb explosion logic
-    } else if (!existing) {
-      const bombEl = document.createElement('div');
-      bombEl.className = 'tile b';
-      bombEl.id = id;
-      bombEl.style.gridRowStart = bomb.y + 1;
-      bombEl.style.gridColumnStart = bomb.x + 1;
-      bombLayer.appendChild(bombEl);
-    }
+function drawBombs(bombPool, activeBombs) {
+  if (!bombPool || !bombPool.forEach) {
+    console.log('drawBombs check')
+    return;
   }
-
-  for (const el of Array.from(bombLayer.children)) {
-    if (!seenIds.has(el.id)) {
-      el.remove();
-    }
-  }
+  // offscreen
+  bombPool.forEach(img => {
+      img.style.left = '-9999px';
+      img.style.top = '-9999px';
+  });
+  // Then, put only the active ones in the right place
+  activeBombs.forEach((bomb, idx) => {
+      if (bombPool[idx]) {
+          const img = bombPool[idx];
+          img.style.left = (bomb.x * 48) + 'px';
+          img.style.top  = (bomb.y * 48) + 'px';
+      }
+  });
 }
 
 
@@ -302,8 +245,9 @@ export function updateGameState(data) {
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
-  drawPlayers(gameData.players); // update positions
-  drawBombs(gameData.map.bombs); // update bombs
+
+  drawPlayers(layers.playerLayer, gameData.players);
+  drawBombs(bombPool, gameData.map.bombs); // update bombs
 
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -313,11 +257,11 @@ const validKeys = [
   'ArrowDown',
   'ArrowLeft',
   'ArrowRight',
-  'w','a', 's', 'd',
+  'w', 'a', 's', 'd',
   'W', 'A', 'S', 'D',
   ' ', 'Space'
 ];
-const  keysPressed = [];
+const keysPressed = [];
 
 function handleKeyDown(e) {
   const key = e.key;
@@ -328,7 +272,7 @@ function handleKeyDown(e) {
   e.preventDefault();
   if (!keysPressed.includes(key)) {
     keysPressed.push(key);
-    
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
         action: 'game',
@@ -346,7 +290,7 @@ function handleKeyUp(e) {
   const index = keysPressed.indexOf(key);
   if (index > -1) {
     keysPressed.splice(index, 1);  // Remove the key
-    
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
         action: 'game',
@@ -375,6 +319,7 @@ export function updateGameMini(data) {
   gameData.ticks = data.t
 
   for (const [id, miniPlayer] of Object.entries(data.p)) {
+    if (!gameData.players[id]) continue; // skip updates for missing players
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;
@@ -382,7 +327,7 @@ export function updateGameMini(data) {
     gameData.players[id].lives = miniPlayer.l;
     gameData.players[id].state = miniPlayer.s;
   }
-  
+
   gameData.map.bombs = data.b;
 }
 
