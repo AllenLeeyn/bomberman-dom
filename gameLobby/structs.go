@@ -63,6 +63,10 @@ func (l *Lobby) RemovePlayer(playerName string) {
 	defer l.mu.Unlock()
 	l.colorSet[l.players[playerName].Color] = false
 	delete(l.players, playerName)
+
+	if l.game != nil {
+		l.game.RemovePlayer(playerName)
+	}
 }
 
 func (l *Lobby) GetPlayer(playerName string) *player {

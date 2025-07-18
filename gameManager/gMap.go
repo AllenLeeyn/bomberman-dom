@@ -43,22 +43,16 @@ func NewGMap(width, height int) *GMap {
 		powerUps[i], powerUps[j] = powerUps[j], powerUps[i]
 	})
 
-	var assignedPowerUps []*PowerUp
 	for i := range powerUps {
-		assignedPowerUps = append(assignedPowerUps, &PowerUp{
-			Type: powerUps[i],
-			X:    candidates[i][1],
-			Y:    candidates[i][0],
-		})
+		grid[candidates[i][0]][candidates[i][1]].PowUp = powerUps[i]
 	}
 
 	return &GMap{
-		Width:    width,
-		Height:   height,
-		Grid:     grid,
-		Blocks:   blocks,
-		Walls:    walls,
-		Bombs:    []*Bomb{},
-		PowerUps: assignedPowerUps,
+		Width:  width,
+		Height: height,
+		Grid:   grid,
+		Blocks: blocks,
+		Walls:  walls,
+		Bombs:  []*Bomb{},
 	}
 }

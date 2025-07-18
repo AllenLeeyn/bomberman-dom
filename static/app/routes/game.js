@@ -42,7 +42,6 @@ export function startGameApp(data, playerName) {
 
   drawTiles(gameData)
   createPlayers(gameData.players)
-  drawPowerUps(gameData.map.p_ups)
 
   // TODO: Implement real game rendering logic here using gameData state
   console.log('[Game] Initialized game container with dimensions:');
@@ -54,6 +53,7 @@ export function startGameApp(data, playerName) {
 function drawTiles(gameData) {
   tileLayer.innerHTML = '';
   blockLayer.innerHTML = '';
+  bombLayer.innerHTML = '';
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
@@ -71,10 +71,6 @@ function drawTiles(gameData) {
 
       // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
-      if (tileType == TileEmpty){
-        const isDark = (x + y) % 2 === 0;
-        tile.style.opacity = isDark ? '0.6' : '0.8';
-      }
 
       tileLayer.appendChild(tile);
 
@@ -89,27 +85,15 @@ function drawTiles(gameData) {
         blockLayer.appendChild(block);
       }
 
-      if (gameData.map.grid[y][x].typ === TileBomb){
-        const block = document.createElement('div');
-        block.className = 'tile b';
-        block.style.gridRowStart = y + 1;
-        block.style.gridColumnStart = x + 1;
-        blockLayer.appendChild(block);
+      if (gameData.map.grid[y][x].p_ups !== ""){
+        const powerUp = document.createElement('div');
+        powerUp.className = 'tile p';
+        powerUp.style.gridRowStart = y + 1;
+        powerUp.style.gridColumnStart = x + 1;
+        powerUp.textContent = gameData.map.grid[y][x].p_ups ;
+        bombLayer.appendChild(powerUp);
       }
     }
-  }
-}
-
-function drawPowerUps(powerUps) {
-  console.warn(powerUps)
-  bombLayer.innerHTML = ''; // Clear previous power-ups
-
-  for (const pu of powerUps) {
-    const powerUp = document.createElement('div');
-    powerUp.className = `tile p`; // e.g., p-bomb, p-flame
-    powerUp.style.gridRowStart = pu.y + 1;
-    powerUp.style.gridColumnStart = pu.x + 1;
-    bombLayer.appendChild(powerUp);
   }
 }
 
@@ -137,6 +121,18 @@ function drawPlayers(players) {
 
     if (el.style.transform !== newTransform) {
       el.style.transform = newTransform;
+    }
+
+    if (player.state === "dd") {
+      el.style.display = "none";
+    } else {
+      el.style.display = "block";
+    }
+
+    if (player.state === "rs") {
+      el.classList.add("flicker");
+    } else {
+      el.classList.remove("flicker");
     }
   }
 }
@@ -261,6 +257,15 @@ export function stopGameApp(winnerName = "") {
 
 export function updateGameMini(data) {
   gameData.ticks = data.t
+
+  const incomingIds = new Set(Object.keys(data.p));
+  for (const id in gameData.players) {
+    if (!incomingIds.has(id)) {
+      const el = document.getElementById(`player_${id}`);
+      if (el) el.remove();
+      delete gameData.players[id];
+    }
+  }
 
   for (const [id, miniPlayer] of Object.entries(data.p)) {
     gameData.players[id].x = miniPlayer.x;

@@ -4,9 +4,9 @@
   width: 720px;
   height: 624px;
   border: 2px solid yellow;
-  background: linear-gradient(0deg, #ff00cc, #00ffff, #39ff14);
+  background: linear-gradient(90deg, #ff00cc, #00ffff, #39ff14);
   background-size: 200% 200%;
-  animation: neonPulse 120s ease infinite;
+  animation: neonPulse 30s ease infinite;
   
   user-select: none;
   overflow: hidden;
@@ -127,6 +127,10 @@
   position: absolute;
 }
 
+.flicker {
+  animation: flicker 0.25s infinite alternate;
+}
+
 /* Assign colors via class or inline style */
 .player.red    { background-color: #FF1493; } 
 .player.blue   { background-color: #00BFFF; } 
@@ -140,7 +144,7 @@
 /* --- Flame flicker animation --- */
 @keyframes flicker {
   0%   { opacity: 1; }
-  50%  { opacity: 0.8; transform: scale(1.02); }
+  50%  { opacity: 0.8;}
   100% { opacity: 1; }
 }
 

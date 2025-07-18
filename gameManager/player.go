@@ -23,7 +23,6 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		MaxBombCount:  DefaultBombCount,
 		Radius:        DefaultBombRadius,
 		CurBombCount:  0,
-		PowerUps:      []*PowerUp{},
 	}
 }
 
@@ -44,7 +43,6 @@ func (p *Player) Reset(startX, startY int) {
 	p.State = PlayerAlive
 	p.MaxBombCount = DefaultBombCount
 	p.CurBombCount = 0
-	p.PowerUps = []*PowerUp{}
 	p.KeyPresses = []string{}
 }
 
@@ -87,4 +85,11 @@ func (g *Game) updatePlayersAction() {
 		}
 		g.movePlayer(player, lastKey)
 	}
+}
+
+func (g *Game) RemovePlayer(playerName string) {
+	g.mu.Lock()
+	delete(g.Players, playerName)
+	delete(g.Mini.Players, playerName)
+	g.mu.Unlock()
 }

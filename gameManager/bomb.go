@@ -90,7 +90,8 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 				tile.Type = TileDestroy
 				tile.ExpireTime = expire
 				break
-			} else if tile.Type == TileEmpty || tile.Type == TilePowerUp {
+			} else if tile.Type == TileEmpty || tile.PowUp != "" {
+				tile.PowUp = ""
 				tile.Type = TileFlame
 				tile.ExpireTime = expire
 			} else if tile.Type == TileBomb {
@@ -131,17 +132,6 @@ func (g *Game) updateFlames() {
 func (g *Game) findBombTile(player *Player) (int, int) {
 	playerCenterY := player.Y + PlayerSize/2
 	playerCenterX := player.X + PlayerSize/2
-
-	switch player.Direction {
-	case "u":
-		playerCenterY += 9
-	case "d":
-		playerCenterY -= 9
-	case "l":
-		playerCenterX += 9
-	case "r":
-		playerCenterX -= 9
-	}
 
 	return playerCenterY / TileSize, playerCenterX / TileSize
 }

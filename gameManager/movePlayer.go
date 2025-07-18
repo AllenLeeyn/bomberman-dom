@@ -40,6 +40,11 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 			}
 		}
 		player.Y = newY
+		newTileTop = newY / TileSize
+
+		if playerTileTop != newTileTop {
+			g.collectPowerUp(player, newTileTop, playerTileLeft)
+		}
 
 	case "ArrowDown", "s", "S":
 		player.Direction = "d"
@@ -71,6 +76,11 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 			}
 		}
 		player.Y = newY
+		newTileBottom = (newY + PlayerSize - 1) / TileSize
+
+		if playerTileBottom != newTileBottom {
+			g.collectPowerUp(player, newTileBottom, playerTileLeft)
+		}
 
 	case "ArrowLeft", "a", "A":
 		player.Direction = "l"
@@ -102,6 +112,11 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 			}
 		}
 		player.X = newX
+		newTileLeft = newX / TileSize
+
+		if playerTileLeft != newTileLeft {
+			g.collectPowerUp(player, playerTileTop, newTileLeft)
+		}
 
 	case "ArrowRight", "d", "D":
 		player.Direction = "r"
@@ -133,6 +148,12 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 			}
 		}
 		player.X = newX
+		newTileRight = (newX + PlayerSize - 1) / TileSize
+
+		if playerTileLeft != newTileRight {
+			g.collectPowerUp(player, playerTileTop, newTileRight)
+		}
+
 	default:
 		player.Direction = ""
 	}

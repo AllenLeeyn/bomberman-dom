@@ -53,7 +53,6 @@ type Player struct {
 	MaxBombCount  int             `json:"maxBombs"`
 	Radius        int             `json:"-"`
 	CurBombCount  int             `json:"curBombs,omitempty"`
-	PowerUps      []*PowerUp      `json:"powerUps,omitempty"`
 }
 
 type PlayerMini struct {
@@ -122,12 +121,6 @@ var PowerUpSetting = map[PowerUpType]int{
 	PowerUpLiveUp:    2,
 }
 
-type PowerUp struct {
-	Type PowerUpType `json:"typ"`
-	X    int         `json:"x"`
-	Y    int         `json:"y"`
-}
-
 func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
 	var powerUps []PowerUpType
 	for puType, count := range counts {
@@ -140,18 +133,18 @@ func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
 
 // map struct and const
 type Tile struct {
-	Type       string    `json:"typ"`
-	ExpireTime time.Time `json:"-"`
+	Type       string      `json:"typ"`
+	ExpireTime time.Time   `json:"-"`
+	PowUp      PowerUpType `json:"p_ups"`
 }
 
 type GMap struct {
-	Width    int        `json:"w"`
-	Height   int        `json:"h"`
-	Grid     [][]*Tile  `json:"grid"`
-	Blocks   []*Tile    `json:"-"`
-	Walls    []*Tile    `json:"-"`
-	Bombs    []*Bomb    `json:"bombs"`
-	PowerUps []*PowerUp `json:"p_ups"`
+	Width  int       `json:"w"`
+	Height int       `json:"h"`
+	Grid   [][]*Tile `json:"grid"`
+	Blocks []*Tile   `json:"-"`
+	Walls  []*Tile   `json:"-"`
+	Bombs  []*Bomb   `json:"bombs"`
 }
 
 // game struct and const
@@ -191,7 +184,7 @@ const (
 	BottomBound         = MapPixelHeight - TileSize
 	LeftBound           = TileSize
 	RightBound          = MapPixelWidth - TileSize
-	SlideThreshold      = 12
+	SlideThreshold      = 24
 	SlideShift          = 6
 	SlideDiffCorrection = TileSize - PlayerSize
 
@@ -204,11 +197,10 @@ const (
 	TileFlame   = "f"
 
 	DefaultBombCount      = 2
-	DefaultSpeed          = 8
-	MaxSpd                = 11
+	DefaultSpeed          = 12
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
-	BombFuseDuration      = 4 * time.Second
+	BombFuseDuration      = 3 * time.Second
 	BombExplosionDuration = 1 * time.Second
 )
 
