@@ -10,14 +10,7 @@ import (
 
 type message = shared.Message
 
-type GameState string
-
-const (
-	Waiting GameState = "waiting"
-	Playing GameState = "playing"
-	Ended   GameState = "ended"
-)
-
+// gameAction to inform client what to do
 type gameAction string
 
 const (
@@ -26,6 +19,16 @@ const (
 	gameMini   gameAction = "game_mini"
 )
 
+type GameState string
+
+// gameState to keep track of game operations
+const (
+	Waiting GameState = "waiting"
+	Playing GameState = "playing"
+	Ended   GameState = "ended"
+)
+
+// player struct and const
 type PlayerState string
 
 const (
@@ -62,14 +65,24 @@ type PlayerMini struct {
 	State *PlayerState `json:"s"`
 }
 
+func (p *Player) ToMini() *PlayerMini {
+	return &PlayerMini{
+		X:         &p.X,
+		Y:         &p.Y,
+		Direction: &p.Direction,
+		State:     &p.State,
+	}
+}
+
+// bomb struct and const
 type Bomb struct {
 	PlayerName    string    `json:"by"`
 	X             int       `json:"x"`
 	Y             int       `json:"y"`
 	Radius        int       `json:"r"`
-	PlacedAt      time.Time `json:"placedAt"`
-	ExplosionTime time.Time `json:"explosionTime"`
-	Exploded      bool      `json:"exploded"`
+	PlacedAt      time.Time `json:"-"`
+	ExplosionTime time.Time `json:"-"`
+	Exploded      bool      `json:"e"`
 }
 
 type BombMini struct {
@@ -79,6 +92,16 @@ type BombMini struct {
 	Exploded *bool `json:"e"`
 }
 
+func (b *Bomb) ToMini() *BombMini {
+	return &BombMini{
+		X:        &b.X,
+		Y:        &b.Y,
+		Radius:   &b.Radius,
+		Exploded: &b.Exploded,
+	}
+}
+
+// powerups
 type PowerUpType string
 
 const (
@@ -105,6 +128,17 @@ type PowerUp struct {
 	Y    int         `json:"y"`
 }
 
+func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
+	var powerUps []PowerUpType
+	for puType, count := range counts {
+		for range count {
+			powerUps = append(powerUps, puType)
+		}
+	}
+	return powerUps
+}
+
+// map struct and const
 type Tile struct {
 	Type       string    `json:"typ"`
 	ExpireTime time.Time `json:"-"`
@@ -120,6 +154,7 @@ type GMap struct {
 	PowerUps []*PowerUp `json:"p_ups"`
 }
 
+// game struct and const
 type Game struct {
 	Action    gameAction         `json:"action"`
 	Players   map[string]*Player `json:"players"`
@@ -129,7 +164,7 @@ type Game struct {
 	TickCount int64              `json:"ticks"`
 	Winner    string             `json:"winner"`
 
-	stateQueue chan message  `json:"-"` //broadcast to clients
+	stateQueue chan message  `json:"-"`
 	endQueue   chan struct{} `json:"-"`
 	mu         sync.RWMutex  `json:"-"`
 
@@ -157,7 +192,7 @@ const (
 	LeftBound           = TileSize
 	RightBound          = MapPixelWidth - TileSize
 	SlideThreshold      = 12
-	SlideShift          = 2
+	SlideShift          = 6
 	SlideDiffCorrection = TileSize - PlayerSize
 
 	TileEmpty   = "e"
@@ -168,10 +203,12 @@ const (
 	TilePowerUp = "p"
 	TileFlame   = "f"
 
-	DefaultSpeed          = 3
+	DefaultBombCount      = 2
+	DefaultSpeed          = 8
+	MaxSpd                = 11
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
-	BombFuseDuration      = 3 * time.Second
+	BombFuseDuration      = 4 * time.Second
 	BombExplosionDuration = 1 * time.Second
 )
 
@@ -191,14 +228,4 @@ var safeSpots = map[[2]int]bool{
 
 func GridToPixel(gridX, gridY int) []int {
 	return []int{(gridX * TileSize) + 6, (gridY * TileSize) + 6}
-}
-
-func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
-	var powerUps []PowerUpType
-	for puType, count := range counts {
-		for range count {
-			powerUps = append(powerUps, puType)
-		}
-	}
-	return powerUps
 }

@@ -44,7 +44,7 @@ func NewGMap(width, height int) *GMap {
 	})
 
 	var assignedPowerUps []*PowerUp
-	for i := 0; i < len(powerUps); i++ {
+	for i := range powerUps {
 		assignedPowerUps = append(assignedPowerUps, &PowerUp{
 			Type: powerUps[i],
 			X:    candidates[i][1],

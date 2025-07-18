@@ -1,18 +1,17 @@
 package gameManager
 
 func (g *Game) movePlayer(player *Player, lastKey string) {
+	if player.State == PlayerDead {
+		return
+	}
 	playerTileTop := player.Y / TileSize
 	playerTileBottom := (player.Y + PlayerSize - 1) / TileSize
 	playerTileLeft := player.X / TileSize
 	playerTileRight := (player.X + PlayerSize - 1) / TileSize
 
-	if player.State == PlayerDead {
-		return
-	}
-
 	switch lastKey {
 	case "ArrowUp", "w", "W":
-		player.Direction = "up"
+		player.Direction = "u"
 		newY := player.Y - player.MovementSpeed
 		newTileTop := newY / TileSize
 		if newTileTop == playerTileTop {
@@ -43,7 +42,7 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		player.Y = newY
 
 	case "ArrowDown", "s", "S":
-		player.Direction = "down"
+		player.Direction = "d"
 		newY := player.Y + player.MovementSpeed
 		newTileBottom := (newY + PlayerSize - 1) / TileSize
 		if newTileBottom == playerTileBottom {
@@ -74,7 +73,7 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		player.Y = newY
 
 	case "ArrowLeft", "a", "A":
-		player.Direction = "left"
+		player.Direction = "l"
 		newX := player.X - player.MovementSpeed
 		newTileLeft := newX / TileSize
 		if newTileLeft == playerTileLeft {
@@ -105,7 +104,7 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		player.X = newX
 
 	case "ArrowRight", "d", "D":
-		player.Direction = "right"
+		player.Direction = "r"
 		newX := player.X + player.MovementSpeed
 		newTileRight := (newX + PlayerSize - 1) / TileSize
 		if newTileRight == playerTileRight {
@@ -134,9 +133,14 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 			}
 		}
 		player.X = newX
+	default:
+		player.Direction = ""
 	}
 }
 
 func isBlockingTile(t string) bool {
-	return t == TileWall || t == TileBlock || t == TileBomb || t == TileDestroy
+	return t == TileWall ||
+		t == TileBlock ||
+		t == TileBomb ||
+		t == TileDestroy
 }
