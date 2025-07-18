@@ -67,6 +67,7 @@ function drawTiles(gameData) {
       const tile = document.createElement('div');
 
       // Get the type from game map
+<<<<<<< Updated upstream
       const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
 
       // Assign tile class (fallback to 'empty')
@@ -84,6 +85,8 @@ function drawTiles(gameData) {
 
         blockLayer.appendChild(block);
       }
+=======
+>>>>>>> Stashed changes
 
       if (gameData.map.grid[y][x].p_ups !== ""){
         const powerUp = document.createElement('div');

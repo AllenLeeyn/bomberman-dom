@@ -14,7 +14,7 @@ export const LobbyScreen = (state, onSend) =>
       h('h3', {}, 'Players:'),
       h('ul', { id: 'player-list' }, 
         state.players.map(player => 
-          h('li', { style: `color: ${player.color}` }, player.name)
+          h('li', { style: `background-color: ${player.color}` }, player.name)
         )
       )
     ]),
