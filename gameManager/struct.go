@@ -172,7 +172,7 @@ const (
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
 	BombFuseDuration      = 3 * time.Second
-	BombExplosionDuration = 2 * time.Second
+	BombExplosionDuration = 1 * time.Second
 )
 
 var PlayerStartTiles = [][]int{

@@ -138,5 +138,5 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 }
 
 func isBlockingTile(t string) bool {
-	return t == TileWall || t == TileBlock || t == TileBomb
+	return t == TileWall || t == TileBlock || t == TileBomb || t == TileDestroy
 }

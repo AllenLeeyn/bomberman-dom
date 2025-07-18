@@ -20,7 +20,11 @@ func (l *Lobby) listener() {
 			l.RemovePlayer(action.player.PlayerName)
 			content := fmt.Sprintf(`{"action": "offline", "player_name": "%s"}`, action.player.PlayerName)
 			l.queuePublicMessage(content)
-			l.setTimerState()
+			if l.state == StateInGame {
+				l.game.CheckWinner()
+			} else {
+				l.setTimerState()
+			}
 
 		default:
 			log.Printf("Unknown action kind received: %s", action.kind)

@@ -69,7 +69,8 @@ func (g *Game) placeBomb(player *Player) {
 	now := time.Now()
 	tileY, tileX := g.findBombTile(player)
 
-	if player.CurBombCount >= player.MaxBombCount {
+	if player.CurBombCount >= player.MaxBombCount ||
+		player.State == PlayerRespawning {
 		return
 	}
 	if g.GMap.Grid[tileY][tileX].Type == TileBomb {
@@ -213,16 +214,16 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 		player.Lives--
 		if player.Lives < 0 {
 			player.State = PlayerDead
-			g.checkWinner()
+			g.CheckWinner()
 			return
 		}
 		player.State = PlayerRespawning
-		player.StateReset = now.Add(2 * time.Second)
+		player.StateReset = now.Add(1 * time.Second)
 		log.Println(player.State)
 	}
 }
 
-func (g *Game) checkWinner() {
+func (g *Game) CheckWinner() {
 	livingPlayers := []string{}
 
 	for id, player := range g.Players {

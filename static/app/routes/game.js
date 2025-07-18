@@ -342,7 +342,7 @@ function renderExplosion(bomb) {
         flameGrid[y][x] = 0;
       }
     }
-  }, 2000);
+  }, 1000);
 }
 
 /* function updatePlayerPosition(players) {
