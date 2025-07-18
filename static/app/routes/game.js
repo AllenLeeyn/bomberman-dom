@@ -67,26 +67,6 @@ function drawTiles(gameData) {
       const tile = document.createElement('div');
 
       // Get the type from game map
-<<<<<<< Updated upstream
-      const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
-
-      // Assign tile class (fallback to 'empty')
-      tile.className = `tile ${tileType}`;
-
-      tileLayer.appendChild(tile);
-
-      if (gameData.map.grid[y][x].typ === TileBlock){
-        const block = document.createElement('div');
-        block.id = `block_${x}_${y}`; 
-        block.className = 'tile bl';
-        block.style.gridRowStart = y + 1;
-        block.style.gridColumnStart = x + 1;
-        if ((x + y) % 2 === 0) block.classList.add('bl-alt');
-
-        blockLayer.appendChild(block);
-      }
-=======
->>>>>>> Stashed changes
 
       if (gameData.map.grid[y][x].p_ups !== ""){
         const powerUp = document.createElement('div');

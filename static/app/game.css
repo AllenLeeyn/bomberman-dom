@@ -1,15 +1,4 @@
 #game-root {
-<<<<<<< Updated upstream
-  margin-top: 80px;
-  position: relative;
-  width: 720px;
-  height: 624px;
-  border: 2px solid yellow;
-  background: linear-gradient(90deg, #ff00cc, #00ffff, #39ff14);
-  background-size: 200% 200%;
-  animation: neonPulse 30s ease infinite;
-  
-=======
   margin-top: 400px; /* remove the top margin */
   position: absolute; /* or fixed depending on your layout */
   top: 50%;
@@ -26,7 +15,6 @@
   background-size: 200% 200%;
   animation: neonPulse 120s ease infinite;
 
->>>>>>> Stashed changes
   user-select: none;
   overflow: hidden;
   display: inline-block;
