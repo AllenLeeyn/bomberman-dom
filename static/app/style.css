@@ -2,7 +2,7 @@
 
 body {
   font-family: "Poppins", sans-serif;
-  color: #eee;
+  color: whitesmoke;
   margin: 80px;
   padding: 0;
   display: flex;
@@ -33,7 +33,7 @@ body::before {
   display: flex;
   flex-direction: column;
   transition: flex-direction 0.3s;
-  margin-top: 400px; /* remove the top margin */
+  margin-top: 350px; /* remove the top margin */
   position: absolute; /* or fixed depending on your layout */
   top: 50%;
   left: 50%;
@@ -158,7 +158,7 @@ h2 {
 }
 
 .system {
-  color: #aaa;
+  color: whitesmoke;
 }
 
 #players {
@@ -293,8 +293,6 @@ h2 {
   #join-screen,
   #lobby-screen {
     width: 95%;
-    max-width: 400px;
-    margin-top: 20px;
     padding: 15px;
   }
   
