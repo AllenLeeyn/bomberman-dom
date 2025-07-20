@@ -82,7 +82,7 @@ button {
   font-family: "Poppins", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: 1rem;
+  font-size: 1.2rem;
   margin: 5px;
   width: auto;
   margin-top: 20px;
@@ -93,12 +93,12 @@ button {
   box-sizing: border-box;
   border: 2px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1.2rem;
   background-color: white;
-  background-image: url('BombIcon-purple.png');
-  background-position: 5px 5px; 
+  background-image: url('BombIcon-black.png');
+  background-position: 10px 5px; 
   background-repeat: no-repeat;
-  padding: 12px 20px 12px 50px;
+  padding: 12px 15px 12px 55px;
 }
 
 button {
