@@ -90,16 +90,16 @@ button {
   outline: none;
   border-radius: 10px;
   border: 2px solid #BB1EEA;
-  color: #BB1EEA;
   transition: all 0.3s ease;
   padding: 8px 20px;
-  background-color: transparent;
+  color: black;
+  background-color: #BB1EEA;
 }
 
 #join-screen button:hover {
   background-color: rgba(187, 30, 234, 0.1);
-  color: whitesmoke;
-  background-color: #BB1EEA;
+  color: #BB1EEA;
+  background-color: transparent;
   transform: translateY(-2px);
   cursor: pointer;
 
