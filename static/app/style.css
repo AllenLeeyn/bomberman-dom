@@ -96,6 +96,10 @@ button {
   background-color: #BB1EEA;
 }
 
+#join-screen input {
+  color: #BB1EEA;
+}
+
 #join-screen button:hover {
   background-color: rgba(187, 30, 234, 0.1);
   color: #BB1EEA;

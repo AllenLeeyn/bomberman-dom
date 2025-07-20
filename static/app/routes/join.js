@@ -4,7 +4,6 @@ let localName = '';
 
 export const JoinScreen = (state, onJoin) => 
   h('div', { id: 'join-screen', class: state.connected ? '' : 'active' }, [
-    // h('h1', {}, 'Bomberman DOM'),
     h('svg', {
       id: 'logo',
       width: 581,
@@ -17,7 +16,6 @@ export const JoinScreen = (state, onJoin) =>
       xmlns: 'http://www.w3.org/2000/svg',
       style: { display: 'block', margin: '40px auto 24px auto' }
     }, [
-        // Add the gradient definition first
       h('defs', {}, [
         h('linearGradient', {
           id: 'neonPurpleGradient',
@@ -26,42 +24,14 @@ export const JoinScreen = (state, onJoin) =>
           x2: '100%',
           y2: '100%'
         }, [
-          // h('stop', { offset: '0%', style: 'stop-color:#400C97;stop-opacity:1' }),    // Bright Deep Purple
-          // h('stop', { offset: '20%', style: 'stop-color:#7627F0;stop-opacity:1' }),   // Vibrant Violet Base
-          // h('stop', { offset: '40%', style: 'stop-color:#B78EFF;stop-opacity:1' }),   // Electric Purple Light
-          // h('stop', { offset: '60%', style: 'stop-color:#FF9BCC;stop-opacity:1' }),   // Bright Pink Highlight
-          // h('stop', { offset: '80%', style: 'stop-color:#FFC666;stop-opacity:1' }),   // Glowing Orange
-          // h('stop', { offset: '100%', style: 'stop-color:#FFF1AA;stop-opacity:1' })   // Brilliant Yellow Peak
-          // h('stop', { offset: '0%', style: 'stop-color:#BB1EEA;stop-opacity:1' }),    // Deep Shadow Purple
-          // h('stop', { offset: '20%', style: 'stop-color:#BB1EEA;stop-opacity:1' }),   // Dark Violet Base
-          // h('stop', { offset: '40%', style: 'stop-color:#7C3AED;stop-opacity:1' }),   // Rich Purple Mid
-          // h('stop', { offset: '60%', style: 'stop-color:#EC4899;stop-opacity:1' }),   // Electric Pink Highlight
-          // h('stop', { offset: '80%', style: 'stop-color:#F59E0B;stop-opacity:1' }),   // Warm Orange Accent
-          // h('stop', { offset: '100%', style: 'stop-color:#BB1EEA;stop-opacity:1' })   // Bright Yellow Peak
-
-          // h('stop', { offset: '0%', style: 'stop-color:#1A0B33;stop-opacity:1' }),    // Deep Shadow Purple
-          // h('stop', { offset: '20%', style: 'stop-color:#4C1D95;stop-opacity:1' }),   // Dark Violet Base
-          // h('stop', { offset: '40%', style: 'stop-color:#7C3AED;stop-opacity:1' }),   // Rich Purple Mid
-          // h('stop', { offset: '60%', style: 'stop-color:#EC4899;stop-opacity:1' }),   // Electric Pink Highlight
-          // h('stop', { offset: '80%', style: 'stop-color:#F59E0B;stop-opacity:1' }),   // Warm Orange Accent
-          // h('stop', { offset: '100%', style: 'stop-color:#FDE047;stop-opacity:1' })   // Bright Yellow Peak
-
           h('stop', { offset: '0%', style: 'stop-color:#A117F2;stop-opacity:1' }),
           h('stop', { offset: '20%', style: 'stop-color:#BE00FE;stop-opacity:1' }),
           h('stop', { offset: '40%', style: 'stop-color:#7C3AED;stop-opacity:1' }),
           h('stop', { offset: '60%', style: 'stop-color:#0891B2;stop-opacity:1' }),
           h('stop', { offset: '80%', style: 'stop-color:#06B6D4;stop-opacity:1' }),
           h('stop', { offset: '100%', style: 'stop-color:#00F5FF;stop-opacity:1' })
-
-          // h('stop', { offset: '0%', style: 'stop-color:#A117F2;stop-opacity:1' }),
-          // h('stop', { offset: '20%', style: 'stop-color:#BE00FE;stop-opacity:1' }),
-          // h('stop', { offset: '40%', style: 'stop-color:#DF00FE;stop-opacity:1' }),
-          // h('stop', { offset: '60%', style: 'stop-color:#ff00c1;stop-opacity:1' }),
-          // h('stop', { offset: '80%', style: 'stop-color:#9600ff;stop-opacity:1' }),
-          // h('stop', { offset: '100%', style: 'stop-color:#4900ff;stop-opacity:1' })
         ])
       ]),
-      // ...insert your <path> elements here (copy from your SVG)...
       h("path", { 
         d: "M879.047 116.2C879.047 122.695 877.233 128.595 873.601 133.826C869.975 139.048 864.864 143.117 858.386 146.075L858.363 146.084C851.986 148.918 844.696 150.3 836.547 150.3C827.868 150.3 819.998 148.852 812.979 145.905L812.961 145.897L812.941 145.888C805.943 142.809 800.317 138.565 796.16 133.117L796.151 133.104L796.141 133.092C791.975 127.489 789.681 121.086 789.253 113.95L789.093 111.3H812.816L813.036 113.557C813.498 118.297 815.654 122.139 819.65 125.201C823.776 128.261 829.271 129.9 836.347 129.9C842.934 129.9 847.8 128.442 851.226 125.816C854.666 123.178 856.248 120.019 856.248 116.2C856.248 114.18 855.802 112.559 855.007 111.243C854.212 109.925 852.977 108.766 851.174 107.808L851.122 107.779C847.148 105.543 840.805 103.274 831.933 101.023L831.923 101.021L831.914 101.018C823.72 98.8689 816.938 96.7034 811.599 94.5131L811.562 94.4984L811.527 94.4818C806.124 92.0646 801.432 88.5784 797.466 84.0463L797.439 84.015L797.413 83.9828C793.365 79.036 791.448 72.6991 791.448 65.1996C791.448 59.0654 793.285 53.4267 796.914 48.347C800.544 43.2652 805.65 39.3414 812.109 36.5258C818.618 33.5542 825.982 32.1 834.148 32.1C846.708 32.1 857.116 35.2819 865.134 41.8685C873.206 48.4989 877.48 57.5876 878.045 68.8754L878.175 71.5004H855.016L854.854 69.1742C854.5 64.0959 852.474 60.1484 848.771 57.14L848.756 57.1283L848.741 57.1156C845.181 54.1303 840.211 52.5004 833.547 52.5004C827.351 52.5004 822.722 53.8293 819.414 56.225C816.156 58.584 814.648 61.5169 814.648 65.1996C814.648 68.197 815.563 70.5476 817.318 72.431C819.452 74.4332 822.088 76.1214 825.267 77.473C828.765 78.7657 833.599 80.271 839.801 81.9867C847.703 84.1296 854.211 86.2923 859.287 88.4828C864.59 90.6326 869.113 93.9339 872.833 98.3578C876.896 103.023 878.905 109.029 879.047 116.15V116.2Z", 
         stroke: "#B78EFF", 
