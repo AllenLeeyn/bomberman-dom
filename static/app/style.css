@@ -20,12 +20,14 @@ body::before {
   width: 100%;
   height: 100%;
   background-image: url('bg.jpg');
+  background-color: rgba(0, 0, 0, 0.4);
+  background-blend-mode: overlay; 
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  filter: blur(5px);
-  -webkit-filter: blur(5px);
+  filter: blur(1.2px);
+  -webkit-filter: blur(1.2px);
   z-index: -1;
 }
 
@@ -268,7 +270,6 @@ h2 {
     margin: 20px auto 24px auto;
     display: block;
     animation: fill 0.5s ease forwards 3s;
-
 }
 
 #logo path:nth-child(1) {
