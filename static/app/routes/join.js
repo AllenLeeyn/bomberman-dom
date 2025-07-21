@@ -92,7 +92,7 @@ export const JoinScreen = (state, onJoin) =>
 
     h('div', { class: 'help-icons' }, [
       h('img', {
-        src: 'static/app/gameRules.png',
+        src: 'static/app/ic_gameRules.png',
         class: 'help-icon',
         'data-tooltip': `🎯 Game Rules
     • 2-4 players battle arena  
@@ -101,7 +101,7 @@ export const JoinScreen = (state, onJoin) =>
     • Last player standing wins!`
       }),
       h('img', {
-        src: 'static/app/controls.png', 
+        src: 'static/app/ic_controls.png', 
         class: 'help-icon',
         'data-tooltip': `🎮 Controls
     • ⬆️⬇️⬅️➡️ Arrow Keys - Move
@@ -110,7 +110,7 @@ export const JoinScreen = (state, onJoin) =>
     • T - Chat (in lobby)`
       }),
       h('img', {
-        src: 'static/app/powerUps.png',
+        src: 'static/app/ic_powerUps.png',
         class: 'help-icon', 
         'data-tooltip': `⚡ Power-ups
     💣 Bomb Up - More bombs
@@ -121,7 +121,7 @@ export const JoinScreen = (state, onJoin) =>
     ❤️ Live Up - Extra life (RARE!)`
       }),
       h('img', {
-        src: 'static/app/victory.png',
+        src: 'static/app/ic_victory.png',
         class: 'help-icon',
         'data-tooltip': `👑 Victory Rules
     • Start with 3 lives each
