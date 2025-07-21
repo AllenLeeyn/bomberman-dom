@@ -1,17 +1,23 @@
 #game-root {
-  margin-top: 80px;
-  position: relative;
-  width: 720px;
-  height: 624px;
-  border: 2px solid yellow;
-  background: linear-gradient(90deg, #ff00cc, #00ffff, #39ff14);
-  background-size: 200% 200%;
-  animation: neonPulse 30s ease infinite;
+  margin-top: 350px; /* remove the top margin */
+  position: absolute; /* or fixed depending on your layout */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw,720px);
+  height: min(80vh, 624px);
+  max-width: 720px;
+  max-height: 624px;
   
+  aspect-ratio: 15/13;
+  border: 10px solid transparent;
+  background: linear-gradient(0deg, #FFFACD, #ffd23f);
+  background-size: 200% 200%;
+  animation: neonPulse 120s ease infinite;
+
   user-select: none;
   overflow: hidden;
   display: inline-block;
-  will-change: background-position;
 }
 
 #game-root:focus {
@@ -29,15 +35,22 @@
   left: 0;
   width: 720px;
   height: 624px;
+  min-width: 0;
+  min-height: 0;
+  max-width: 720px;
+  max-height: 624px;
 
   display: grid;
   grid-template-columns: repeat(15, 48px);
   grid-template-rows: repeat(13, 48px);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Z-index for stacking order */
 #tile-layer {
   z-index: 1;
+  background: url('game_bg2.jpg') no-repeat center center;
 }
 
 #bomb-layer {
@@ -132,6 +145,7 @@
 }
 
 /* Assign colors via class or inline style */
+
 .player.red    { background-color: #FF1493; } 
 .player.blue   { background-color: #00BFFF; } 
 .player.green  { background-color: #2ecc71; }
@@ -140,6 +154,7 @@
 .player.orange { background-color: #e67e22; } 
 .player.cyan   { background-color: #1abc9c; } 
 .player.pink   { background-color: #ff69b4; } 
+
 
 /* --- Flame flicker animation --- */
 @keyframes flicker {
@@ -176,4 +191,28 @@
   z-index: 999;
   pointer-events: none;
   user-select: none;
+}
+
+/* For very small screens */
+@media (max-width: 720px) {
+    body {
+        overflow-x: auto; /* Allow horizontal scrolling */
+    }
+    
+    #game-root {
+        /* Game stays at minimum size */
+        width: 720px;
+        height: 624px;
+        margin: 10px auto;
+    }
+}
+
+@media (max-height: 624px) {
+    body {
+        overflow-y: auto; /* Allow vertical scrolling */
+    }
+    
+    #game-root {
+        margin-top: 10px;
+    }
 }

@@ -2,6 +2,17 @@ import { h } from '../../framework/domber.js';
 
 let localMessage = '';
 
+const themeColorMap = {
+  red: '#FF1493',
+  blue: '#00BFFF',
+  green: '#2ecc71',
+  yellow: '#f1c40f',
+  purple: '#9b59b6',
+  orange: '#e67e22',
+  cyan: '#1abc9c',
+  pink: '#ff69b4'
+};
+
 export const LobbyScreen = (state, onSend) => 
   h('div', { id: 'lobby-screen', class: state.connected ? 'active' : '' }, [
     h('h2', {}, 'Lobby Chat'),
@@ -14,7 +25,8 @@ export const LobbyScreen = (state, onSend) =>
       h('h3', {}, 'Players:'),
       h('ul', { id: 'player-list' }, 
         state.players.map(player => 
-          h('li', { style: `color: ${player.color}` }, player.name)
+        // h('li', { class: `player ${player.color}` }, player.name)
+          h('li', { style: `background-color: ${getPlayerColor(state.players, player.name)}` }, player.name)
         )
       )
     ]),
@@ -56,8 +68,9 @@ export const LobbyScreen = (state, onSend) =>
     ])
   ]);
 
-// Helper function to get player color by name
+// // Helper function to get player color by name
 function getPlayerColor(players, name) {
   const player = players.find(p => p.name === name);
-  return player ? player.color : 'black';
+  const colorName = player?.color || 'black';
+  return themeColorMap[colorName] ?? 'black';
 }
