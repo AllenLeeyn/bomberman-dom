@@ -150,11 +150,6 @@
 .player.blue   { background-color: #00BFFF; } 
 .player.green  { background-color: #2ecc71; }
 .player.yellow { background-color: #f1c40f; } 
-.player.purple { background-color: #9b59b6; } 
-.player.orange { background-color: #e67e22; } 
-.player.cyan   { background-color: #1abc9c; } 
-.player.pink   { background-color: #ff69b4; } 
-
 
 /* --- Flame flicker animation --- */
 @keyframes flicker {
