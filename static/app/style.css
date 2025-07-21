@@ -103,10 +103,10 @@ button {
 #join-screen button:hover {
   background-color: rgba(187, 30, 234, 0.1);
   color: #BB1EEA;
-  background-color: transparent;
+  background-color: rgb(47, 4, 60);
+  border: 2px solid rgb(47, 4, 60);
   transform: translateY(-2px);
   cursor: pointer;
-
 }
 
 #join-screen button:active {

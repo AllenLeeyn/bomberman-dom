@@ -15,7 +15,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		Color:         color,
 		X:             0,
 		Y:             0,
-		Direction:     "down",
+		Direction:     "d",
 		MovementSpeed: DefaultSpeed,
 		KeyPresses:    []string{},
 		Lives:         DefaultLives,
@@ -37,7 +37,7 @@ func NewPlayerMini(players map[string]*Player) map[string]*PlayerMini {
 func (p *Player) Reset(startX, startY int) {
 	p.X = startX
 	p.Y = startY
-	p.Direction = "down"
+	p.Direction = "d"
 	p.MovementSpeed = DefaultSpeed
 	p.Lives = DefaultLives
 	p.State = PlayerAlive

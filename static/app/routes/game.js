@@ -95,10 +95,24 @@ function createPlayers(players) {
   for (const id in players) {
     const player = players[id];
     const el = document.createElement('div');
-    el.className = `player ${player.col}`;
+    el.className = `player`;
     el.id = `player_${id}`;
 
     el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+    
+    // Validate color or fallback to 'blue'
+    const allowedColors = ['red', 'blue', 'green', 'yellow'];
+    const color = allowedColors.includes(player.col) ? player.col : 'blue';
+
+    // Create images for each direction
+    const directions = ['front', 'back', 'left', 'right'];
+    directions.forEach(dir => {
+      const img = document.createElement('img');
+      img.src = `./static/app/bot_${color}_${dir}.png`;
+      img.className = `player-img dir-${dir}`;
+      img.style.display = (dir === 'front') ? '' : 'none';
+      el.appendChild(img);
+    });
 
     playerLayer.appendChild(el);
   }
@@ -115,17 +129,30 @@ function drawPlayers(players) {
       el.style.transform = newTransform;
     }
 
-    if (player.state === "dd") {
-      el.style.display = "none";
-    } else {
-      el.style.display = "block";
-    }
+    el.style.display = (player.state === "dd") ? "none" : "block";
 
     if (player.state === "rs") {
       el.classList.add("flicker");
     } else {
       el.classList.remove("flicker");
     }
+    
+    const dirMap = {
+      u: "back",
+      d: "front",
+      l: "left",
+      r: "right",
+    };
+    
+    const activeDir = dirMap[player.dir]
+    const imgs = el.querySelectorAll(".player-img");
+    imgs.forEach(img => {
+      if (img.classList.contains(`dir-${activeDir}`)) {
+        img.style.display = "";
+      } else {
+        img.style.display = "none";
+      }
+    });
   }
 }
 
