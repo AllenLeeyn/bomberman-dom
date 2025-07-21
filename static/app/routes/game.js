@@ -67,6 +67,22 @@ function drawTiles(gameData) {
       const tile = document.createElement('div');
 
       // Get the type from game map
+      const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
+
+      tile.className = `tile ${tileType}`;
+
+      tileLayer.appendChild(tile);
+
+      if (gameData.map.grid[y][x].typ === TileBlock){
+        const block = document.createElement('div');
+        block.id = `block_${x}_${y}`; 
+        block.className = 'tile bl';
+        block.style.gridRowStart = y + 1;
+        block.style.gridColumnStart = x + 1;
+        if ((x + y) % 2 === 0) block.classList.add('bl-alt');
+
+        blockLayer.appendChild(block);
+      }
 
       if (gameData.map.grid[y][x].p_ups !== ""){
         const powerUp = document.createElement('div');
@@ -146,9 +162,9 @@ function drawBombs(bombs) {
     if (el.classList.contains('p')) continue;
     if (!seenIds.has(el.id)) {
       el.remove();
-      const [_, x, y] = el.id.split('_');
+      /* const [_, x, y] = el.id.split('_');
       const bomb = { x: +x, y: +y, r: 1 }; 
-      renderExplosion(bomb);
+      renderExplosion(bomb); */
     }
   }
 }

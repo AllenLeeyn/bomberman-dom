@@ -25,7 +25,7 @@ func (g *Game) placeBomb(player *Player) {
 		Y:             tileY,
 		Radius:        player.Radius,
 		PlacedAt:      now,
-		ExplosionTime: now.Add(BombExplosionDuration),
+		ExplosionTime: now.Add(BombFuseDuration),
 		Exploded:      false,
 	}
 	g.GMap.Bombs = append(g.GMap.Bombs, newBomb)
@@ -97,6 +97,7 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 			} else if tile.Type == TileBomb {
 				for _, otherBomb := range g.GMap.Bombs {
 					if otherBomb.X == nx && otherBomb.Y == ny && !otherBomb.Exploded {
+						// decrease bomb fuse. don't explode immediately.
 						otherBomb.Exploded = true
 						g.explodeBomb(otherBomb)
 						break
