@@ -11,6 +11,11 @@ import (
 )
 
 func (l *Lobby) handleConnection(pl *player) {
+	defer func() {
+		pl.Conn.Close()
+		l.playerQueue <- action{"offline", pl}
+	}()
+
 	for {
 		_, msg, err := pl.Conn.ReadMessage()
 		if err != nil {
@@ -28,14 +33,16 @@ func (l *Lobby) handleConnection(pl *player) {
 		if err := json.Unmarshal(msg, &msgData); err != nil {
 			log.Printf("Invalid message format from %s", pl.PlayerName)
 			continue
-		} else {
-			log.Printf("Received message from %s: %s", pl.PlayerName, msgData.Content)
 		}
+		//log.Printf("Received message from %s: %s", pl.PlayerName, msgData.Content)
+
 		msgData.PlayerName = pl.PlayerName
 
 		switch msgData.Action {
 		case "game":
-			l.game.UpdatePlayerKeys(msgData.PlayerName, msgData.Content)
+			if l.game != nil {
+				l.game.UpdatePlayerKeys(msgData.PlayerName, msgData.Content)
+			}
 
 		case "colorChange":
 			l.processColorChange(&msgData)
@@ -47,8 +54,6 @@ func (l *Lobby) handleConnection(pl *player) {
 			}
 		}
 	}
-	pl.Conn.Close()
-	l.playerQueue <- action{"offline", pl}
 }
 
 func (l *Lobby) processMessage(msgData *Message) error {
@@ -71,9 +76,9 @@ func (l *Lobby) processMessage(msgData *Message) error {
 func checkMessage(message string) (bool, string) {
 	message = strings.TrimSpace(message)
 	if len(message) == 0 {
-		return false, "Too short"
+		return false, ""
 	} else if len(message) > 1000 {
-		return false, "Too long"
+		return false, ""
 	}
 	return true, html.EscapeString(message)
 }

@@ -33,12 +33,13 @@ type Lobby struct {
 type timerAction string
 
 const (
-	waitDuration  int = 3
-	startDuration int = 2
+	waitDuration  int = 5
+	startDuration int = 5
 
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"
 	gameStartTimer timerAction = "game_start"
+	gameEndSignal  timerAction = "game_end"
 )
 
 type LobbyState string
@@ -62,6 +63,10 @@ func (l *Lobby) RemovePlayer(playerName string) {
 	defer l.mu.Unlock()
 	l.colorSet[l.players[playerName].Color] = false
 	delete(l.players, playerName)
+
+	if l.game != nil {
+		l.game.RemovePlayer(playerName)
+	}
 }
 
 func (l *Lobby) GetPlayer(playerName string) *player {
@@ -93,10 +98,4 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	defer l.mu.RUnlock()
 	_, exists := l.players[playerName]
 	return exists
-}
-
-func (l *Lobby) setState(state LobbyState) {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	l.state = state
 }

@@ -9,11 +9,13 @@ import (
 func (l *Lobby) timerController() {
 	for action := range l.timerCh {
 
+		if action == gameEndSignal {
+			l.state = StateInLobby
+		}
 		if l.state == StateInGame {
 			log.Println("Timer is not active in the in_game state")
 			continue
 		}
-
 		if l.timer != nil {
 			l.timer.Stop()
 			l.timer = nil
@@ -21,11 +23,13 @@ func (l *Lobby) timerController() {
 
 		switch action {
 		case resetTimer:
-			l.resetTimeHandler()
+			l.startWaitingTimer()
 		case gameStartTimer:
 			l.gameStartTimerHandler()
 		case stopTimer:
 			l.stopTimerHandler()
+		case gameEndSignal:
+			l.setTimerState()
 		}
 	}
 }
@@ -40,8 +44,8 @@ func (l *Lobby) setTimerState() {
 	}
 }
 
-func (l *Lobby) resetTimeHandler() {
-	l.setState(StateWaiting)
+func (l *Lobby) startWaitingTimer() {
+	l.state = StateWaiting
 	l.timer = time.AfterFunc(time.Duration(waitDuration)*time.Second, l.timerCallback)
 	l.queuePublicMessage(fmt.Sprintf(`{"action":"timer","state":"waiting","duration":%d}`,
 		waitDuration))
@@ -49,7 +53,7 @@ func (l *Lobby) resetTimeHandler() {
 }
 
 func (l *Lobby) gameStartTimerHandler() {
-	l.setState(StateStarting)
+	l.state = StateStarting
 	l.timer = time.AfterFunc(time.Duration(startDuration)*time.Second, l.timerCallback)
 	l.queuePublicMessage(fmt.Sprintf(`{"action":"timer","state":"starting","duration":%d}`,
 		startDuration))
@@ -57,7 +61,7 @@ func (l *Lobby) gameStartTimerHandler() {
 }
 
 func (l *Lobby) stopTimerHandler() {
-	l.setState(StateInLobby)
+	l.state = StateInLobby
 	l.queuePublicMessage(`{"action":"timer","state":"stopped"}`)
 	log.Println("Timer stopped, back to in_lobby state")
 }
@@ -73,6 +77,6 @@ func (l *Lobby) timerCallback() {
 
 	case StateWaiting:
 		l.state = StateStarting
-		l.timerCh <- gameStartTimer
+		go func() { l.timerCh <- gameStartTimer }()
 	}
 }

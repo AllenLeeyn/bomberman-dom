@@ -1,17 +1,19 @@
 #game-root {
-  margin-top: 80px;
-  position: relative;
-  width: 720px;
-  height: 624px;
-  border: 2px solid #333;
-  background: linear-gradient(0deg, #ff00cc, #00ffff, #39ff14);
-  background-size: 200% 200%;
-  animation: neonPulse 120s ease infinite;
+  margin-top: 350px; /* remove the top margin */
+  position: absolute; /* or fixed depending on your layout */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw,720px);
+  height: min(80vh, 624px);
+  max-width: 720px;
+  max-height: 624px;
   
+  aspect-ratio: 15/13;
+
   user-select: none;
   overflow: hidden;
   display: inline-block;
-  will-change: background-position;
 }
 
 #game-root:focus {
@@ -23,21 +25,28 @@
 #bomb-layer,
 #block-layer,
 #player-layer,
-#explo-layer {
+#explosion-layer {
   position: absolute;
   top: 0;
   left: 0;
   width: 720px;
   height: 624px;
+  min-width: 0;
+  min-height: 0;
+  max-width: 720px;
+  max-height: 624px;
 
   display: grid;
   grid-template-columns: repeat(15, 48px);
   grid-template-rows: repeat(13, 48px);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Z-index for stacking order */
 #tile-layer {
   z-index: 1;
+  background: url('bg.png') no-repeat center center;
 }
 
 #bomb-layer {
@@ -58,48 +67,24 @@
 }
 
 .tile {
-  width: 38px;
-  height: 38px;
-  margin: 5px;
+  width: 48px;
+  height: 48px;
+  margin: 0px;
   box-sizing: border-box;
   background-color: #2a2a2a;
 }
 
 /* --- Tile Types --- */
-.tile.e { /* empty */
-  width: 46px;
-  height: 46px;
-  margin: 1px;
-  background-color: #444;
-}
-
-.tile.w { /* wall */
-  width: 46px;
-  height: 46px;
-  margin: 1px;
-  background-color: #26294e; /* flat dark metal base */
-  border-radius: 2px;
-  position: relative;
-}
-
 .tile.bl { /* block */
-  width: 46px;
-  height: 46px;
-  margin: 1px;
-  background-color: #eae548; /* deep pink */
-  border-radius: 3px;
+  background: url('block.png') no-repeat center center;
   position: relative;
 }
-
-.tile.bl.bl-alt {
-  background-color: #f72585; /* neon pink */
-}
-
 
 .tile.b { /* bomb */
   background-color: transparent;
   position: relative;
 }
+
 .tile.b::after {
   content: '';
   width: 36px;
@@ -120,9 +105,9 @@
 }
 
 /* --- Players --- */
-/* .player {
-  width: 38px;
-  height: 38px;
+.player {
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
   position: absolute;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
@@ -138,14 +123,19 @@
 .player.cyan   { background-color: #1abc9c; } 
 .player.pink   { background-color: #ff69b4; }  */
 
+
 /* --- Flame flicker animation --- */
+@keyframes flicker {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.8;}
+  100% { opacity: 1; }
+}
+
 @keyframes neonPulse {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
-
 
 /* Hide when not in use */
 .hidden {
@@ -174,4 +164,46 @@
   font-family: inherit;
   /* Optionally add a fade or transition */
   transition: opacity 0.3s;
+
+.winner-overlay {
+  position: absolute;
+  top: 0;       /* start at top */
+  left: 0;      /* start at left */
+  width: 100%;  /* full width */
+  height: 100%; /* full height */
+  background: rgba(0, 0, 0, 0.7); /* semi-transparent overlay */
+  color: gold;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  z-index: 999;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* For very small screens */
+@media (max-width: 720px) {
+    body {
+        overflow-x: auto; /* Allow horizontal scrolling */
+    }
+    
+    #game-root {
+        /* Game stays at minimum size */
+        width: 720px;
+        height: 624px;
+        margin: 10px auto;
+    }
+}
+
+@media (max-height: 624px) {
+    body {
+        overflow-y: auto; /* Allow vertical scrolling */
+    }
+    
+    #game-root {
+        margin-top: 10px;
+    }
 }

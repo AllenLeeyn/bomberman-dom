@@ -10,17 +10,17 @@ func (l *Lobby) broadcaster() {
 	for {
 		msg := <-l.msgQueue
 
-		allPlayerInfos := l.GetAllPlayerInfos()
-		for _, playerInfos := range allPlayerInfos {
-			pl := l.GetPlayer(playerInfos[0])
+		l.mu.RLock()
+		for playerID, pl := range l.players {
 			if pl == nil {
 				continue
 			}
-			//log.Printf("Broadcasting message to %s: %s", playerInfos[0], msg.Content)
+			//log.Printf("Sending to player ID: %s, message: %s", playerID, msg.Content)
 			err := pl.Conn.WriteMessage(websocket.TextMessage, []byte(msg.Content))
 			if err != nil {
-				log.Printf("Error sending message to %v: %v", playerInfos[0], err)
+				log.Printf("Error sending message to %v: %v", playerID, err)
 			}
 		}
+		l.mu.RUnlock()
 	}
 }

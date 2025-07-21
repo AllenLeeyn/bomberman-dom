@@ -18,7 +18,7 @@ func setupRoutes(l *gameLobby.Lobby) {
 			http.ServeFile(w, r, "./static/index.html")
 			return
 		}
-		http.NotFound(w, r)
+		http.Redirect(w, r, "/", http.StatusFound)
 	})
 
 	// WebSocket endpoint for the lobby/game

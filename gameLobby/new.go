@@ -23,7 +23,7 @@ func New() *Lobby {
 
 		msgQueue:    make(chan Message, 100),
 		playerQueue: make(chan action, 10),
-		timerCh:     make(chan timerAction, 10),
+		timerCh:     make(chan timerAction, 4),
 		endQueue:    make(chan struct{}, 1),
 		state:       StateInLobby,
 	}
@@ -98,4 +98,9 @@ func (l *Lobby) queuePublicMessage(content string) {
 func (l *Lobby) startGame() {
 	l.game = gameManager.NewGame(l.players, l.msgQueue, l.endQueue)
 	l.game.Start()
+
+	go func() {
+		<-l.endQueue
+		l.timerCh <- gameEndSignal
+	}()
 }
