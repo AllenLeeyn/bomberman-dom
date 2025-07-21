@@ -73,6 +73,36 @@
   box-sizing: border-box;
   background-color: #2a2a2a;
 }
+.tile.p {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Individual power-up classes */
+.p-bombUp {
+  background-image: url('powUp_bombUp.png');
+}
+
+.p-flameUp {
+  background-image: url('powUp_flameUp.png');
+}
+
+.p-speedUp {
+  background-image: url('powUp_speedUp.png');
+}
+
+.p-bombPass {
+  background-image: url('powUp_bombPass.png');
+}
+
+.p-blockPass {
+  background-image: url('powUp_blockPass.png');
+}
+
+.p-liveUp {
+  background-image: url('powUp_liveUp.png');
+}
 
 /* --- Tile Types --- */
 .tile.bl { /* block */
@@ -93,10 +123,6 @@
   border-radius: 50%;
   position: absolute;
   margin: 1px;
-}
-
-.tile.p { /* powerup */
-  background-color: #6a0dad;
 }
 
 .tile.f { /* flame */

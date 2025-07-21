@@ -108,7 +108,7 @@ const (
 	PowerUpFlame     PowerUpType = "flameUp"
 	PowerUpSpeed     PowerUpType = "speedUp"
 	PowerUpBombPass  PowerUpType = "bombPass"
-	PowerUpBlockPass PowerUpType = "blockPas"
+	PowerUpBlockPass PowerUpType = "blockPass"
 	PowerUpLiveUp    PowerUpType = "liveUp"
 )
 
