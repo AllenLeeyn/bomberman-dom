@@ -79,19 +79,19 @@ export function startGameApp(data, playerName) {
 
   // drawTiles(gameData)
   const board = assets.getAsset('board');
-  const player = assets.getAsset('player');
+  // const player = assets.getAsset('player');
   const bomb = assets.getAsset('b');
   const explo = assets.getAsset('boom');
-  const powerUp = assets.getAsset('')
+  // const powerUp = assets.getAsset('')
 
   if (!board) {
     console.error('Missing board asset!');
     return;
   }
-  if (!player) {
-    console.error('Missing player asset!');
-    return;
-  }
+  // if (!player) {
+  //   console.error('Missing player asset!');
+  //   return;
+  // }
   if (!bomb) {
     console.error('Missing bomb asset!');
     return;
@@ -100,10 +100,10 @@ export function startGameApp(data, playerName) {
     console.error('Missing explosion asset!');
     return;
   }
-  if (!powerUp) {
-    console.error('Missing power-up asset!');
-    return;
-  }
+  // if (!powerUp) {
+  //   console.error('Missing power-up asset!');
+  //   return;
+  // }
 
   bombPool = createBombPool(layers.bombLayer, 12, bomb.src);
   exploPool = createExplosionPool(layers.exploLayer, 80, explo.src)
@@ -111,7 +111,7 @@ export function startGameApp(data, playerName) {
 
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
-  createPlayers(layers.playerLayer, gameData.players, assets.getAsset('player').src);
+  // createPlayers(layers.playerLayer, gameData.players, assets.getAsset('player').src);
 
   // drawPowerUps(gameData.map.p_ups)
 
@@ -147,7 +147,7 @@ function drawTiles(gameData) {
     return;
   }
 
-  // blockLayer.innerHTML = '';
+  blockLayer.innerHTML = '';
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
@@ -161,7 +161,7 @@ function drawTiles(gameData) {
       const cell = gameData.map.grid[y][x];
 
       switch (cell.typ) {
-        case TileBlock: { // 'bl'
+        case TileBlock: { // 'bl' - Destroyable Block
           const tileBlock = assets.getAsset('bl');
           if (tileBlock && tileBlock.src) {
             const img = document.createElement('img');

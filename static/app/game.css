@@ -46,7 +46,6 @@
 /* Z-index for stacking order */
 #tile-layer {
   z-index: 1;
-  background: url('bg.png') no-repeat center center;
 }
 
 #bomb-layer {
@@ -76,7 +75,7 @@
 
 /* --- Tile Types --- */
 .tile.bl { /* block */
-  background: url('block.png') no-repeat center center;
+  /* background: url('block.png') no-repeat center center; */
   position: relative;
 }
 

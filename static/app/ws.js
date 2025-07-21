@@ -48,7 +48,7 @@ const handleMessage = (event) => {
   //console.log(`event.data size: ${dataSizeBytes} bytes`);
 
   const data = safeParse(event.data);
-  console.warn(data)
+  // console.warn(data)
 
   if (data.action === "game_mini"){
     updateGameMini(data)
@@ -64,7 +64,7 @@ const handleMessage = (event) => {
 
   } else if (data.action === "game_start"){
     state.state = 'in_game';
-    startGameApp(data, state.playerName);
+    launchGame(data, state.playerName);
 
   } else if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';

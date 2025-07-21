@@ -22,7 +22,7 @@ Layers:
 
 // Layers
 
-const tileLayer = document.getElementById('tile-layer');
+// const tileLayer = document.getElementById('tile-layer');
 // const bombLayer = document.getElementById('bomb-layer');
 // const blockLayer = document.getElementById('block-layer');
 // const exploLayer = document.getElementById('explosion-layer');
