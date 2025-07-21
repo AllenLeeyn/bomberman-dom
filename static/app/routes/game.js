@@ -79,7 +79,7 @@ export function startGameApp(data, playerName) {
 
   // drawTiles(gameData)
   const board = assets.getAsset('board');
-  // const player = assets.getAsset('player');
+  const player = assets.getAsset('player');
   const bomb = assets.getAsset('b');
   const explo = assets.getAsset('boom');
   // const powerUp = assets.getAsset('')
@@ -88,10 +88,10 @@ export function startGameApp(data, playerName) {
     console.error('Missing board asset!');
     return;
   }
-  // if (!player) {
-  //   console.error('Missing player asset!');
-  //   return;
-  // }
+  if (!player) {
+    console.error('Missing player asset!');
+    return;
+  }
   if (!bomb) {
     console.error('Missing bomb asset!');
     return;
@@ -111,7 +111,7 @@ export function startGameApp(data, playerName) {
 
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
-  // createPlayers(layers.playerLayer, gameData.players, assets.getAsset('player').src);
+  createPlayers(layers.playerLayer, gameData.players, player.src);
 
   // drawPowerUps(gameData.map.p_ups)
 
@@ -147,7 +147,7 @@ function drawTiles(gameData) {
     return;
   }
 
-  blockLayer.innerHTML = '';
+  //blockLayer.innerHTML = '';
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
@@ -229,7 +229,7 @@ function createPlayers(playerLayer, players, playerImgUrl) {
     img.style.position = "absolute";
     img.style.width = "50px";
     img.style.height = "50px";
-    img.className = 'player-img player ' + player.col;
+    // img.className = 'player-img player ' + player.col;
     img.id = `player_${id}`;
     playerLayer.appendChild(img);
   }
@@ -246,37 +246,37 @@ function drawPlayers(playerLayer, players) {
   }
 }
 
-function drawBombs(bombs) {
-  const seenIds = new Set();
+function drawBombs(bombs, activeBombs) {
+  // const seenIds = new Set();
 
-  for (const bomb of bombs) {
-    const id = `bomb_${bomb.x}_${bomb.y}`;
-    seenIds.add(id);
+  // for (const bomb of bombs) {
+  //   const id = `bomb_${bomb.x}_${bomb.y}`;
+  //   seenIds.add(id);
 
-    const existing = document.getElementById(id);
+  //   const existing = document.getElementById(id);
 
-    if (existing && bomb.e) {
-      existing.remove();
-      renderExplosion(bomb);
-    } else if (!existing) {
-      const bombEl = document.createElement('div');
-      bombEl.className = 'tile b';
-      bombEl.id = id;
-      bombEl.style.gridRowStart = bomb.y + 1;
-      bombEl.style.gridColumnStart = bomb.x + 1;
-      bombLayer.appendChild(bombEl);
-    }
-  }
+  //   if (existing && bomb.e) {
+  //     existing.remove();
+  //     renderExplosion(bomb);
+  //   } else if (!existing) {
+  //     const bombEl = document.createElement('div');
+  //     bombEl.className = 'tile b';
+  //     bombEl.id = id;
+  //     bombEl.style.gridRowStart = bomb.y + 1;
+  //     bombEl.style.gridColumnStart = bomb.x + 1;
+  //     bombLayer.appendChild(bombEl);
+  //   }
+  // }
 
-  for (const el of Array.from(bombLayer.children)) {
-    if (el.classList.contains('p')) continue;
-    if (!seenIds.has(el.id)) {
-      el.remove();
-      /* const [_, x, y] = el.id.split('_');
-      const bomb = { x: +x, y: +y, r: 1 }; 
-      renderExplosion(bomb); */
-    }
-  }
+  // for (const el of Array.from(bombLayer.children)) {
+  //   if (el.classList.contains('p')) continue;
+  //   if (!seenIds.has(el.id)) {
+  //     el.remove();
+  //     /* const [_, x, y] = el.id.split('_');
+  //     const bomb = { x: +x, y: +y, r: 1 }; 
+  //     renderExplosion(bomb); */
+  //   }
+  // }
   // offscreen
   bombPool.forEach(img => {
     img.style.left = '-9999px';
