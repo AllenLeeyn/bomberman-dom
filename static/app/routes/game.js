@@ -69,7 +69,6 @@ function drawTiles(gameData) {
       // Get the type from game map
       const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
 
-      // Assign tile class (fallback to 'empty')
       tile.className = `tile ${tileType}`;
 
       tileLayer.appendChild(tile);
@@ -163,9 +162,9 @@ function drawBombs(bombs) {
     if (el.classList.contains('p')) continue;
     if (!seenIds.has(el.id)) {
       el.remove();
-      const [_, x, y] = el.id.split('_');
+      /* const [_, x, y] = el.id.split('_');
       const bomb = { x: +x, y: +y, r: 1 }; 
-      renderExplosion(bomb);
+      renderExplosion(bomb); */
     }
   }
 }
