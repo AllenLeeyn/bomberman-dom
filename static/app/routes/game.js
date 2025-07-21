@@ -66,21 +66,12 @@ function drawTiles(gameData) {
     for (let x = 0; x < gridWidth; x++) {
       const tile = document.createElement('div');
 
-      // Get the type from game map
-      const tileType = gameData.map.grid[y][x].typ === TileWall? TileWall : TileEmpty;
-
-      tile.className = `tile ${tileType}`;
-
-      tileLayer.appendChild(tile);
-
       if (gameData.map.grid[y][x].typ === TileBlock){
         const block = document.createElement('div');
         block.id = `block_${x}_${y}`; 
         block.className = 'tile bl';
         block.style.gridRowStart = y + 1;
         block.style.gridColumnStart = x + 1;
-        if ((x + y) % 2 === 0) block.classList.add('bl-alt');
-
         blockLayer.appendChild(block);
       }
 
@@ -351,43 +342,3 @@ function renderExplosion(bomb) {
     }
   }, 1000);
 }
-
-/* function updatePlayerPosition(players) {
-  for (const id in players) {
-    const player = players[id];
-    const keys = player.keys_pressed;
-
-    if (!Array.isArray(keys) || keys.length === 0) continue;
-
-    const speed = player.spd || 3;
-    const lastKey = keys[keys.length - 1];
-
-    switch (lastKey) {
-      case "ArrowUp":
-      case "w":
-      case "W":
-        player.y -= speed;
-        player.dir = "up";
-        break;
-      case "ArrowDown":
-      case "s":
-      case "S":
-        player.y += speed;
-        player.dir = "down";
-        break;
-      case "ArrowLeft":
-      case "a":
-      case "A":
-        player.x -= speed;
-        player.dir = "left";
-        break;
-      case "ArrowRight":
-      case "d":
-      case "D":
-        player.x += speed;
-        player.dir = "right";
-        break;
-    }
-  }
-  // Optional: clamp position within game bounds
-} */

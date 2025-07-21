@@ -17,9 +17,11 @@ function renderApp() {
     if (state.state === "in_game") {
       document.body.classList.add('in-game');
       gameRoot.classList.remove('hidden');
+      root.classList.add('hidden');
     } else {
       document.body.classList.remove('in-game');
       gameRoot.classList.add('hidden');
+      root.classList.remove('hidden');
     }
 
   oldVNode = update(root, oldVNode, newVNode);
