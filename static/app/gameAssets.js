@@ -10,6 +10,7 @@ export default [
     // { key: 'd', path: 'assets/destroy.png' }, // TileDestroy
     // { key: 'p', path: 'assets/powerUp.png' }, // TilePowerUp
     // { key: 'f', path: 'assets/flame.png' }, // TileFlame
+    { key: 'boom', path: 'static/app/assets/explosion.gif' }
 
     // { key: 'GameMusic', path: 'assets/background.mp3' }, // GameMusic
 ];

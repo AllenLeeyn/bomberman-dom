@@ -1,5 +1,5 @@
 import { getSocket } from '../../framework/domber.js'
-import { useLayers, renderTileLayer, createBombPool } from '../layers.js';
+import { useLayers, renderTileLayer, createBombPool, createExplosionPool } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 
@@ -21,6 +21,8 @@ const TilePowerUp = "p";
 const TileFlame = "f";
 
 let bombPool = [];
+let powerUp = [];
+let exploPool = [];
 
 let socket = null;
 let currentPlayer = "";
@@ -74,10 +76,14 @@ export function startGameApp(data, playerName) {
   gameRoot.addEventListener('keyup', handleKeyUp);
 
 
+  
   // drawTiles(gameData)
   const board = assets.getAsset('board');
   const player = assets.getAsset('player');
   const bomb = assets.getAsset('b');
+  const explo = assets.getAsset('boom');
+  const powerUp = assets.getAsset('')
+
   if (!board) {
     console.error('Missing board asset!');
     return;
@@ -90,7 +96,19 @@ export function startGameApp(data, playerName) {
     console.error('Missing bomb asset!');
     return;
   }
+  if (!explo) {
+    console.error('Missing explosion asset!');
+    return;
+  }
+  if (!powerUp) {
+    console.error('Missing power-up asset!');
+    return;
+  }
+  
   bombPool = createBombPool(layers.bombLayer, 12, bomb.src);
+  exploPool = createExplosionPool(layers.exploLayer, 80, explo.src)
+  // powerUp = 
+
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
   createPlayers(layers.playerLayer, gameData.players, assets.getAsset('player').src);
@@ -129,7 +147,7 @@ function drawTiles(gameData) {
     return;
   }
 
-  blockLayer.innerHTML = '';
+  // blockLayer.innerHTML = '';
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
@@ -319,7 +337,10 @@ export function updateGameMini(data) {
   gameData.ticks = data.t
 
   for (const [id, miniPlayer] of Object.entries(data.p)) {
-    if (!gameData.players[id]) continue; // skip updates for missing players
+    if (!gameData.players[id]) {
+      console.warn(`Skipping update for unknown player id ${id}`);
+      continue;
+    }
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;

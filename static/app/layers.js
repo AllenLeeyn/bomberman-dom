@@ -73,7 +73,7 @@ export function renderTileLayer(tileLayer, imageUrl, width = 720, height = 624) 
 }
 
 
-export function createBombPool(bombLayer, maxBombs = 12, bombImgUrl, w = 48, h = 48) {
+export function createBombPool(bombLayer, maxBombs = 13, bombImgUrl, w = 48, h = 48) {
     const bombPool = [];
     for (let i = 0; i < maxBombs; i++) {
         const img = document.createElement('img');
@@ -90,18 +90,37 @@ export function createBombPool(bombLayer, maxBombs = 12, bombImgUrl, w = 48, h =
 }
 
 
-function createPlayerLayer(maxPlayers = 4) {
-    const div = document.createElement('div');
-    div.id = 'player-layer';
-    div.className = 'game-layer';
-
-    div.playerPool = [];
-    for (let i = 0; i < maxPlayers; ++i) {
-        const playerDiv = document.createElement('div');
-        playerDiv.className = 'player';
-        playerDiv.style.display = 'none';
-        div.appendChild(playerDiv);
-        div.playerPool.push(playerDiv);
+export function createExplosionPool(exploLayer, maxExplo = 80, exploImgUrl, w=48, h=48) {
+    const exploPool = [];
+    for (let i = 0; i <= maxExplo; i++) {
+        const img = document.createElement('img');
+        img.src = exploImgUrl;
+        img.style.position = 'absolute';
+        img.style.width = w + 'px';
+        img.style.height = w + 'px';
+        img.style.left = '-9999px';
+        img.style.top = '-9999px';
+        exploLayer.appendChild(img);
+        exploPool.push(img);
     }
-    return div;
+    return exploPool;
 }
+
+
+
+// function createPlayerLayer(maxPlayers = 4) {
+//     const div = document.createElement('div');
+//     div.id = 'player-layer';
+//     div.className = 'game-layer';
+
+//     div.playerPool = [];
+//     for (let i = 0; i < maxPlayers; ++i) {
+//         const playerDiv = document.createElement('div');
+//         playerDiv.className = 'player';
+//         playerDiv.style.display = 'none';
+//         div.appendChild(playerDiv);
+//         div.playerPool.push(playerDiv);
+//     }
+//     return div;
+// }
+
