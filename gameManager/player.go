@@ -23,6 +23,8 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		MaxBombCount:  DefaultBombCount,
 		Radius:        DefaultBombRadius,
 		CurBombCount:  0,
+		blockPass:     false,
+		bombPass:      false,
 	}
 }
 
@@ -44,6 +46,8 @@ func (p *Player) Reset(startX, startY int) {
 	p.MaxBombCount = DefaultBombCount
 	p.CurBombCount = 0
 	p.KeyPresses = []string{}
+	p.blockPass = false
+	p.bombPass = false
 }
 
 func (g *Game) UpdatePlayerKeys(playerName string, content string) {

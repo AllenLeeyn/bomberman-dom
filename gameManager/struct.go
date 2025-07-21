@@ -53,6 +53,8 @@ type Player struct {
 	MaxBombCount  int             `json:"maxBombs"`
 	Radius        int             `json:"-"`
 	CurBombCount  int             `json:"curBombs,omitempty"`
+	blockPass     bool            `json:"-"`
+	bombPass      bool            `json:"-"`
 }
 
 type PlayerMini struct {
@@ -185,7 +187,7 @@ const (
 	LeftBound           = TileSize
 	RightBound          = MapPixelWidth - TileSize
 	SlideThreshold      = 24
-	SlideShift          = 6
+	SlideShift          = 5
 	SlideDiffCorrection = TileSize - PlayerSize
 
 	TileEmpty   = "e"
@@ -197,7 +199,7 @@ const (
 	TileFlame   = "f"
 
 	DefaultBombCount      = 2
-	DefaultSpeed          = 10
+	DefaultSpeed          = 5
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
 	BombFuseDuration      = 3 * time.Second

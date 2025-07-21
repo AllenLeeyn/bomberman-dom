@@ -13,7 +13,9 @@ func (g *Game) placeBomb(player *Player) {
 		player.State == PlayerRespawning {
 		return
 	}
-	if g.GMap.Grid[tileY][tileX].Type == TileBomb {
+	if g.GMap.Grid[tileY][tileX].Type == TileBomb ||
+		g.GMap.Grid[tileY][tileX].Type == TileBlock ||
+		g.GMap.Grid[tileY][tileX].Type == TileDestroy {
 		return
 	}
 	g.GMap.Grid[tileY][tileX].Type = TileBomb
@@ -97,12 +99,14 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 			} else if tile.Type == TileBomb {
 				for _, otherBomb := range g.GMap.Bombs {
 					if otherBomb.X == nx && otherBomb.Y == ny && !otherBomb.Exploded {
-						// decrease bomb fuse. don't explode immediately.
-						otherBomb.Exploded = true
-						g.explodeBomb(otherBomb)
+						soon := time.Now().Add(200 * time.Millisecond)
+						if otherBomb.ExplosionTime.After(soon) {
+							otherBomb.ExplosionTime = soon
+						}
 						break
 					}
 				}
+				break
 			}
 		}
 	}
@@ -150,7 +154,11 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 	isHit := g.GMap.Grid[tileTop][tileLeft].Type == TileFlame ||
 		g.GMap.Grid[tileTop][tileRight].Type == TileFlame ||
 		g.GMap.Grid[tileBottom][tileLeft].Type == TileFlame ||
-		g.GMap.Grid[tileBottom][tileRight].Type == TileFlame
+		g.GMap.Grid[tileBottom][tileRight].Type == TileFlame ||
+		g.GMap.Grid[tileTop][tileLeft].Type == TileDestroy ||
+		g.GMap.Grid[tileTop][tileRight].Type == TileDestroy ||
+		g.GMap.Grid[tileBottom][tileLeft].Type == TileDestroy ||
+		g.GMap.Grid[tileBottom][tileRight].Type == TileDestroy
 
 	if isHit {
 		player.Lives--

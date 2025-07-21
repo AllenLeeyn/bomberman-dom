@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const TickRate = time.Second / 30 // ~16.67ms per tick
+const TickRate = time.Second / 60 // ~16.67ms per tick
 
 func (g *Game) gameLoop() {
 	ticker := time.NewTicker(TickRate)
