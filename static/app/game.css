@@ -106,23 +106,22 @@
 
 /* --- Players --- */
 .player {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 12px;
   position: absolute;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
-} */
+}
 
 /* Assign colors via class or inline style */
-/* .player.red    { background-color: #FF1493; } 
+.player.red    { background-color: #FF1493; } 
 .player.blue   { background-color: #00BFFF; } 
 .player.green  { background-color: #2ecc71; }
 .player.yellow { background-color: #f1c40f; } 
 .player.purple { background-color: #9b59b6; } 
 .player.orange { background-color: #e67e22; } 
 .player.cyan   { background-color: #1abc9c; } 
-.player.pink   { background-color: #ff69b4; }  */
-
+.player.pink   { background-color: #ff69b4; } 
 
 /* --- Flame flicker animation --- */
 @keyframes flicker {
@@ -140,70 +139,4 @@
 /* Hide when not in use */
 .hidden {
   display: none !important;
-}
-
-
-.tile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-
-#loading-overlay {
-  position: absolute;
-  z-index: 9999;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(10,10,20,0.9);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2em;
-  font-family: inherit;
-  /* Optionally add a fade or transition */
-  transition: opacity 0.3s;
-
-.winner-overlay {
-  position: absolute;
-  top: 0;       /* start at top */
-  left: 0;      /* start at left */
-  width: 100%;  /* full width */
-  height: 100%; /* full height */
-  background: rgba(0, 0, 0, 0.7); /* semi-transparent overlay */
-  color: gold;
-  font-size: 3rem;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  z-index: 999;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* For very small screens */
-@media (max-width: 720px) {
-    body {
-        overflow-x: auto; /* Allow horizontal scrolling */
-    }
-    
-    #game-root {
-        /* Game stays at minimum size */
-        width: 720px;
-        height: 624px;
-        margin: 10px auto;
-    }
-}
-
-@media (max-height: 624px) {
-    body {
-        overflow-y: auto; /* Allow vertical scrolling */
-    }
-    
-    #game-root {
-        margin-top: 10px;
-    }
 }

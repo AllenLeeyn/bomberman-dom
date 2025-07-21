@@ -203,282 +203,281 @@ function drawTiles(gameData) {
           }
       }
     }
-    // }
+  }
+}
 
 
-    function drawPowerUps(powerUps) {
-      bombLayer.innerHTML = ''; // Clear previous power-ups
+function drawPowerUps(powerUps) {
+  bombLayer.innerHTML = ''; // Clear previous power-ups
 
-      for (const pu of powerUps) {
-        console.warn("up up and away")
-        const powerUp = document.createElement('div');
-        powerUp.className = `tile p`; // e.g., p-bomb, p-flame
-        powerUp.style.gridRowStart = pu.y + 1;
-        powerUp.style.gridColumnStart = pu.x + 1;
-        bombLayer.appendChild(powerUp);
-      }
-    }
+  for (const pu of powerUps) {
+    console.warn("up up and away")
+    const powerUp = document.createElement('div');
+    powerUp.className = `tile p`; // e.g., p-bomb, p-flame
+    powerUp.style.gridRowStart = pu.y + 1;
+    powerUp.style.gridColumnStart = pu.x + 1;
+    bombLayer.appendChild(powerUp);
+  }
+}
 
-    function createPlayers(playerLayer, players, playerImgUrl) {
-      playerLayer.innerHTML = '';
-      for (const id in players) {
-        const player = players[id];
-        const img = document.createElement('img');
-        img.src = playerImgUrl;
-        img.style.position = "absolute";
-        img.style.width = "50px";
-        img.style.height = "50px";
-        img.className = 'player-img player ' + player.col;
-        img.id = `player_${id}`;
-        playerLayer.appendChild(img);
-      }
-    }
+function createPlayers(playerLayer, players, playerImgUrl) {
+  playerLayer.innerHTML = '';
+  for (const id in players) {
+    const player = players[id];
+    const img = document.createElement('img');
+    img.src = playerImgUrl;
+    img.style.position = "absolute";
+    img.style.width = "50px";
+    img.style.height = "50px";
+    img.className = 'player-img player ' + player.col;
+    img.id = `player_${id}`;
+    playerLayer.appendChild(img);
+  }
+}
 
-    function drawPlayers(playerLayer, players) {
-      for (const id in players) {
-        const player = players[id];
-        const img = document.getElementById(`player_${id}`);
-        if (img) {
-          img.style.left = player.x + "px";
-          img.style.top = player.y + "px";
-        }
-      }
-    }
-
-    function drawBombs(bombs) {
-      const seenIds = new Set();
-
-      for (const bomb of bombs) {
-        const id = `bomb_${bomb.x}_${bomb.y}`;
-        seenIds.add(id);
-
-        const existing = document.getElementById(id);
-
-        if (existing && bomb.e) {
-          existing.remove();
-          renderExplosion(bomb);
-        } else if (!existing) {
-          const bombEl = document.createElement('div');
-          bombEl.className = 'tile b';
-          bombEl.id = id;
-          bombEl.style.gridRowStart = bomb.y + 1;
-          bombEl.style.gridColumnStart = bomb.x + 1;
-          bombLayer.appendChild(bombEl);
-        }
-      }
-
-      for (const el of Array.from(bombLayer.children)) {
-        if (el.classList.contains('p')) continue;
-        if (!seenIds.has(el.id)) {
-          el.remove();
-          /* const [_, x, y] = el.id.split('_');
-          const bomb = { x: +x, y: +y, r: 1 }; 
-          renderExplosion(bomb); */
-        }
-      }
-      // offscreen
-      bombPool.forEach(img => {
-        img.style.left = '-9999px';
-        img.style.top = '-9999px';
-      });
-      // Then, put only the active ones in the right place
-      activeBombs.forEach((bomb, idx) => {
-        if (bombPool[idx]) {
-          const img = bombPool[idx];
-          img.style.left = (bomb.x * 48) + 'px';
-          img.style.top = (bomb.y * 48) + 'px';
-        }
-      });
-    }
-
-
-    export function updateGameState(data) {
-      gameData = data;
-    }
-
-    // Rendering function
-    function renderLoop() {
-      if (!gameData || !gameRoot) return;
-
-
-      drawPlayers(layers.playerLayer, gameData.players);
-      drawBombs(bombPool, gameData.map.bombs); // update bombs
-
-      animationFrameId = requestAnimationFrame(renderLoop);
-    }
-
-    const validKeys = [
-      'ArrowUp',
-      'ArrowDown',
-      'ArrowLeft',
-      'ArrowRight',
-      'w', 'a', 's', 'd',
-      'W', 'A', 'S', 'D',
-      ' ', 'Space'
-    ];
-    const keysPressed = [];
-
-    function handleKeyDown(e) {
-      const key = e.key;
-      if (!validKeys.includes(key)) {
-        return;
-      }
-
-      e.preventDefault();
-      if (!keysPressed.includes(key)) {
-        keysPressed.push(key);
-
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.sendMessage({
-            action: 'game',
-            player_name: currentPlayer,
-            content: JSON.stringify(keysPressed),
-          });
-        }
-      }
-    }
-
-    function handleKeyUp(e) {
-      const key = e.key;
-      if (!validKeys.includes(key)) return;
-
-      const index = keysPressed.indexOf(key);
-      if (index > -1) {
-        keysPressed.splice(index, 1);  // Remove the key
-
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.sendMessage({
-            action: 'game',
-            player_name: currentPlayer,
-            content: JSON.stringify(keysPressed),
-          });
-        }
-      }
-    }
-
-    export function stopGameApp(winnerName = "") {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-
-      const winnerOverlay = document.createElement("div");
-      winnerOverlay.className = "winner-overlay";
-      winnerOverlay.textContent = winnerName
-        ? `🏆 Winner: ${winnerName}`
-        : `🤝 It's a tie!`;
-      gameRoot.appendChild(winnerOverlay);
-
-      setTimeout(() => {
-        winnerOverlay.remove();
-        tileLayer.innerHTML = "";
-        blockLayer.innerHTML = "";
-        bombLayer.innerHTML = "";
-        exploLayer.innerHTML = "";
-        playerLayer.innerHTML = "";
-      }, 2000);
-    }
-
-    export function updateGameMini(data) {
-      gameData.ticks = data.t
-
-      const incomingIds = new Set(Object.keys(data.p));
-      for (const id in gameData.players) {
-        if (!incomingIds.has(id)) {
-          const el = document.getElementById(`player_${id}`);
-          if (el) el.remove();
-          delete gameData.players[id];
-        }
-      }
-
-      for (const [id, miniPlayer] of Object.entries(data.p)) {
-        if (!gameData.players[id]) {
-          console.warn(`Skipping update for unknown player id ${id}`);
-          continue;
-        }
-        gameData.players[id].x = miniPlayer.x;
-        gameData.players[id].y = miniPlayer.y;
-        gameData.players[id].dir = miniPlayer.d;
-        gameData.players[id].lives = miniPlayer.l;
-        gameData.players[id].state = miniPlayer.s;
-      }
-
-      gameData.map.bombs = data.b;
-    }
-
-    function renderExplosion(bomb) {
-      const grid = gameData.map.grid
-
-      const { x, y, r } = bomb;
-      const width = grid[0].length;
-      const height = grid.length;
-
-      const tiles = [];
-      tiles.push({ x, y });
-
-      const directions = [
-        { dx: 0, dy: -1 }, // up
-        { dx: 0, dy: 1 },  // down
-        { dx: -1, dy: 0 }, // left
-        { dx: 1, dy: 0 }   // right
-      ];
-
-      for (const { dx, dy } of directions) {
-        for (let i = 1; i <= r; i++) {
-          const nx = x + dx * i;
-          const ny = y + dy * i;
-          const blockId = `block_${nx}_${ny}`;
-
-          if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
-          const tileType = grid[ny][nx].typ;
-
-          if (tileType === TileWall) {
-            break;
-          } else if (tileType === TileBlock) {
-            gameData.map.grid[ny][nx].typ = TileEmpty
-            const blockEl = document.getElementById(blockId);
-            if (blockEl) blockEl.remove();
-
-            tiles.push({ x: nx, y: ny });
-            break;
-          } else if (tileType === TileEmpty || tileType === TilePowerUp) {
-            gameData.map.grid[ny][nx].typ = TileEmpty
-            tiles.push({ x: nx, y: ny });
-          }
-        }
-      }
-
-      for (const tile of tiles) {
-        const { x, y } = tile;
-        flameGrid[y][x]++;
-        let flame = document.getElementById(`flame_${x}_${y}`);
-
-        if (!flame) {
-          flame = document.createElement('div');
-          flame.className = 'tile f';
-          flame.style.gridRowStart = y + 1;
-          flame.style.gridColumnStart = x + 1;
-          flame.id = `flame_${x}_${y}`;
-          exploLayer.appendChild(flame);
-        } else {
-          flame.classList.remove('f');
-          void flame.offsetWidth;
-          flame.classList.add('f');
-        }
-      }
-
-      setTimeout(() => {
-        for (const tile of tiles) {
-          const { x, y } = tile;
-
-          flameGrid[y][x]--;
-          if (flameGrid[y][x] <= 0) {
-            const flame = document.getElementById(`flame_${x}_${y}`);
-            if (flame) flame.remove();
-            flameGrid[y][x] = 0;
-          }
-        }
-      }, 1000);
+function drawPlayers(playerLayer, players) {
+  for (const id in players) {
+    const player = players[id];
+    const img = document.getElementById(`player_${id}`);
+    if (img) {
+      img.style.left = player.x + "px";
+      img.style.top = player.y + "px";
     }
   }
+}
+
+function drawBombs(bombs) {
+  const seenIds = new Set();
+
+  for (const bomb of bombs) {
+    const id = `bomb_${bomb.x}_${bomb.y}`;
+    seenIds.add(id);
+
+    const existing = document.getElementById(id);
+
+    if (existing && bomb.e) {
+      existing.remove();
+      renderExplosion(bomb);
+    } else if (!existing) {
+      const bombEl = document.createElement('div');
+      bombEl.className = 'tile b';
+      bombEl.id = id;
+      bombEl.style.gridRowStart = bomb.y + 1;
+      bombEl.style.gridColumnStart = bomb.x + 1;
+      bombLayer.appendChild(bombEl);
+    }
+  }
+
+  for (const el of Array.from(bombLayer.children)) {
+    if (el.classList.contains('p')) continue;
+    if (!seenIds.has(el.id)) {
+      el.remove();
+      /* const [_, x, y] = el.id.split('_');
+      const bomb = { x: +x, y: +y, r: 1 }; 
+      renderExplosion(bomb); */
+    }
+  }
+  // offscreen
+  bombPool.forEach(img => {
+    img.style.left = '-9999px';
+    img.style.top = '-9999px';
+  });
+  // Then, put only the active ones in the right place
+  activeBombs.forEach((bomb, idx) => {
+    if (bombPool[idx]) {
+      const img = bombPool[idx];
+      img.style.left = (bomb.x * 48) + 'px';
+      img.style.top = (bomb.y * 48) + 'px';
+    }
+  });
+}
+
+
+export function updateGameState(data) {
+  gameData = data;
+}
+
+// Rendering function
+function renderLoop() {
+  if (!gameData || !gameRoot) return;
+
+
+  drawPlayers(layers.playerLayer, gameData.players);
+  drawBombs(bombPool, gameData.map.bombs); // update bombs
+
+  animationFrameId = requestAnimationFrame(renderLoop);
+}
+
+const validKeys = [
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'w', 'a', 's', 'd',
+  'W', 'A', 'S', 'D',
+  ' ', 'Space'
+];
+const keysPressed = [];
+
+function handleKeyDown(e) {
+  const key = e.key;
+  if (!validKeys.includes(key)) {
+    return;
+  }
+
+  e.preventDefault();
+  if (!keysPressed.includes(key)) {
+    keysPressed.push(key);
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.sendMessage({
+        action: 'game',
+        player_name: currentPlayer,
+        content: JSON.stringify(keysPressed),
+      });
+    }
+  }
+}
+
+function handleKeyUp(e) {
+  const key = e.key;
+  if (!validKeys.includes(key)) return;
+
+  const index = keysPressed.indexOf(key);
+  if (index > -1) {
+    keysPressed.splice(index, 1);  // Remove the key
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.sendMessage({
+        action: 'game',
+        player_name: currentPlayer,
+        content: JSON.stringify(keysPressed),
+      });
+    }
+  }
+}
+
+export function stopGameApp(winnerName = "") {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  const winnerOverlay = document.createElement("div");
+  winnerOverlay.className = "winner-overlay";
+  winnerOverlay.textContent = winnerName
+    ? `🏆 Winner: ${winnerName}`
+    : `🤝 It's a tie!`;
+  gameRoot.appendChild(winnerOverlay);
+
+  setTimeout(() => {
+    winnerOverlay.remove();
+    tileLayer.innerHTML = "";
+    blockLayer.innerHTML = "";
+    bombLayer.innerHTML = "";
+    exploLayer.innerHTML = "";
+    playerLayer.innerHTML = "";
+  }, 2000);
+}
+
+export function updateGameMini(data) {
+  gameData.ticks = data.t
+
+  const incomingIds = new Set(Object.keys(data.p));
+  for (const id in gameData.players) {
+    if (!incomingIds.has(id)) {
+      const el = document.getElementById(`player_${id}`);
+      if (el) el.remove();
+      delete gameData.players[id];
+    }
+  }
+
+  for (const [id, miniPlayer] of Object.entries(data.p)) {
+    if (!gameData.players[id]) {
+      console.warn(`Skipping update for unknown player id ${id}`);
+      continue;
+    }
+    gameData.players[id].x = miniPlayer.x;
+    gameData.players[id].y = miniPlayer.y;
+    gameData.players[id].dir = miniPlayer.d;
+    gameData.players[id].lives = miniPlayer.l;
+    gameData.players[id].state = miniPlayer.s;
+  }
+
+  gameData.map.bombs = data.b;
+}
+
+function renderExplosion(bomb) {
+  const grid = gameData.map.grid
+
+  const { x, y, r } = bomb;
+  const width = grid[0].length;
+  const height = grid.length;
+
+  const tiles = [];
+  tiles.push({ x, y });
+
+  const directions = [
+    { dx: 0, dy: -1 }, // up
+    { dx: 0, dy: 1 },  // down
+    { dx: -1, dy: 0 }, // left
+    { dx: 1, dy: 0 }   // right
+  ];
+
+  for (const { dx, dy } of directions) {
+    for (let i = 1; i <= r; i++) {
+      const nx = x + dx * i;
+      const ny = y + dy * i;
+      const blockId = `block_${nx}_${ny}`;
+
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
+      const tileType = grid[ny][nx].typ;
+
+      if (tileType === TileWall) {
+        break;
+      } else if (tileType === TileBlock) {
+        gameData.map.grid[ny][nx].typ = TileEmpty
+        const blockEl = document.getElementById(blockId);
+        if (blockEl) blockEl.remove();
+
+        tiles.push({ x: nx, y: ny });
+        break;
+      } else if (tileType === TileEmpty || tileType === TilePowerUp) {
+        gameData.map.grid[ny][nx].typ = TileEmpty
+        tiles.push({ x: nx, y: ny });
+      }
+    }
+  }
+
+  for (const tile of tiles) {
+    const { x, y } = tile;
+    flameGrid[y][x]++;
+    let flame = document.getElementById(`flame_${x}_${y}`);
+
+    if (!flame) {
+      flame = document.createElement('div');
+      flame.className = 'tile f';
+      flame.style.gridRowStart = y + 1;
+      flame.style.gridColumnStart = x + 1;
+      flame.id = `flame_${x}_${y}`;
+      exploLayer.appendChild(flame);
+    } else {
+      flame.classList.remove('f');
+      void flame.offsetWidth;
+      flame.classList.add('f');
+    }
+  }
+
+  setTimeout(() => {
+    for (const tile of tiles) {
+      const { x, y } = tile;
+
+      flameGrid[y][x]--;
+      if (flameGrid[y][x] <= 0) {
+        const flame = document.getElementById(`flame_${x}_${y}`);
+        if (flame) flame.remove();
+        flameGrid[y][x] = 0;
+      }
+    }
+  }, 1000);
 }
