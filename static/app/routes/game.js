@@ -75,12 +75,14 @@ function drawTiles(gameData) {
         blockLayer.appendChild(block);
       }
 
-      if (gameData.map.grid[y][x].p_ups !== ""){
+      if (gameData.map.grid[y][x].p_ups !== "") {
         const powerUp = document.createElement('div');
-        powerUp.className = 'tile p';
+        const type = gameData.map.grid[y][x].p_ups;
+
+        powerUp.className = `tile p p-${type}`;
         powerUp.style.gridRowStart = y + 1;
         powerUp.style.gridColumnStart = x + 1;
-        powerUp.textContent = gameData.map.grid[y][x].p_ups ;
+
         bombLayer.appendChild(powerUp);
       }
     }
