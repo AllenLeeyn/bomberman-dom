@@ -87,6 +87,50 @@ export const JoinScreen = (state, onJoin) =>
         }
       }
     }),
+
     h('button', { onclick: () => onJoin(localName) }, 'Join Lobby'),
-    h('p', { id: 'join-error' }, state.errorMessage || null)
+
+    h('div', { class: 'help-icons' }, [
+      h('img', {
+        src: 'static/app/gameRules.png',
+        class: 'help-icon',
+        'data-tooltip': `🎯 Game Rules
+    • 2-4 players battle arena  
+    • Place bombs to destroy blocks
+    • Collect power-ups from blocks
+    • Last player standing wins!`
+      }),
+      h('img', {
+        src: 'static/app/controls.png', 
+        class: 'help-icon',
+        'data-tooltip': `🎮 Controls
+    • ⬆️⬇️⬅️➡️ Arrow Keys - Move
+    • WASD - Alternative movement  
+    • SPACEBAR - Place bomb
+    • T - Chat (in lobby)`
+      }),
+      h('img', {
+        src: 'static/app/powerUps.png',
+        class: 'help-icon', 
+        'data-tooltip': `⚡ Power-ups
+    💣 Bomb Up - More bombs
+    🔥 Flame Up - Bigger explosions
+    ⚡ Speed Up - Move faster
+    👻 Bomb Pass - Walk through bombs
+    🧱 Block Pass - Walk through blocks
+    ❤️ Live Up - Extra life (RARE!)`
+      }),
+      h('img', {
+        src: 'static/app/victory.png',
+        class: 'help-icon',
+        'data-tooltip': `👑 Victory Rules
+    • Start with 3 lives each
+    • Hit by bomb = lose 1 life  
+    • 0 lives = eliminated
+    • Last player alive wins!
+    • Live Up gives bonus lives`
+      })
+    ]),
+
+    h('p', { id: 'join-error' }, state.errorMessage || '')
   ]);

@@ -70,8 +70,9 @@ body.in-game #app{
 
 #join-error {
   background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
   color: red;
-  margin-top: 10px;
+  margin-top: 20px;
   font-size: 1.2rem;
   padding: 10px;
 }
@@ -131,6 +132,8 @@ button {
 #name-input::placeholder {
   color: #BB1EEA;  
   opacity: 0.9;
+  filter: brightness(1.2);
+
 }
 
 /* --------------Lobby screen/Chat------------ */
@@ -322,6 +325,73 @@ h2 {
       fill: url(#neonPurpleGradient);
     }
 }
+
+/* --------------Help icons------------ */
+
+.help-icons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.help-icon {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  filter: brightness(0.8);
+  position: relative;
+  filter: brightness(1.0);
+}
+
+.help-icon:hover {
+  opacity: 1;
+  filter: brightness(1.2) drop-shadow(0 0 10px #B78EFF);
+  transform: scale(1.1);
+}
+
+/* Hide default browser tooltips */
+.help-icon[title] {
+  position: relative;
+}
+
+.help-icon[title]:hover:after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #B78EFF;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 220px;
+  box-shadow: 0 5px 20px rgba(183, 142, 255, 0.3);
+  color: white;
+  font-size: 12px;
+  white-space: pre-line;
+  z-index: 1000;
+  animation: tooltipFadeIn 0.3s ease;
+}
+
+/* Tooltip arrow */
+.help-icon[title]:hover:before {
+  content: '';
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #B78EFF;
+  z-index: 1001;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 
 /* --------------Responsive------------ */
 
