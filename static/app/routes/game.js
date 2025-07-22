@@ -23,6 +23,7 @@ const TileFlame = "f";
 let bombPool = [];
 let powerUp = [];
 let exploPool = [];
+let explosionActiveSlots = [];
 
 let socket = null;
 let currentPlayer = "";
@@ -107,6 +108,7 @@ export function startGameApp(data, playerName) {
 
   bombPool = createBombPool(layers.bombLayer, 12, bomb.src);
   exploPool = createExplosionPool(layers.exploLayer, 80, explo.src)
+  explosionActiveSlots = exploPool.map(() => null);
   // powerUp = 
 
   renderTileLayer(layers.tileLayer, board.src);
@@ -247,41 +249,12 @@ function drawPlayers(playerLayer, players) {
 }
 
 function drawBombs(bombs, activeBombs) {
-  // const seenIds = new Set();
-
-  // for (const bomb of bombs) {
-  //   const id = `bomb_${bomb.x}_${bomb.y}`;
-  //   seenIds.add(id);
-
-  //   const existing = document.getElementById(id);
-
-  //   if (existing && bomb.e) {
-  //     existing.remove();
-  //     renderExplosion(bomb);
-  //   } else if (!existing) {
-  //     const bombEl = document.createElement('div');
-  //     bombEl.className = 'tile b';
-  //     bombEl.id = id;
-  //     bombEl.style.gridRowStart = bomb.y + 1;
-  //     bombEl.style.gridColumnStart = bomb.x + 1;
-  //     bombLayer.appendChild(bombEl);
-  //   }
-  // }
-
-  // for (const el of Array.from(bombLayer.children)) {
-  //   if (el.classList.contains('p')) continue;
-  //   if (!seenIds.has(el.id)) {
-  //     el.remove();
-  //     /* const [_, x, y] = el.id.split('_');
-  //     const bomb = { x: +x, y: +y, r: 1 }; 
-  //     renderExplosion(bomb); */
-  //   }
-  // }
   // offscreen
   bombPool.forEach(img => {
     img.style.left = '-9999px';
     img.style.top = '-9999px';
   });
+  
   // Then, put only the active ones in the right place
   activeBombs.forEach((bomb, idx) => {
     if (bombPool[idx]) {
@@ -298,12 +271,25 @@ export function updateGameState(data) {
 }
 
 // Rendering function
+let previousBombs = [];
+
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
-
   drawPlayers(layers.playerLayer, gameData.players);
-  drawBombs(bombPool, gameData.map.bombs); // update bombs
+
+  const currentBombs = gameData.map.bombs || [];
+  // Detect exploded bombs
+  for (const prevBomb of previousBombs) {
+    const stillExists = currentBombs.some(b => b.x === prevBomb.x && b.y === prevBomb.y);
+    if (!stillExists) {
+        renderExplosion(prevBomb);
+    }
+  }
+
+  previousBombs = currentBombs.map(bomb => ({ ...bomb }));
+
+  drawBombs(bombPool, currentBombs); // update bombs
 
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -408,8 +394,7 @@ export function updateGameMini(data) {
 }
 
 function renderExplosion(bomb) {
-  const grid = gameData.map.grid
-
+  const grid = gameData.map.grid;
   const { x, y, r } = bomb;
   const width = grid[0].length;
   const height = grid.length;
@@ -418,28 +403,22 @@ function renderExplosion(bomb) {
   tiles.push({ x, y });
 
   const directions = [
-    { dx: 0, dy: -1 }, // up
-    { dx: 0, dy: 1 },  // down
-    { dx: -1, dy: 0 }, // left
-    { dx: 1, dy: 0 }   // right
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 },
+    { dx: -1, dy: 0 },
+    { dx: 1, dy: 0 }
   ];
 
   for (const { dx, dy } of directions) {
     for (let i = 1; i <= r; i++) {
       const nx = x + dx * i;
       const ny = y + dy * i;
-      const blockId = `block_${nx}_${ny}`;
-
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
       const tileType = grid[ny][nx].typ;
-
       if (tileType === TileWall) {
         break;
       } else if (tileType === TileBlock) {
         gameData.map.grid[ny][nx].typ = TileEmpty
-        const blockEl = document.getElementById(blockId);
-        if (blockEl) blockEl.remove();
-
         tiles.push({ x: nx, y: ny });
         break;
       } else if (tileType === TileEmpty || tileType === TilePowerUp) {
@@ -449,35 +428,35 @@ function renderExplosion(bomb) {
     }
   }
 
+  // placing the pooled explosion at each tile; 
+  // check function placeExplosion for logic.
   for (const tile of tiles) {
-    const { x, y } = tile;
-    flameGrid[y][x]++;
-    let flame = document.getElementById(`flame_${x}_${y}`);
-
-    if (!flame) {
-      flame = document.createElement('div');
-      flame.className = 'tile f';
-      flame.style.gridRowStart = y + 1;
-      flame.style.gridColumnStart = x + 1;
-      flame.id = `flame_${x}_${y}`;
-      exploLayer.appendChild(flame);
-    } else {
-      flame.classList.remove('f');
-      void flame.offsetWidth;
-      flame.classList.add('f');
-    }
+    placeExplosion(tile.x, tile.y, 1000);
   }
-
-  setTimeout(() => {
-    for (const tile of tiles) {
-      const { x, y } = tile;
-
-      flameGrid[y][x]--;
-      if (flameGrid[y][x] <= 0) {
-        const flame = document.getElementById(`flame_${x}_${y}`);
-        if (flame) flame.remove();
-        flameGrid[y][x] = 0;
-      }
-    }
-  }, 1000);
 }
+
+// 
+function placeExplosion(x, y, durationMs = 1000) {
+  // Find a free pool slot
+  const idx = explosionActiveSlots.findIndex(e => e === null);
+
+  if (idx === -1) return; // overlimit of flames
+  const img = exploPool[idx];
+  img.style.left = (x * 48) + 'px';
+  img.style.top = (y * 48) + 'px';
+  img.style.display = '';
+
+  // Force replay: This always restarts the GIF animation in all browsers
+  img.src = '';
+  img.src = img.dataset.src;
+  
+  // free the slot after explosion
+  explosionActiveSlots[idx] = setTimeout(() => {
+    img.style.left = '-9999px';
+    img.style.top = '-9999px';
+    img.style.display = 'none';
+    explosionActiveSlots[idx] = null;
+  }, durationMs);
+}
+
+

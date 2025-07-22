@@ -95,11 +95,13 @@ export function createExplosionPool(exploLayer, maxExplo = 80, exploImgUrl, w=48
     for (let i = 0; i <= maxExplo; i++) {
         const img = document.createElement('img');
         img.src = exploImgUrl;
+        img.dataset.src = exploImgUrl;
         img.style.position = 'absolute';
         img.style.width = w + 'px';
         img.style.height = w + 'px';
         img.style.left = '-9999px';
         img.style.top = '-9999px';
+        img.style.display = 'none';
         exploLayer.appendChild(img);
         exploPool.push(img);
     }
