@@ -1,5 +1,5 @@
 import { getSocket } from '../../framework/domber.js'
-import { useLayers, renderTileLayer, createBombPool, createExplosionPool } from '../layers.js';
+import { useLayers, renderTileLayer, createSpritePool } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 
@@ -24,9 +24,27 @@ const TilePowerUp = "p";
 const TileFlame = "f";
 
 let bombPool = [];
-let powerUp = [];
 let exploPool = [];
 let explosionActiveSlots = [];
+const powerUpPools = {};
+
+const powerUpTypes = [
+  'p-bombUp',
+  'p-flameUp',
+  'p-speedUp',
+  'p-bombPass',
+  'p-blockPass',
+  'p-liveUp'
+];
+
+const powerUpTypeMax = {
+  'p-bombUp': 7,
+  'p-flameUp': 5,
+  'p-speedUp': 3,
+  'p-bombPass': 3,
+  'p-blockPass': 3,
+  'p-liveUp': 2
+};
 
 let socket = null;
 let currentPlayer = "";
@@ -109,10 +127,19 @@ export function startGameApp(data, playerName) {
   //   return;
   // }
 
-  bombPool = createBombPool(layers.bombLayer, 12, bomb.src);
-  exploPool = createExplosionPool(layers.exploLayer, 80, explo.src)
+  bombPool = createSpritePool(layers.bombLayer, 12, 'b', assets, 'tile bomb');
+  exploPool = createSpritePool(layers.exploLayer, 80, 'boom', assets, 'tile flame');
   explosionActiveSlots = exploPool.map(() => null);
-  // powerUp = 
+  powerUpTypes.forEach(type => {
+    powerUpPools[type] = createSpritePool(
+      layers.bombLayer,             // layer
+      powerUpTypeMax[type],         // pool size for this type
+      type,                         // asset key, example: 'p-bombUp'
+      assets,                       // 
+      `tile p ${type}`,             // css classes
+      48, 48
+    );
+  });
 
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
@@ -152,8 +179,6 @@ function drawTiles(gameData) {
     return;
   }
 
-  //blockLayer.innerHTML = '';
-
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
 
@@ -187,37 +212,54 @@ function drawTiles(gameData) {
           }
           break;
         }
-          // More cases as you add more tile types (power-ups, flames, etc.)
-
-          if (gameData.map.grid[y][x].p_ups !== "") {
-            const powerUp = document.createElement('div');
-            const type = gameData.map.grid[y][x].p_ups;
-
-            powerUp.id = `powup_${x}_${y}`;
-            powerUp.className = `tile p p-${type}`;
-            powerUp.style.gridRowStart = y + 1;
-            powerUp.style.gridColumnStart = x + 1;
-
-            bombLayer.appendChild(powerUp);
-          }
       }
     }
   }
 }
 
+function drawPowerUps(powerUpsList) {
 
-function drawPowerUps(powerUps) {
-  bombLayer.innerHTML = ''; // Clear previous power-ups
+  for (const type in powerUpPools) {
+    powerUpPools[type].forEach(img => {
+      img.style.left = '-9999px';
+      img.style.top = '-9999px';
+      img.style.display = 'none';
+    });
+  }
 
-  for (const pu of powerUps) {
-    console.warn("up up and away")
-    const powerUp = document.createElement('div');
-    powerUp.className = `tile p`; // e.g., p-bomb, p-flame
-    powerUp.style.gridRowStart = pu.y + 1;
-    powerUp.style.gridColumnStart = pu.x + 1;
-    bombLayer.appendChild(powerUp);
+  // Show only the needed ones, from each pool
+  // example input: [{x: 4, y: 3, type: "p-bombUp"}, ...]
+  const poolsInUse = {};
+  for (const pu of powerUpsList) {
+    const type = pu.type;
+    const pool = powerUpPools[type];
+    if (!pool) continue;
+    if (!poolsInUse[type]) poolsInUse[type] = 0;
+    const idx = poolsInUse[type];
+
+    if (pool[idx]) {
+      const img = pool[idx];
+      img.style.left = (pu.x * 48) + 'px';
+      img.style.top = (pu.y * 48) + 'px';
+      img.style.display = '';
+    }
+    poolsInUse[type]++;
   }
 }
+
+function collectVisiblePowerUps(grid) {
+  const list = [];
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      const tile = grid[y][x];
+      if (tile.p_ups && tile.p_ups !== '') {
+        list.push({x, y, type: tile.p_ups});
+      }
+    }
+  }
+  return list;
+}
+
 
 function createPlayers(playerLayer, players, playerImgUrl) {
   playerLayer.innerHTML = '';
@@ -246,7 +288,7 @@ function createPlayers(playerLayer, players, playerImgUrl) {
     playerLayer.appendChild(el);
   }
 }
-<<
+
 function drawPlayers(players) {
   const grid = gameData.map.grid
 
@@ -261,7 +303,7 @@ function drawPlayers(players) {
     }
 
     el.style.display = (player.state === "dd") ? "none" : "block";
->>
+
     if (player.state === "rs") {
       el.classList.add("flicker");
     } else {
@@ -315,14 +357,20 @@ function drawBombs(bombs, activeBombs) {
   bombPool.forEach(img => {
     img.style.left = '-9999px';
     img.style.top = '-9999px';
+    img.style.display = 'none';
   });
 
   // Then, put only the active ones in the right place
   activeBombs.forEach((bomb, idx) => {
     if (bombPool[idx]) {
       const img = bombPool[idx];
-      img.style.left = (bomb.x * 48) + 'px';
-      img.style.top = (bomb.y * 48) + 'px';
+      img.style.left = (bomb.x * TileSize) + 'px';
+      img.style.top = (bomb.y * TileSize) + 'px';
+      img.style.display = '';
+
+      // restart GIFs 
+      img.src = '';
+      img.src = img.dataset.src;
     }
   });
 }
@@ -337,20 +385,25 @@ let previousBombs = [];
 function renderLoop() {
   if (!gameData || !gameRoot) return;
 
+  // players
   drawPlayers(layers.playerLayer, gameData.players);
 
+  // power-up
+  const visiblePowerUps = collectVisiblePowerUps(gameData.map.grid);
+  drawPowerUps(visiblePowerUps);
+
+  // bomb
   const currentBombs = gameData.map.bombs || [];
-  // Detect exploded bombs
+  // detect exploded bombs
   for (const prevBomb of previousBombs) {
     const stillExists = currentBombs.some(b => b.x === prevBomb.x && b.y === prevBomb.y);
     if (!stillExists) {
       renderExplosion(prevBomb);
     }
   }
-
   previousBombs = currentBombs.map(bomb => ({ ...bomb }));
-
   drawBombs(bombPool, currentBombs); // update bombs
+
 
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -537,14 +590,14 @@ function renderExplosion(bomb) {
 function placeExplosion(x, y, durationMs = 1000) {
   // Find a free pool slot
   const idx = explosionActiveSlots.findIndex(e => e === null);
-
   if (idx === -1) return; // overlimit of flames
+
   const img = exploPool[idx];
   img.style.left = (x * 48) + 'px';
   img.style.top = (y * 48) + 'px';
   img.style.display = '';
 
-  // Force replay: This always restarts the GIF animation in all browsers
+  // restart gif if needed
   img.src = '';
   img.src = img.dataset.src;
 
