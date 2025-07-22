@@ -192,13 +192,13 @@
 }
 
 /* For very small screens */
-@media (max-width: 720px) {
+/* @media (max-width: 720px) {
     body {
-        overflow-x: auto; /* Allow horizontal scrolling */
+        overflow-x: auto; /* Allow horizontal scrolling 
     }
     
     #game-root {
-        /* Game stays at minimum size */
+        /* Game stays at minimum size 
         width: 720px;
         height: 624px;
         margin: 10px auto;
@@ -207,10 +207,10 @@
 
 @media (max-height: 624px) {
     body {
-        overflow-y: auto; /* Allow vertical scrolling */
+        overflow-y: auto; /* Allow vertical scrolling 
     }
     
     #game-root {
         margin-top: 10px;
     }
-}
+} */
