@@ -480,9 +480,9 @@ export function updateGameMini(data) {
 function renderExplosion(bomb) {
   const grid = gameData.map.grid;
   const { x, y, r } = bomb;
-  console.log(bomb)
   const width = grid[0].length;
   const height = grid.length;
+  grid[y][x].typ = TileFlame
 
   const tiles = [];
   tiles.push({ x, y });
@@ -506,7 +506,7 @@ function renderExplosion(bomb) {
         break;
 
       } else if (tileType === TileBlock) {
-        gameData.map.grid[ny][nx].typ = TileDestroy
+        grid[ny][nx].typ = TileDestroy
         const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
         tiles.push({ x: nx, y: ny });
@@ -514,8 +514,8 @@ function renderExplosion(bomb) {
 
       } else if (tileType === TileEmpty || tileType == TileFlame ||
         tileType == TileDestroy) {
-        gameData.map.grid[ny][nx].typ = TileEmpty
-        tiles.push({ x: nx, y: ny });
+        grid[ny][nx].typ = TileFlame
+        tiles.push({x: nx, y: ny});
 
         if (grid[ny][nx].p_ups !== "") {
           const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
