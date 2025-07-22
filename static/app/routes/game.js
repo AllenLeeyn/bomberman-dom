@@ -253,7 +253,7 @@ function collectVisiblePowerUps(grid) {
 function drawPlayers(players) {
   for (const id in players) {
     const player = players[id];
-    const color = playerColors.includes(player.col) ? player.col : 'blue';
+    const color = playerColors.includes(player.col) ? player.col : 'blue'; // change blue to whatever default colors you want
     const dirMap = { u: "back", d: "front", l: "left", r: "right" };
     const dir = dirMap[player.dir] || "front";
     const poolKey = `${color}_${dir}`;
