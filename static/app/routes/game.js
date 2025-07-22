@@ -12,6 +12,9 @@ const playerLayer = document.getElementById('player-layer');
 
 const layers = useLayers(gameRoot);
 
+const TileSize = 48;
+const PlayerSize = 36;
+
 const TileEmpty = "e";
 const TileWall = "w";
 const TileBlock = "bl";
@@ -186,21 +189,15 @@ function drawTiles(gameData) {
         }
           // More cases as you add more tile types (power-ups, flames, etc.)
 
-          if (gameData.map.grid[y][x].typ === TileBlock) {
-            const block = document.createElement('div');
-            block.id = `block_${x}_${y}`;
-            block.className = 'tile bl';
-            block.style.gridRowStart = y + 1;
-            block.style.gridColumnStart = x + 1;
-            blockLayer.appendChild(block);
-          }
-
           if (gameData.map.grid[y][x].p_ups !== "") {
             const powerUp = document.createElement('div');
-            powerUp.className = 'tile p';
+            const type = gameData.map.grid[y][x].p_ups;
+
+            powerUp.id = `powup_${x}_${y}`;
+            powerUp.className = `tile p p-${type}`;
             powerUp.style.gridRowStart = y + 1;
             powerUp.style.gridColumnStart = x + 1;
-            powerUp.textContent = gameData.map.grid[y][x].p_ups;
+
             bombLayer.appendChild(powerUp);
           }
       }
@@ -226,24 +223,89 @@ function createPlayers(playerLayer, players, playerImgUrl) {
   playerLayer.innerHTML = '';
   for (const id in players) {
     const player = players[id];
-    const img = document.createElement('img');
-    img.src = playerImgUrl;
-    img.style.position = "absolute";
-    img.style.width = "50px";
-    img.style.height = "50px";
-    // img.className = 'player-img player ' + player.col;
-    img.id = `player_${id}`;
-    playerLayer.appendChild(img);
+    const el = document.createElement('div');
+    el.className = `player`;
+    el.id = `player_${id}`;
+
+    el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+
+    // Validate color or fallback to 'blue'
+    const allowedColors = ['red', 'blue', 'green', 'yellow'];
+    const color = allowedColors.includes(player.col) ? player.col : 'blue';
+
+    // Create images for each direction
+    const directions = ['front', 'back', 'left', 'right'];
+    directions.forEach(dir => {
+      const img = document.createElement('img');
+      img.src = `./static/app/bot_${color}_${dir}.png`;
+      img.className = `player-img dir-${dir}`;
+      img.style.display = (dir === 'front') ? '' : 'none';
+      el.appendChild(img);
+    });
+
+    playerLayer.appendChild(el);
   }
 }
 
-function drawPlayers(playerLayer, players) {
+function drawPlayers(players) {
+  const grid = gameData.map.grid
+
   for (const id in players) {
     const player = players[id];
-    const img = document.getElementById(`player_${id}`);
-    if (img) {
-      img.style.left = player.x + "px";
-      img.style.top = player.y + "px";
+    const el = document.getElementById(`player_${id}`);
+
+    const newTransform = `translate(${player.x}px, ${player.y}px)`;
+
+    if (el.style.transform !== newTransform) {
+      el.style.transform = newTransform;
+    }
+
+    el.style.display = (player.state === "dd") ? "none" : "block";
+
+    if (player.state === "rs") {
+      el.classList.add("flicker");
+    } else {
+      el.classList.remove("flicker");
+    }
+
+    const playerTileTop = Math.floor(player.y / TileSize)
+    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
+    const playerTileLeft = Math.floor(player.x / TileSize)
+    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
+
+    const dirMap = {
+      u: "back",
+      d: "front",
+      l: "left",
+      r: "right",
+    };
+
+    const activeDir = dirMap[player.dir]
+    const imgs = el.querySelectorAll(".player-img");
+    imgs.forEach(img => {
+      if (img.classList.contains(`dir-${activeDir}`)) {
+        img.style.display = "";
+      } else {
+        img.style.display = "none";
+      }
+    });
+
+    let y = playerTileBottom
+    let x = playerTileLeft
+
+    if (player.dir == "u") {
+      y = playerTileTop
+      x = playerTileLeft
+
+    } else if (player.dir == "r") {
+      y = playerTileTop
+      x = playerTileRight
+    }
+
+    if (grid[y][x].p_ups !== "") {
+      const powUpEl = document.getElementById(`powup_${x}_${y}`);
+      if (powUpEl) powUpEl.remove();
+      grid[y][x].p_ups = ""
     }
   }
 }
@@ -254,7 +316,7 @@ function drawBombs(bombs, activeBombs) {
     img.style.left = '-9999px';
     img.style.top = '-9999px';
   });
-  
+
   // Then, put only the active ones in the right place
   activeBombs.forEach((bomb, idx) => {
     if (bombPool[idx]) {
@@ -264,7 +326,6 @@ function drawBombs(bombs, activeBombs) {
     }
   });
 }
-
 
 export function updateGameState(data) {
   gameData = data;
@@ -283,7 +344,7 @@ function renderLoop() {
   for (const prevBomb of previousBombs) {
     const stillExists = currentBombs.some(b => b.x === prevBomb.x && b.y === prevBomb.y);
     if (!stillExists) {
-        renderExplosion(prevBomb);
+      renderExplosion(prevBomb);
     }
   }
 
@@ -390,12 +451,36 @@ export function updateGameMini(data) {
     gameData.players[id].state = miniPlayer.s;
   }
 
-  gameData.map.bombs = data.b;
+  const updatedBombs = [];
+
+  for (const newBomb of data.b) {
+    const match = gameData.map.bombs.find(
+      (b) => b.x === newBomb.x && b.y === newBomb.y
+    );
+    if (match) {
+      Object.assign(match, newBomb); // update existing bomb
+      updatedBombs.push(match);
+    } else {
+      updatedBombs.push(newBomb); // add new bomb
+    }
+  }
+
+  for (const oldBomb of gameData.map.bombs) {
+    const stillExists = data.b.some(
+      (b) => b.x === oldBomb.x && b.y === oldBomb.y
+    );
+    if (!stillExists) {
+      oldBomb.e = true;
+      updatedBombs.push(oldBomb);
+    }
+  }
+  gameData.map.bombs = updatedBombs;
 }
 
 function renderExplosion(bomb) {
   const grid = gameData.map.grid;
   const { x, y, r } = bomb;
+  console.log(bomb)
   const width = grid[0].length;
   const height = grid.length;
 
@@ -413,17 +498,30 @@ function renderExplosion(bomb) {
     for (let i = 1; i <= r; i++) {
       const nx = x + dx * i;
       const ny = y + dy * i;
+
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
       const tileType = grid[ny][nx].typ;
-      if (tileType === TileWall) {
+
+      if (tileType === TileWall || tileType == TileBomb) {
         break;
+
       } else if (tileType === TileBlock) {
-        gameData.map.grid[ny][nx].typ = TileEmpty
+        gameData.map.grid[ny][nx].typ = TileDestroy
+        const blockEl = document.getElementById(`block_${nx}_${ny}`);
+        if (blockEl) blockEl.classList.add('hidden');
         tiles.push({ x: nx, y: ny });
         break;
-      } else if (tileType === TileEmpty || tileType === TilePowerUp) {
+
+      } else if (tileType === TileEmpty || tileType == TileFlame ||
+        tileType == TileDestroy) {
         gameData.map.grid[ny][nx].typ = TileEmpty
         tiles.push({ x: nx, y: ny });
+
+        if (grid[ny][nx].p_ups !== "") {
+          const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
+          if (powUpEl) powUpEl.remove();
+          grid[ny][nx].p_ups = ""
+        }
       }
     }
   }
@@ -449,7 +547,7 @@ function placeExplosion(x, y, durationMs = 1000) {
   // Force replay: This always restarts the GIF animation in all browsers
   img.src = '';
   img.src = img.dataset.src;
-  
+
   // free the slot after explosion
   explosionActiveSlots[idx] = setTimeout(() => {
     img.style.left = '-9999px';

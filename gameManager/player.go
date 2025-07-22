@@ -15,7 +15,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		Color:         color,
 		X:             0,
 		Y:             0,
-		Direction:     "down",
+		Direction:     "d",
 		MovementSpeed: DefaultSpeed,
 		KeyPresses:    []string{},
 		Lives:         DefaultLives,
@@ -23,6 +23,8 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		MaxBombCount:  DefaultBombCount,
 		Radius:        DefaultBombRadius,
 		CurBombCount:  0,
+		blockPass:     false,
+		bombPass:      false,
 	}
 }
 
@@ -37,13 +39,16 @@ func NewPlayerMini(players map[string]*Player) map[string]*PlayerMini {
 func (p *Player) Reset(startX, startY int) {
 	p.X = startX
 	p.Y = startY
-	p.Direction = "down"
+	p.Direction = "d"
 	p.MovementSpeed = DefaultSpeed
+	p.KeyPresses = []string{}
 	p.Lives = DefaultLives
 	p.State = PlayerAlive
 	p.MaxBombCount = DefaultBombCount
+	p.Radius = DefaultBombRadius
 	p.CurBombCount = 0
-	p.KeyPresses = []string{}
+	p.blockPass = false
+	p.bombPass = false
 }
 
 func (g *Game) UpdatePlayerKeys(playerName string, content string) {

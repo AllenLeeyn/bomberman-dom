@@ -11,10 +11,6 @@ func newColorSet() map[string]bool {
 		"blue":   false,
 		"green":  false,
 		"yellow": false,
-		"purple": false,
-		"orange": false,
-		"cyan":   false,
-		"pink":   false,
 	}
 }
 
