@@ -186,6 +186,7 @@ function drawPlayers(players) {
 }
 
 function drawBombs(bombs) {
+  const grid = gameData.map.grid
   for (const bomb of bombs) {
     const id = `bomb_${bomb.x}_${bomb.y}`;
 
@@ -201,6 +202,7 @@ function drawBombs(bombs) {
       bombEl.style.gridRowStart = bomb.y + 1;
       bombEl.style.gridColumnStart = bomb.x + 1;
       bombLayer.appendChild(bombEl);
+      grid[bomb.y][bomb.x].typ = TileBomb
     }
   }
   
@@ -345,9 +347,9 @@ function renderExplosion(bomb) {
   const grid = gameData.map.grid
 
   const { x, y, r } = bomb;
-  console.log(bomb)
   const width = grid[0].length;
   const height = grid.length;
+  grid[y][x].typ = TileFlame
 
   const tiles = [];
   tiles.push({x, y});
@@ -371,7 +373,7 @@ function renderExplosion(bomb) {
         break;
 
       } else if (tileType === TileBlock) {
-        gameData.map.grid[ny][nx].typ = TileDestroy
+        grid[ny][nx].typ = TileDestroy
         const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
         tiles.push({x: nx, y: ny});
@@ -379,7 +381,7 @@ function renderExplosion(bomb) {
 
       } else if (tileType === TileEmpty || tileType == TileFlame ||
         tileType == TileDestroy) {
-        gameData.map.grid[ny][nx].typ = TileEmpty
+        grid[ny][nx].typ = TileFlame
         tiles.push({x: nx, y: ny});
 
         if (grid[ny][nx].p_ups !== "") {
@@ -403,7 +405,7 @@ function renderExplosion(bomb) {
       flame.style.gridColumnStart = x + 1;
       flame.id = `flame_${x}_${y}`;
       exploLayer.appendChild(flame);
-      
+
     } else {
       flame.classList.remove('f');
       void flame.offsetWidth;
@@ -420,7 +422,8 @@ function renderExplosion(bomb) {
         const flame = document.getElementById(`flame_${x}_${y}`);
         if (flame) flame.remove();
         flameGrid[y][x] = 0;
+        grid[y][x].typ = TileEmpty
       }
     }
-  }, 500);
+  }, 450);
 }
