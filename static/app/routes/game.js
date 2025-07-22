@@ -79,6 +79,7 @@ function drawTiles(gameData) {
         const powerUp = document.createElement('div');
         const type = gameData.map.grid[y][x].p_ups;
 
+        powerUp.id = `powup_${x}_${y}`; 
         powerUp.className = `tile p p-${type}`;
         powerUp.style.gridRowStart = y + 1;
         powerUp.style.gridColumnStart = x + 1;
@@ -95,10 +96,24 @@ function createPlayers(players) {
   for (const id in players) {
     const player = players[id];
     const el = document.createElement('div');
-    el.className = `player ${player.col}`;
+    el.className = `player`;
     el.id = `player_${id}`;
 
     el.style.transform = `translate(${player.x}px, ${player.y}px)`;
+    
+    // Validate color or fallback to 'blue'
+    const allowedColors = ['red', 'blue', 'green', 'yellow'];
+    const color = allowedColors.includes(player.col) ? player.col : 'blue';
+
+    // Create images for each direction
+    const directions = ['front', 'back', 'left', 'right'];
+    directions.forEach(dir => {
+      const img = document.createElement('img');
+      img.src = `./static/app/bot_${color}_${dir}.png`;
+      img.className = `player-img dir-${dir}`;
+      img.style.display = (dir === 'front') ? '' : 'none';
+      el.appendChild(img);
+    });
 
     playerLayer.appendChild(el);
   }
@@ -115,17 +130,30 @@ function drawPlayers(players) {
       el.style.transform = newTransform;
     }
 
-    if (player.state === "dd") {
-      el.style.display = "none";
-    } else {
-      el.style.display = "block";
-    }
+    el.style.display = (player.state === "dd") ? "none" : "block";
 
     if (player.state === "rs") {
       el.classList.add("flicker");
     } else {
       el.classList.remove("flicker");
     }
+    
+    const dirMap = {
+      u: "back",
+      d: "front",
+      l: "left",
+      r: "right",
+    };
+    
+    const activeDir = dirMap[player.dir]
+    const imgs = el.querySelectorAll(".player-img");
+    imgs.forEach(img => {
+      if (img.classList.contains(`dir-${activeDir}`)) {
+        img.style.display = "";
+      } else {
+        img.style.display = "none";
+      }
+    });
   }
 }
 
@@ -139,8 +167,8 @@ function drawBombs(bombs) {
     const existing = document.getElementById(id);
 
     if (existing && bomb.e) {
-      existing.remove();
       renderExplosion(bomb);
+      existing.remove();
     } else if (!existing) {
       const bombEl = document.createElement('div');
       bombEl.className = 'tile b';
@@ -155,9 +183,9 @@ function drawBombs(bombs) {
     if (el.classList.contains('p')) continue;
     if (!seenIds.has(el.id)) {
       el.remove();
-      /* const [_, x, y] = el.id.split('_');
+      const [_, x, y] = el.id.split('_');
       const bomb = { x: +x, y: +y, r: 1 }; 
-      renderExplosion(bomb); */
+      renderExplosion(bomb);
     }
   }
 }
@@ -292,22 +320,27 @@ function renderExplosion(bomb) {
       const nx = x + dx * i;
       const ny = y + dy * i;
       const blockId = `block_${nx}_${ny}`;
+      const powerUpId = `powup_${x}_${y}`; 
 
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
       const tileType = grid[ny][nx].typ;
 
-      if (tileType === TileWall) {
+      if (tileType === TileWall ) {
         break;
       } else if (tileType === TileBlock) {
         gameData.map.grid[ny][nx].typ = TileEmpty
         const blockEl = document.getElementById(blockId);
-        if (blockEl) blockEl.remove();
+        if (blockEl) blockEl.classList.add('hidden');
 
         tiles.push({x: nx, y: ny});
         break;
-      } else if (tileType === TileEmpty || tileType === TilePowerUp) {
+      } else if (tileType === TileEmpty ||grid[ny][nx].p_ups !== "") {
         gameData.map.grid[ny][nx].typ = TileEmpty
         tiles.push({x: nx, y: ny});
+
+      } else if (grid[ny][nx].p_ups !== "") {
+        const powUpEl = document.getElementById(powerUpId);
+        if (powUpEl) powUpEl.remove();
       }
     }
   }

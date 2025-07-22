@@ -24,7 +24,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		} else {
 			leftType := g.GMap.Grid[newTileTop][playerTileLeft].Type
 			rightType := g.GMap.Grid[newTileTop][playerTileRight].Type
-			leftBlocked, rightBlocked := isBlockingTile(leftType), isBlockingTile(rightType)
+			leftBlocked := isBlockingTile(player, leftType)
+			rightBlocked := isBlockingTile(player, rightType)
 
 			if leftBlocked || rightBlocked {
 				newY = (newTileTop + 1) * TileSize
@@ -60,7 +61,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		} else {
 			leftType := g.GMap.Grid[newTileBottom][playerTileLeft].Type
 			rightType := g.GMap.Grid[newTileBottom][playerTileRight].Type
-			leftBlocked, rightBlocked := isBlockingTile(leftType), isBlockingTile(rightType)
+			leftBlocked := isBlockingTile(player, leftType)
+			rightBlocked := isBlockingTile(player, rightType)
 
 			if leftBlocked || rightBlocked {
 				newY = newTileBottom*TileSize - PlayerSize
@@ -96,7 +98,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		} else {
 			topType := g.GMap.Grid[playerTileTop][newTileLeft].Type
 			bottomType := g.GMap.Grid[playerTileBottom][newTileLeft].Type
-			topBlocked, bottomBlocked := isBlockingTile(topType), isBlockingTile(bottomType)
+			topBlocked := isBlockingTile(player, topType)
+			bottomBlocked := isBlockingTile(player, bottomType)
 
 			if topBlocked || bottomBlocked {
 				newX = (newTileLeft + 1) * TileSize
@@ -132,7 +135,8 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 		} else {
 			topType := g.GMap.Grid[playerTileTop][newTileRight].Type
 			bottomType := g.GMap.Grid[playerTileBottom][newTileRight].Type
-			topBlocked, bottomBlocked := isBlockingTile(topType), isBlockingTile(bottomType)
+			topBlocked := isBlockingTile(player, topType)
+			bottomBlocked := isBlockingTile(player, bottomType)
 
 			if topBlocked || bottomBlocked {
 				newX = newTileRight*TileSize - PlayerSize
@@ -159,9 +163,17 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 	}
 }
 
-func isBlockingTile(t string) bool {
-	return t == TileWall ||
-		t == TileBlock ||
-		t == TileBomb ||
-		t == TileDestroy
+func isBlockingTile(player *Player, t string) bool {
+	switch t {
+	case TileWall:
+		return true
+	case TileBlock:
+		return !player.blockPass
+	case TileBomb:
+		return !player.bombPass
+	case TileDestroy:
+		return true
+	default:
+		return false
+	}
 }

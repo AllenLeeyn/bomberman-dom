@@ -48,8 +48,6 @@ const handleMessage = (event) => {
   //console.log(`event.data size: ${dataSizeBytes} bytes`);
 
   const data = safeParse(event.data);
-  console.warn(data)
-
   if (data.action === "game_mini"){
     updateGameMini(data)
 
