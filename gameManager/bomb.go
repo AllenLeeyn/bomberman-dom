@@ -92,7 +92,8 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 				tile.Type = TileDestroy
 				tile.ExpireTime = expire
 				break
-			} else if tile.Type == TileEmpty || tile.PowUp != "" {
+			} else if tile.Type == TileEmpty || tile.Type == TileFlame ||
+				tile.Type == TileDestroy || tile.PowUp != "" {
 				tile.PowUp = ""
 				tile.Type = TileFlame
 				tile.ExpireTime = expire

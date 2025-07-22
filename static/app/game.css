@@ -152,23 +152,13 @@
   animation: flicker 0.25s infinite alternate;
 }
 
-/* Assign colors via class or inline style */
-
-.player.red    { background-color: #FF1493; } 
-.player.blue   { background-color: #00BFFF; } 
-.player.green  { background-color: #2ecc71; }
-.player.yellow { background-color: #f1c40f; } 
-.player.purple { background-color: #9b59b6; } 
-.player.orange { background-color: #e67e22; } 
-.player.cyan   { background-color: #1abc9c; } 
-.player.pink   { background-color: #ff69b4; } 
-
-
 /* --- Flame flicker animation --- */
 @keyframes flicker {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.8;}
-  100% { opacity: 1; }
+  0%   { opacity: 1; filter: none; }
+  25%  { opacity: 0.3; filter: brightness(1.5) drop-shadow(0 0 8px red); }
+  50%  { opacity: 1; filter: none; }
+  75%  { opacity: 0.4; filter: brightness(1.8) drop-shadow(0 0 10px red); }
+  100% { opacity: 1; filter: none; }
 }
 
 /* Hide when not in use */

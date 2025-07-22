@@ -41,11 +41,12 @@ func (p *Player) Reset(startX, startY int) {
 	p.Y = startY
 	p.Direction = "d"
 	p.MovementSpeed = DefaultSpeed
+	p.KeyPresses = []string{}
 	p.Lives = DefaultLives
 	p.State = PlayerAlive
 	p.MaxBombCount = DefaultBombCount
+	p.Radius = DefaultBombRadius
 	p.CurBombCount = 0
-	p.KeyPresses = []string{}
 	p.blockPass = false
 	p.bombPass = false
 }
