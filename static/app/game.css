@@ -80,7 +80,7 @@
 }
 
 /* Individual power-up classes */
-.p-bombUp {
+/* .p-bombUp {
   background-image: url('powUp_bombUp.png');
 }
 
@@ -102,7 +102,7 @@
 
 .p-liveUp {
   background-image: url('powUp_liveUp.png');
-}
+} */
 
 /* --- Tile Types --- */
 .tile.bl { /* block */
@@ -115,7 +115,6 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('bomb.gif');
 }
 
 .tile.f { /* flame */
@@ -123,7 +122,6 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('explosion.gif');
 }
 
 /* --- Players --- */

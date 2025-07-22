@@ -246,7 +246,7 @@ function createPlayers(playerLayer, players, playerImgUrl) {
     playerLayer.appendChild(el);
   }
 }
-
+<<
 function drawPlayers(players) {
   const grid = gameData.map.grid
 
@@ -261,7 +261,7 @@ function drawPlayers(players) {
     }
 
     el.style.display = (player.state === "dd") ? "none" : "block";
-
+>>
     if (player.state === "rs") {
       el.classList.add("flicker");
     } else {
