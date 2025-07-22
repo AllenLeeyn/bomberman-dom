@@ -1,5 +1,5 @@
 import { getSocket } from '../../framework/domber.js'
-import { useLayers, renderTileLayer, createSpritePool } from '../layers.js';
+import { useLayers, renderTileLayer, createSpritePool, createPlayerSpritePool } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 
@@ -14,6 +14,7 @@ const layers = useLayers(gameRoot);
 
 const TileSize = 48;
 const PlayerSize = 36;
+const playerColors = ['red', 'blue', 'green', 'yellow'];
 
 const TileEmpty = "e";
 const TileWall = "w";
@@ -26,6 +27,7 @@ const TileFlame = "f";
 let bombPool = [];
 let exploPool = [];
 let explosionActiveSlots = [];
+let playerSpritePool = {};
 const powerUpPools = {};
 
 const powerUpTypes = [
@@ -73,6 +75,7 @@ export async function launchGame(data, playerName) {
 
 
 
+
 export function startGameApp(data, playerName) {
   console.log("== startGameApp data ==", data);
   // clearing "existing" event
@@ -97,21 +100,12 @@ export function startGameApp(data, playerName) {
   gameRoot.addEventListener('keydown', handleKeyDown, { passive: false });
   gameRoot.addEventListener('keyup', handleKeyUp);
 
-
-
-  // drawTiles(gameData)
   const board = assets.getAsset('board');
-  const player = assets.getAsset('player');
   const bomb = assets.getAsset('b');
   const explo = assets.getAsset('boom');
-  // const powerUp = assets.getAsset('')
 
   if (!board) {
     console.error('Missing board asset!');
-    return;
-  }
-  if (!player) {
-    console.error('Missing player asset!');
     return;
   }
   if (!bomb) {
@@ -122,10 +116,6 @@ export function startGameApp(data, playerName) {
     console.error('Missing explosion asset!');
     return;
   }
-  // if (!powerUp) {
-  //   console.error('Missing power-up asset!');
-  //   return;
-  // }
 
   bombPool = createSpritePool(layers.bombLayer, 12, 'b', assets, 'tile bomb');
   exploPool = createSpritePool(layers.exploLayer, 80, 'boom', assets, 'tile flame');
@@ -143,9 +133,8 @@ export function startGameApp(data, playerName) {
 
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
-  createPlayers(layers.playerLayer, gameData.players, player.src);
 
-  // drawPowerUps(gameData.map.p_ups)
+  playerSpritePool = createPlayerSpritePool(layers.playerLayer, 4, assets, PlayerSize);
 
   // TODO: Implement real game rendering logic here using gameData state
   console.log('[Game] Initialized game container with dimensions:');
@@ -261,93 +250,31 @@ function collectVisiblePowerUps(grid) {
 }
 
 
-function createPlayers(playerLayer, players, playerImgUrl) {
-  playerLayer.innerHTML = '';
-  for (const id in players) {
-    const player = players[id];
-    const el = document.createElement('div');
-    el.className = `player`;
-    el.id = `player_${id}`;
-
-    el.style.transform = `translate(${player.x}px, ${player.y}px)`;
-
-    // Validate color or fallback to 'blue'
-    const allowedColors = ['red', 'blue', 'green', 'yellow'];
-    const color = allowedColors.includes(player.col) ? player.col : 'blue';
-
-    // Create images for each direction
-    const directions = ['front', 'back', 'left', 'right'];
-    directions.forEach(dir => {
-      const img = document.createElement('img');
-      img.src = `./static/app/bot_${color}_${dir}.png`;
-      img.className = `player-img dir-${dir}`;
-      img.style.display = (dir === 'front') ? '' : 'none';
-      el.appendChild(img);
-    });
-
-    playerLayer.appendChild(el);
-  }
-}
-
 function drawPlayers(players) {
-  const grid = gameData.map.grid
-
   for (const id in players) {
     const player = players[id];
-    const el = document.getElementById(`player_${id}`);
+    const color = playerColors.includes(player.col) ? player.col : 'blue';
+    const dirMap = { u: "back", d: "front", l: "left", r: "right" };
+    const dir = dirMap[player.dir] || "front";
+    const poolKey = `${color}_${dir}`;
+    const playerId = `player_${id}`;
 
-    const newTransform = `translate(${player.x}px, ${player.y}px)`;
-
-    if (el.style.transform !== newTransform) {
-      el.style.transform = newTransform;
+    // Hide all sprites for this player
+    for (const key in playerSpritePool[playerId]) {
+      playerSpritePool[playerId][key].style.display = 'none';
     }
 
-    el.style.display = (player.state === "dd") ? "none" : "block";
-
-    if (player.state === "rs") {
-      el.classList.add("flicker");
-    } else {
-      el.classList.remove("flicker");
-    }
-
-    const playerTileTop = Math.floor(player.y / TileSize)
-    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
-    const playerTileLeft = Math.floor(player.x / TileSize)
-    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
-
-    const dirMap = {
-      u: "back",
-      d: "front",
-      l: "left",
-      r: "right",
-    };
-
-    const activeDir = dirMap[player.dir]
-    const imgs = el.querySelectorAll(".player-img");
-    imgs.forEach(img => {
-      if (img.classList.contains(`dir-${activeDir}`)) {
-        img.style.display = "";
+    // Show the correct sprite
+    const img = playerSpritePool[playerId][poolKey];
+    if (img) {
+      img.style.left = player.x + 'px';
+      img.style.top = player.y + 'px';
+      img.style.display = (player.state === "dd") ? "none" : "block";
+      if (player.state === "rs") {
+        img.classList.add("flicker");
       } else {
-        img.style.display = "none";
+        img.classList.remove("flicker");
       }
-    });
-
-    let y = playerTileBottom
-    let x = playerTileLeft
-
-    if (player.dir == "u") {
-      y = playerTileTop
-      x = playerTileLeft
-
-    } else if (player.dir == "r") {
-      y = playerTileTop
-      x = playerTileRight
-    }
-
-    if (grid[y][x].p_ups !== "") {
-      const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) powUpEl.remove();
-      grid[y][x].p_ups = ""
     }
   }
 }
@@ -386,7 +313,7 @@ function renderLoop() {
   if (!gameData || !gameRoot) return;
 
   // players
-  drawPlayers(layers.playerLayer, gameData.players);
+  drawPlayers(gameData.players, assets);
 
   // power-up
   const visiblePowerUps = collectVisiblePowerUps(gameData.map.grid);

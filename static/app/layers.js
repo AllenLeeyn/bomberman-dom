@@ -16,6 +16,9 @@ const LAYER_IDS = [
     'player-layer'
 ]
 
+const playerDirections = ['front', 'back', 'left', 'right'];
+const playerColors = ['red', 'blue', 'green', 'yellow'];
+
 export function useLayers(gameRoot) {
     LAYER_IDS.forEach(id => {
         if (!gameRoot.querySelector(`#${id}`)) {
@@ -67,43 +70,32 @@ export function createSpritePool(layer, max, assetKey, assets, className, w = 48
     return pool;
 }
 
+export function createPlayerSpritePool(playerLayer, maxPlayers, assets, PlayerSize = 36) {
+    // Pool structure: { [playerId]: { [dir]: img } }
+    const pool = {};
+    for (let i = 0; i < maxPlayers; i++) {
+        const playerId = `player_${i}`;
+        pool[playerId] = {};
+        for (const color of playerColors) {
+            for (const dir of playerDirections) {
+                const assetKey = `player_${color}_${dir}`;
+                const asset = assets.getAsset(assetKey);
+                const img = document.createElement('img');
+                img.src = asset && asset.src ? asset.src : '';
+                img.className = `player player-img dir-${dir} color-${color}`;
+                img.id = `${playerId}_${color}_${dir}`;
+                img.style.position = 'absolute';
+                img.style.width = PlayerSize + 'px';
+                img.style.height = (PlayerSize * 4/3) + 'px';
+                img.style.left = '-9999px';
+                img.style.top = '-9999px';
+                img.style.display = 'none';
+                playerLayer.appendChild(img);
+                pool[playerId][`${color}_${dir}`] = img;
+            }
+        }
+    }
+    return pool;
+}
 
-
-
-
-
-// export function createBombPool(bombLayer, maxBombs = 13, bombImgUrl, w = 48, h = 48) {
-//     const bombPool = [];
-//     for (let i = 0; i < maxBombs; i++) {
-//         const img = document.createElement('img');
-//         img.src = bombImgUrl;
-//         img.style.position = 'absolute';
-//         img.style.width = w + 'px';
-//         img.style.height = h + 'px';
-//         img.style.left = '-9999px'; 
-//         img.style.top = '-9999px';
-//         bombLayer.appendChild(img);
-//         bombPool.push(img);
-//     }
-//     return bombPool;
-// }
-
-
-// export function createExplosionPool(exploLayer, maxExplo = 80, exploImgUrl, w=48, h=48) {
-//     const exploPool = [];
-//     for (let i = 0; i <= maxExplo; i++) {
-//         const img = document.createElement('img');
-//         img.src = exploImgUrl;
-//         img.dataset.src = exploImgUrl;
-//         img.style.position = 'absolute';
-//         img.style.width = w + 'px';
-//         img.style.height = w + 'px';
-//         img.style.left = '-9999px';
-//         img.style.top = '-9999px';
-//         img.style.display = 'none';
-//         exploLayer.appendChild(img);
-//         exploPool.push(img);
-//     }
-//     return exploPool;
-// }
 
