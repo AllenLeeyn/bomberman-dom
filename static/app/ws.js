@@ -8,7 +8,10 @@ export const joinLobby = (name) => {
     return;
   }
 
-  connectWebSocket('lobby', `ws://${location.host}/ws?name=${encodeURIComponent(name)}`, {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+
+  connectWebSocket('lobby', `${protocol}//${host}/ws?name=${encodeURIComponent(name)}`, {
     onOpen: () => {
       state.playerName = name;
       state.connected = true;
