@@ -88,15 +88,18 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 
 			if tile.Type == TileWall {
 				break
+
 			} else if tile.Type == TileBlock {
 				tile.Type = TileDestroy
 				tile.ExpireTime = expire
 				break
+
 			} else if tile.Type == TileEmpty || tile.Type == TileFlame ||
-				tile.Type == TileDestroy || tile.PowUp != "" {
+				tile.Type == TileDestroy {
 				tile.PowUp = ""
 				tile.Type = TileFlame
 				tile.ExpireTime = expire
+
 			} else if tile.Type == TileBomb {
 				for _, otherBomb := range g.GMap.Bombs {
 					if otherBomb.X == nx && otherBomb.Y == ny && !otherBomb.Exploded {

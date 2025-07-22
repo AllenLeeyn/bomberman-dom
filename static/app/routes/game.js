@@ -7,6 +7,9 @@ const blockLayer = document.getElementById('block-layer');
 const exploLayer = document.getElementById('explosion-layer');
 const playerLayer = document.getElementById('player-layer');
 
+const TileSize   = 48;
+const PlayerSize = 36;
+
 const TileEmpty   = "e";
 const TileWall    = "w";
 const TileBlock   = "bl";
@@ -120,6 +123,8 @@ function createPlayers(players) {
 }
 
 function drawPlayers(players) {
+  const grid = gameData.map.grid
+
   for (const id in players) {
     const player = players[id];
     const el = document.getElementById(`player_${id}`);
@@ -138,6 +143,11 @@ function drawPlayers(players) {
       el.classList.remove("flicker");
     }
     
+    const playerTileTop = Math.floor(player.y / TileSize)
+    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
+    const playerTileLeft = Math.floor(player.x / TileSize)
+    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
+
     const dirMap = {
       u: "back",
       d: "front",
@@ -154,15 +164,31 @@ function drawPlayers(players) {
         img.style.display = "none";
       }
     });
+
+    let y = playerTileBottom
+    let x= playerTileLeft
+    
+    if (player.dir == "u") {
+      y = playerTileTop
+      x= playerTileLeft
+
+    } else if (player.dir == "r") {
+      y = playerTileTop
+      x= playerTileRight
+    }
+
+    if (grid[y][x].p_ups !== "") {
+      const powUpEl = document.getElementById(`powup_${x}_${y}`);
+      if (powUpEl) powUpEl.remove();
+      grid[y][x].p_ups = ""
+    }
   }
 }
 
 function drawBombs(bombs) {
-  const seenIds = new Set();
-
+  const grid = gameData.map.grid
   for (const bomb of bombs) {
     const id = `bomb_${bomb.x}_${bomb.y}`;
-    seenIds.add(id);
 
     const existing = document.getElementById(id);
 
@@ -176,20 +202,16 @@ function drawBombs(bombs) {
       bombEl.style.gridRowStart = bomb.y + 1;
       bombEl.style.gridColumnStart = bomb.x + 1;
       bombLayer.appendChild(bombEl);
+      grid[bomb.y][bomb.x].typ = TileBomb
     }
   }
-
-  for (const el of Array.from(bombLayer.children)) {
-    if (el.classList.contains('p')) continue;
-    if (!seenIds.has(el.id)) {
-      el.remove();
-      const [_, x, y] = el.id.split('_');
-      const bomb = { x: +x, y: +y, r: 1 }; 
-      renderExplosion(bomb);
+  
+  for (let i = bombs.length - 1; i >= 0; i--) {
+    if (bombs[i].e) {
+      bombs.splice(i, 1);
     }
   }
 }
-
 
 export function updateGameState(data) {
   gameData = data;
@@ -294,8 +316,31 @@ export function updateGameMini(data) {
     gameData.players[id].lives = miniPlayer.l;
     gameData.players[id].state = miniPlayer.s;
   }
-  
-  gameData.map.bombs = data.b;
+
+  const updatedBombs = [];
+
+  for (const newBomb of  data.b) {
+    const match = gameData.map.bombs.find(
+      (b) => b.x === newBomb.x && b.y === newBomb.y
+    );
+    if (match) {
+      Object.assign(match, newBomb); // update existing bomb
+      updatedBombs.push(match);
+    } else {
+      updatedBombs.push(newBomb); // add new bomb
+    }
+  }
+
+  for (const oldBomb of gameData.map.bombs) {
+    const stillExists = data.b.some(
+      (b) => b.x === oldBomb.x && b.y === oldBomb.y
+    );
+    if (!stillExists) {
+      oldBomb.e = true;
+      updatedBombs.push(oldBomb);
+    }
+  }
+  gameData.map.bombs = updatedBombs;
 }
 
 function renderExplosion(bomb) {
@@ -304,6 +349,7 @@ function renderExplosion(bomb) {
   const { x, y, r } = bomb;
   const width = grid[0].length;
   const height = grid.length;
+  grid[y][x].typ = TileFlame
 
   const tiles = [];
   tiles.push({x, y});
@@ -319,28 +365,30 @@ function renderExplosion(bomb) {
     for (let i = 1; i <= r; i++) {
       const nx = x + dx * i;
       const ny = y + dy * i;
-      const blockId = `block_${nx}_${ny}`;
-      const powerUpId = `powup_${x}_${y}`; 
 
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
       const tileType = grid[ny][nx].typ;
 
-      if (tileType === TileWall ) {
+      if (tileType === TileWall || tileType == TileBomb) {
         break;
+
       } else if (tileType === TileBlock) {
-        gameData.map.grid[ny][nx].typ = TileEmpty
-        const blockEl = document.getElementById(blockId);
+        grid[ny][nx].typ = TileDestroy
+        const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
-
         tiles.push({x: nx, y: ny});
         break;
-      } else if (tileType === TileEmpty ||grid[ny][nx].p_ups !== "") {
-        gameData.map.grid[ny][nx].typ = TileEmpty
+
+      } else if (tileType === TileEmpty || tileType == TileFlame ||
+        tileType == TileDestroy) {
+        grid[ny][nx].typ = TileFlame
         tiles.push({x: nx, y: ny});
 
-      } else if (grid[ny][nx].p_ups !== "") {
-        const powUpEl = document.getElementById(powerUpId);
-        if (powUpEl) powUpEl.remove();
+        if (grid[ny][nx].p_ups !== "") {
+          const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
+          if (powUpEl) powUpEl.remove();
+          grid[ny][nx].p_ups = ""
+        }
       }
     }
   }
@@ -357,6 +405,7 @@ function renderExplosion(bomb) {
       flame.style.gridColumnStart = x + 1;
       flame.id = `flame_${x}_${y}`;
       exploLayer.appendChild(flame);
+
     } else {
       flame.classList.remove('f');
       void flame.offsetWidth;
@@ -373,7 +422,8 @@ function renderExplosion(bomb) {
         const flame = document.getElementById(`flame_${x}_${y}`);
         if (flame) flame.remove();
         flameGrid[y][x] = 0;
+        grid[y][x].typ = TileEmpty
       }
     }
-  }, 1000);
+  }, 450);
 }

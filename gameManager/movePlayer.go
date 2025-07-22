@@ -167,12 +167,10 @@ func isBlockingTile(player *Player, t string) bool {
 	switch t {
 	case TileWall:
 		return true
-	case TileBlock:
+	case TileBlock, TileDestroy:
 		return !player.blockPass
 	case TileBomb:
 		return !player.bombPass
-	case TileDestroy:
-		return true
 	default:
 		return false
 	}
