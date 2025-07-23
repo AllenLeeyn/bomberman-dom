@@ -116,9 +116,9 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('bomb_01.png');
+  background-image: url('bomb.gif');
 
-  animation: bomb-pulse 0.6s infinite;
+  animation: bomb-pulse 0.5s infinite;
   will-change: opacity, transform;
 }
 
@@ -168,7 +168,7 @@
 
 @keyframes bomb-pulse {
   0%   { transform: scale(1); }
-  50%  { transform: scale(1.2); }
+  50%  { transform: scale(0.99); }
   100% { transform: scale(1); }
 }
 
