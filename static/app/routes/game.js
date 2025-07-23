@@ -33,6 +33,14 @@ let gameData = {};
 let animationFrameId = null;
 let flameGrid = null;
 
+// Track previous lives to detect changes
+let previousLives = {};
+
+// Generate hearts based on lives count
+function generateHearts(lives) {
+  return '❤️'.repeat(lives);
+}
+
 export function startGameApp(data, playerName) {
   socket = getSocket("lobby");
   if (!gameRoot || !tileLayer || !playerLayer || !socket) {
@@ -54,9 +62,9 @@ export function startGameApp(data, playerName) {
 
   drawTiles(gameData);
   createPlayers(gameData.players);
+  createPlayerHUD(gameData.players);
 
-  // TODO: Implement real game rendering logic here using gameData state
-  console.log("[Game] Initialized game container with dimensions:");
+  console.log('[Game] Initialized game container with dimensions:');
 
   // Start render loop
   animationFrameId = requestAnimationFrame(renderLoop);
@@ -250,6 +258,7 @@ export function updateGameState(data) {
 function renderLoop() {
   drawPlayers(gameData.players);
   drawBombs(gameData.map.bombs);
+  updatePlayerHUD(gameData.players);
   // Schedule next frame
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -330,7 +339,8 @@ export function stopGameApp(winnerName = "") {
     bombLayer.innerHTML = "";
     exploLayer.innerHTML = "";
     playerLayer.innerHTML = "";
-  }, 2000);
+    clearPlayerHUD();
+  }, 2000); 
 }
 
 export function updateGameMini(data) {
@@ -377,6 +387,9 @@ export function updateGameMini(data) {
     }
   }
   gameData.map.bombs = updatedBombs;
+  
+  // Smart HUD update - only updates when lives actually change
+ 
 }
 
 function renderExplosion(bomb) {
@@ -474,4 +487,80 @@ function showFloatingText(x, y, text) {
   gameRoot.appendChild(floatText);
 
   setTimeout(() => floatText.remove(), 1000);
+}
+
+// Create HUD with player info
+function createPlayerHUD(players) {
+  console.log('[HUD] Creating HUD for players:', Object.keys(players));
+  const hud = document.getElementById('player-hud');
+  if (!hud) {
+    console.error('[HUD] player-hud element not found!');
+    return;
+  }
+  
+  // Clear existing content
+  hud.innerHTML = '';
+  
+  // Add each player's info
+  Object.keys(players).forEach(id => {
+    const player = players[id];
+    console.log(`[HUD] Adding player: ${player.name} (${player.col}) - Lives: ${player.lives}`);
+    
+    const playerDiv = document.createElement('div');
+    playerDiv.className = `player-info ${player.col}`;
+    playerDiv.innerHTML = `
+      <span class="player-name">${player.name}</span>
+      <span class="player-lives">${generateHearts(player.lives)}</span>
+    `;
+    hud.appendChild(playerDiv);
+  });
+  
+  // Update tracking object
+  previousLives = {};
+  Object.keys(players).forEach(id => {
+    previousLives[id] = players[id].lives;
+  });
+  
+  console.log('[HUD] HUD created successfully');
+}
+
+// Update HUD with current player data - only if lives changed
+function updatePlayerHUD(players) {
+
+  
+  let hasChanges = false;
+  
+  // Check if lives changed for any player
+  Object.keys(players).forEach(id => {
+    if (previousLives[id] !== players[id].lives) {
+      console.log(`[HUD] Lives changed for ${players[id].name}: ${previousLives[id]} -> ${players[id].lives}`);
+      hasChanges = true;
+    }
+  });
+  
+  // Check if new players joined or left
+  const currentPlayerIds = Object.keys(players);
+  const previousPlayerIds = Object.keys(previousLives);
+  if (currentPlayerIds.length !== previousPlayerIds.length) {
+    console.log('[HUD] Player count changed');
+    hasChanges = true;
+  }
+  
+  // Only update if there are actual changes
+  if (hasChanges) {
+    console.log('[HUD] Updating HUD due to changes');
+    createPlayerHUD(players);
+  }
+}
+
+// Clear HUD
+function clearPlayerHUD() {
+  console.log('[HUD] Clearing HUD');
+  const hud = document.getElementById('player-hud');
+  if (hud) {
+    hud.innerHTML = '';
+  }
+  
+  // Reset tracking
+  previousLives = {};
 }
