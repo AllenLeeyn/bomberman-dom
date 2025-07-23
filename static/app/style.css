@@ -222,7 +222,7 @@ h2 {
 
 .chat-message {
   margin-bottom: 5px;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   line-height: 1.4;
 }
 
@@ -230,14 +230,11 @@ h2 {
   color: whitesmoke;
 }
 
-#players {
-  margin-top: 10px;
-
-}
-
 #players h3 {
-  font-size: 1.5rem;
+  text-align: center;
+  font-size: 1rem;
   margin-bottom: 5px;
+  margin-top: 2px;
 }
 
 #player-list {
@@ -419,7 +416,53 @@ h2 {
 .icon-block-pass { background-image: url('powUp_blockPass.png'); }
 .icon-live-up { background-image: url('powUp_liveUp.png'); }
 
+/* --------------Overlay for countdown------------ */
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  font-family: monospace;
+}
 
+.countdown-text {
+  font-size: 2rem;
+  color: #09f3eb;;
+  margin-bottom: 1rem;
+  margin-top: 10rem;
+}
+
+.countdown-number {
+  font-size: 8rem;
+  color: #f1c40f; /* bright yellow */
+  text-shadow: 
+    0 0 5px #f1c40f,
+    0 0 10px #f1c40f,
+    0 0 15px #f39c12,
+    0 0 20px #f39c12;
+  animation: pop 0.6s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(0.7);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 /* --------------Responsive------------ */
 
 @media (max-width: 1200px) and (min-width: 650px) {

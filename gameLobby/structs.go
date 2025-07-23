@@ -34,7 +34,7 @@ type timerAction string
 
 const (
 	waitDuration  int = 5
-	startDuration int = 5
+	startDuration int = 10
 
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"

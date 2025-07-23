@@ -11,8 +11,6 @@ const themeColorMap = {
 
 export const LobbyScreen = (state, onSend) =>
   h("div", { id: "lobby-screen", class: state.connected ? "active" : "" }, [
-    h("h2", {}, "Lobby Chat"),
-
     // Timer display if active
     state.timerDuration > 0
       ? h(
@@ -93,6 +91,16 @@ export const LobbyScreen = (state, onSend) =>
         "Send"
       ),
     ]),
+    state.state === "starting" && state.timerDuration > 0
+      ? h("div", { class: "countdown-overlay" }, [
+          h("div", { class: "countdown-text" }, "Game starts in"),
+          h(
+            "div",
+            { class: "countdown-number" },
+            state.timerDuration.toString()
+          ),
+        ])
+      : null,
   ]);
 
 // // Helper function to get player color by name
