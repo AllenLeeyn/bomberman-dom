@@ -152,6 +152,7 @@ function drawPlayers(players) {
     if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
+          //playSound('death');
           img.style.display = 'block';
           img.classList.add('elongate-death');
         } else {
@@ -208,6 +209,7 @@ function drawBombs(bombs) {
 
     if (existing && bomb.e) {
       renderExplosion(bomb);
+      //playsound('explosion');
       existing.remove();
     } else if (!existing) {
       const bombEl = document.createElement('div');
@@ -216,6 +218,7 @@ function drawBombs(bombs) {
       bombEl.style.gridRowStart = bomb.y + 1;
       bombEl.style.gridColumnStart = bomb.x + 1;
       bombLayer.appendChild(bombEl);
+      //playsound('bomb');
       grid[bomb.y][bomb.x].typ = TileBomb
     }
   }
