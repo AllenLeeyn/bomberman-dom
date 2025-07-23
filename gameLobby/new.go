@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -58,11 +59,16 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *Lobby) validateJoinRequest(name string) (string, error) {
-	if state := l.GetState(); state != StateInLobby && state != StateWaiting {
-		return "", errors.New("lobby is not accepting new players")
-	}
+	name = strings.TrimSpace(name)
 	if name == "" {
 		return "", errors.New("missing player name")
+	}
+	if len(name) > 8 {
+		return "", errors.New("name too long (max 8 characters)")
+	}
+
+	if state := l.GetState(); state != StateInLobby && state != StateWaiting {
+		return "", errors.New("lobby is not accepting new players")
 	}
 	if l.HasPlayer(name) {
 		return "", errors.New("name already taken")
