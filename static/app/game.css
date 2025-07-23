@@ -116,7 +116,10 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('bomb.gif');
+  background-image: url('bomb_01.png');
+
+  animation: bomb-pulse 0.6s infinite;
+  will-change: opacity, transform;
 }
 
 .tile.f { /* flame */
@@ -125,6 +128,7 @@
   background-repeat: no-repeat;
   background-position: center;
   background-image: url('explosion.gif');
+  will-change: opacity;
 }
 
 /* --- Players --- */
@@ -134,6 +138,7 @@
   position: absolute;
   border-radius: 12px;
   overflow: visible; /* allow image overflow */
+  will-change: transform, opacity;
 }
 
 .player-img {
@@ -149,6 +154,7 @@
 
 .flicker {
   animation: flicker 0.25s infinite alternate;
+  will-change: opacity, filter;
 }
 
 /* --- Flame flicker animation --- */
@@ -158,6 +164,12 @@
   50%  { opacity: 1; filter: none; }
   75%  { opacity: 0.4; filter: brightness(1.8) drop-shadow(0 0 10px red); }
   100% { opacity: 1; filter: none; }
+}
+
+@keyframes bomb-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Hide when not in use */
