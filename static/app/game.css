@@ -51,6 +51,7 @@
 
 #bomb-layer {
   z-index: 2;
+  will-change: opacity, transform, filter;
 }
 
 #block-layer {
@@ -59,11 +60,13 @@
 
 #explosion-layer {
   z-index: 4;
+  will-change: opacity, filter;
 }
 
 #player-layer {
   z-index: 5; /* On top of everything */
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
 .tile {
@@ -119,7 +122,6 @@
   background-image: url('bomb_01.png');
 
   animation: bomb-pulse 0.6s infinite;
-  will-change: opacity, transform, filter;
 }
 
 .tile.f { /* flame */
@@ -130,7 +132,6 @@
   background-image: url('explosion.gif');
 
   animation: flame-glow 0.45s linear infinite;
-  will-change: opacity, filter;
 }
 
 /* --- Players --- */
@@ -140,7 +141,6 @@
   position: absolute;
   border-radius: 12px;
   overflow: visible; /* allow image overflow */
-  will-change: transform, opacity;
 }
 
 .player-img {
@@ -195,6 +195,20 @@
   0%   { filter: drop-shadow(0 0 4px orange); }
   50%  { filter: drop-shadow(0 0 12px orange); }
   100% { filter: drop-shadow(0 0 6px orange); }
+}
+
+@keyframes elongate-fade-out {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+.elongate-death {
+  animation: elongate-fade-out 1s ease-out forwards;
+  transform-origin: center bottom; /* squash from the feet upward */
 }
 
 /* Hide when not in use */

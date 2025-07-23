@@ -109,7 +109,7 @@ function createPlayers(players) {
     const color = allowedColors.includes(player.col) ? player.col : 'blue';
 
     // Create images for each direction
-    const directions = ['front', 'back', 'left', 'right'];
+    const directions = ['front', 'back', 'left', 'right', 'dead'];
     directions.forEach(dir => {
       const img = document.createElement('img');
       img.src = `./static/app/bot_${color}_${dir}.png`;
@@ -126,8 +126,21 @@ function drawPlayers(players) {
   const grid = gameData.map.grid
 
   for (const id in players) {
+    const dirMap = {
+      u: "back",
+      d: "front",
+      l: "left",
+      r: "right",
+    };
     const player = players[id];
     const el = document.getElementById(`player_${id}`);
+    const imgs = el.querySelectorAll(".player-img");
+    let activeDir = dirMap[player.dir]
+
+    const playerTileTop = Math.floor(player.y / TileSize)
+    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
+    const playerTileLeft = Math.floor(player.x / TileSize)
+    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
 
     const newTransform = `translate(${player.x}px, ${player.y}px)`;
 
@@ -135,7 +148,22 @@ function drawPlayers(players) {
       el.style.transform = newTransform;
     }
 
-    el.style.display = (player.state === "dd") ? "none" : "block";
+    
+    if (player.state === 'dd') {
+      imgs.forEach(img => {
+        if (img.classList.contains('dir-dead')) {
+          img.style.display = 'block';
+          img.classList.add('elongate-death');
+        } else {
+          img.style.display = 'none';
+        }
+      });
+
+      setTimeout(() => {
+        el.style.display = 'none';
+      }, 1000);
+      continue
+    }
 
     if (player.state === "rs") {
       el.classList.add("flicker");
@@ -143,20 +171,6 @@ function drawPlayers(players) {
       el.classList.remove("flicker");
     }
     
-    const playerTileTop = Math.floor(player.y / TileSize)
-    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
-    const playerTileLeft = Math.floor(player.x / TileSize)
-    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
-
-    const dirMap = {
-      u: "back",
-      d: "front",
-      l: "left",
-      r: "right",
-    };
-    
-    const activeDir = dirMap[player.dir]
-    const imgs = el.querySelectorAll(".player-img");
     imgs.forEach(img => {
       if (img.classList.contains(`dir-${activeDir}`)) {
         img.style.display = "";

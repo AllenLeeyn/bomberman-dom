@@ -6,6 +6,9 @@ import (
 )
 
 func (g *Game) placeBomb(player *Player) {
+	if player.State == PlayerDead {
+		return
+	}
 	now := time.Now()
 	tileY, tileX := g.findBombTile(player)
 
@@ -166,7 +169,7 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 
 	if isHit {
 		player.Lives--
-		if player.Lives < 0 {
+		if player.Lives <= 0 {
 			player.State = PlayerDead
 			g.CheckWinner()
 			return
