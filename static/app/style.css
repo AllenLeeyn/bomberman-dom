@@ -359,10 +359,10 @@ h2 {
 }
 
 .tooltip {
-  position: fixed;
-  bottom: 203px;
+  position: absolute;
+  top: 80%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(10px);;
   background: #20b2ad;
   border-radius: 8px;
   padding: 16px;
@@ -393,6 +393,7 @@ h2 {
 .icon-container:hover .tooltip {
   opacity: 1;
   visibility: visible;
+
 }
 
 .powerup-line {
