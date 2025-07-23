@@ -29,7 +29,7 @@ export const JoinScreen = (state, onJoin) =>
           h('stop', { offset: '40%', style: 'stop-color:#7C3AED;stop-opacity:1' }),
           h('stop', { offset: '60%', style: 'stop-color:#0891B2;stop-opacity:1' }),
           h('stop', { offset: '80%', style: 'stop-color:#06B6D4;stop-opacity:1' }),
-          h('stop', { offset: '100%', style: 'stop-color:#00F5FF;stop-opacity:1' })
+          h('stop', { offset: '100%', style: 'stop-color:#20b2ad;stop-opacity:1' })
         ])
       ]),
       h("path", { 
@@ -87,6 +87,86 @@ export const JoinScreen = (state, onJoin) =>
         }
       }
     }),
+
     h('button', { onclick: () => onJoin(localName) }, 'Join Lobby'),
-    h('p', { id: 'join-error' }, state.errorMessage || null)
+
+    h('div', { class: 'help-icons' }, [
+      h('div', { class: 'icon-container' }, [
+        h('img', {
+          src: 'static/app/ic_gameRules.png',
+          class: 'help-icon'
+        }),
+        h('div', { class: 'tooltip' }, [
+          h('div', { class: 'tooltip-title' }, 'ⓘ Game Rules'),
+          h('div', {}, '• 2-4 players battle arena'),
+          h('div', {}, '• Place bombs to destroy blocks'),
+          h('div', {}, '• Collect power-ups from blocks'),
+          h('div', {}, '• Last player standing wins!')
+        ])
+      ]),
+      
+      h('div', { class: 'icon-container' }, [
+        h('img', {
+          src: 'static/app/ic_controls.png',
+          class: 'help-icon'
+        }),
+        h('div', { class: 'tooltip' }, [
+          h('div', { class: 'tooltip-title' }, '🎮 Controls'),
+          h('div', {}, '• ⬆️ ⬇️ ⬅️ ➡️ Arrow Keys - Move'),
+          h('div', {}, '• WASD - Alternative movement'),
+          h('div', {}, '• SPACEBAR - Place bomb')
+        ])
+      ]),
+      
+      h('div', { class: 'icon-container' }, [
+        h('img', {
+          src: 'static/app/ic_powerUps.png',
+          class: 'help-icon'
+        }),
+        h('div', { class: 'tooltip' }, [
+          h('div', { class: 'tooltip-title' }, '⚡ Power-ups'),
+            h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-bomb-up' }),
+            h('span', {}, 'Bomb Up - Max bombs +1')
+          ]),
+          h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-flame-up' }),
+            h('span', {}, 'Flame Up - Explosion range +1')
+          ]),
+            h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-speed-up' }),
+            h('span', {}, 'Speed Up - Speed +1')
+          ]),
+            h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-bomb-pass' }),
+            h('span', {}, 'Bomb Pass - Walk through bombs')
+          ]),
+            h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-block-pass' }),
+            h('span', {}, 'Block Pass - Walk through blocks')
+          ]),
+            h('div', { class: 'powerup-line' }, [
+            h('div', { class: 'powerup-icon icon-live-up' }),
+            h('span', {}, 'Live Up - Max live +1')
+          ])
+        ])
+      ]),
+      
+      h('div', { class: 'icon-container' }, [
+        h('img', {
+          src: 'static/app/ic_victory.png',
+          class: 'help-icon'
+        }),
+        h('div', { class: 'tooltip' }, [
+          h('div', { class: 'tooltip-title' }, '🏆 Victory Rules'),
+          h('div', {}, '• Start with 3 lives each'),
+          h('div', {}, '• Hit by bomb = lose 1 life'),
+          h('div', {}, '• Live Up gives bonus lives'),
+          h('div', {}, '• 0 lives = eliminated'),
+          h('div', {}, '• Last player alive wins!')
+        ])
+      ])
+    ]),
+
+    h('p', { id: 'join-error' }, state.errorMessage || '')
   ]);

@@ -7,10 +7,6 @@ const themeColorMap = {
   blue: '#00BFFF',
   green: '#2ecc71',
   yellow: '#f1c40f',
-  purple: '#9b59b6',
-  orange: '#e67e22',
-  cyan: '#1abc9c',
-  pink: '#ff69b4'
 };
 
 export const LobbyScreen = (state, onSend) => 

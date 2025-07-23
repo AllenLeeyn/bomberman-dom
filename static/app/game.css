@@ -159,6 +159,13 @@
   will-change: opacity, filter;
 }
 
+/* Assign colors via class or inline style */
+
+.player.red    { background-color: #FF1493; } 
+.player.blue   { background-color: #00BFFF; } 
+.player.green  { background-color: #2ecc71; }
+.player.yellow { background-color: #f1c40f; } 
+
 /* --- Flame flicker animation --- */
 @keyframes flicker {
   0%   { opacity: 1; filter: none; }
@@ -236,13 +243,13 @@
 }
 
 /* For very small screens */
-@media (max-width: 720px) {
+/* @media (max-width: 720px) {
     body {
-        overflow-x: auto; /* Allow horizontal scrolling */
+        overflow-x: auto; /* Allow horizontal scrolling 
     }
     
     #game-root {
-        /* Game stays at minimum size */
+        /* Game stays at minimum size 
         width: 720px;
         height: 624px;
         margin: 10px auto;
@@ -251,10 +258,10 @@
 
 @media (max-height: 624px) {
     body {
-        overflow-y: auto; /* Allow vertical scrolling */
+        overflow-y: auto; /* Allow vertical scrolling 
     }
     
     #game-root {
         margin-top: 10px;
     }
-}
+} */
