@@ -51,7 +51,6 @@
 
 #bomb-layer {
   z-index: 2;
-  will-change: opacity, transform, filter;
 }
 
 #block-layer {
@@ -60,7 +59,6 @@
 
 #explosion-layer {
   z-index: 4;
-  will-change: opacity, filter;
 }
 
 #player-layer {
@@ -122,6 +120,7 @@
   background-image: url('bomb_01.png');
 
   animation: bomb-pulse 0.6s infinite;
+  will-change: opacity, transform, filter;
 }
 
 .tile.f { /* flame */
@@ -132,6 +131,7 @@
   background-image: url('explosion.gif');
 
   animation: flame-glow 0.45s linear infinite;
+  will-change: opacity, filter;
 }
 
 /* --- Players --- */

@@ -115,11 +115,11 @@ const (
 )
 
 var PowerUpSetting = map[PowerUpType]int{
-	PowerUpBomb:      7,
+	PowerUpBomb:      11,
 	PowerUpFlame:     5,
 	PowerUpSpeed:     3,
-	PowerUpBombPass:  3,
-	PowerUpBlockPass: 3,
+	PowerUpBombPass:  1,
+	PowerUpBlockPass: 1,
 	PowerUpLiveUp:    2,
 }
 
