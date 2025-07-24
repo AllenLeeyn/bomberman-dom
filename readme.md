@@ -1,113 +1,71 @@
-# 🧨 Bomberman DOM
+# 💣 Bomberman DOM
 
-**Bomberman DOM** is a 4-player, real-time, multiplayer web game inspired by the classic Bomberman. The backend, written in Go, handles everything from serving static assets to managing real-time game state using WebSockets.
+Multiplayer Bomberman-style game built **without canvas or WebGL**, powered purely by the **DOM** and a custom JavaScript framework.
 
-The game supports matchmaking, lobbies, real-time chat, and synchronized gameplay across clients. A custom mini-framework handles the pre-game UI (nickname entry, lobby, chat), while the game logic, animations, and state updates are tightly coupled with native browser APIs.
 
-This project is part of the [01 Edu](https://github.com/01-edu/public/tree/master/subjects/bomberman-dom) curriculum and is designed to test your understanding of:
+## 🚀 Overview
 
-- Event-driven architecture
-- Real-time multiplayer networking
-- DOM performance and manipulation
-- Client-server synchronization in game development
+This is a multiplayer web-based Bomberman game created using only DOM elements and the custom framework developed during the 'mini-framework' project.
 
----
+Players can join in real-time, plant bombs, collect power-ups, and compete to be the last one standing — all running at a **smooth 60 FPS**.
 
-## 📁 Project Structure (WIP)
 
-```
-/bomberman-dom
-├── GameLobby/
-|   ├── broadcaster.go
-|   ├── handleConnection.go
-|   ├── listener.go
-|   ├── new.go
-|   └── structs.go
-├── static/
-|   ├── mini-framework/
-|   |   ├── app/
-|   |   |   └── main.js
-|   |   ├── src/
-|   |   |   ├── components.js
-|   |   |   ├── hooks.js
-|   |   |   ├── render.js
-|   |   |   ├── router.js
-|   |   |   ├── state.js
-|   |   |   ├── utils.js
-|   |   |   └── vdom.js
-|   |   ├── package.json
-|   |   └── index.js
-|   ├── assets/
-|   └── index.html
-├── go.mod
-├── go.sum
-└── main.go
-```
+## 🎯 Objectives
 
----
+- Build a **real-time multiplayer** game using **only DOM elements**.
+- Maintain **60 FPS** performance with proper use of `requestAnimationFrame`.
+- Enable **2–4 players** to battle it out on a destructible grid-based map.
+- Implement **real-time WebSocket-based chat** for in-game communication.
 
-## 🚀 Project Overview
 
-### 🧩 Tech Stack
+## 🎮 Game Mechanics
 
-#### Frontend
-- ✅ Native JavaScript (ES6+)
-- ✅ DOM-based rendering (no canvas, no libraries)
-- ✅ Custom mini-framework for UI (lobby, nickname input, etc.)
-- ✅ WebSocket client for multiplayer game communication
+### 👤 Players
+- **2 to 4 players** per game
+- Each player starts with **3 lives**
+- Starts at **each corner** of the map
+- Custom nickname input at game start
+### 🗺️ Map
+- Fixed-size grid visible to all players
+- **Indestructible walls** (static layout)
+- **Randomly placed destructible blocks**
+- Safe zones around player spawns
 
-#### Backend (Go)
-- ✅ HTTP server for static files
-- ✅ WebSocket server (chat + game state sync)
-- ✅ Authoritative game engine and state manager
-- ✅ Lobby system and player session handling
+### 💥 Bombs
+- Bombs explode in **4 directions**
+- Explosion is blocked by walls and blocks
+- Chain reactions are possible
+- Only a limited number of bombs per player
 
----
+### ⚡ Power-Ups
+Dropped randomly from destroyed blocks:
 
-## ✅ Task Checklist
+| Power-Up     | Effect                                                  |
+|--------------|---------------------------------------------------------|
+| **BombUp**   | Drop 1 extra bomb at a time                             |
+| **FlameUp**  | Increase explosion radius by 1 tile                     |
+| **SpeedUp**  | Move faster                                             |
+| **BombPass** | Walk through bombs                                      |
+| **BlockPass**| Walk through destructible blocks                        |
+| **LiveUp**   | Gain an extra life                                      |
 
-### 🛠️ Server-Side (Go)
 
-- [x] Serve static assets (HTML, JS, CSS, images)
-- [x] Serve frontend framework files
-- [x] Implement WebSocket endpoint for real-time communication
-- [x] Handle player connections and disconnections
-- [ ] Broadcast "start game" signal to all clients
-- [ ] Run authoritative game loop on server
-- [ ] Sync game state with all connected clients
-- [ ] Route client actions (move, bomb, etc.) to server-side game logic
+## 🧠 Features
 
-- [ ] implement playerID/ session cookie for tracking and reconnection?
----
+- DOM-based animations for smooth character movement and bomb explosions
+- WebSocket-powered multiplayer and real-time chat
+- Frame rate management via `requestAnimationFrame`
+- Dynamic UI built with a custom mini-framework
+- Lobby with player list, chat window, and countdown timer
+- Performance measured with in-browser DevTools and runtime stats
 
-### 💻 Client-Side (JavaScript)
 
-#### 🧪 Pre-Game UI (using custom mini-framework)
+## 🧰 Tech Stack
 
-- [x] Implement nickname input and connection flow
-- [x] Build lobby UI with player list and chat
-- [ ] Listen for "start game" signal from server
+| Tech         | Description                                 |
+|--------------|---------------------------------------------|
+| Vanilla JS   | Core logic and custom rendering framework   |
+| HTML/CSS     | Game UI, grid layout, and animations        |
+| WebSockets   | Multiplayer sync and real-time communication|
+| DOM APIs     | Movement, collision, explosion rendering    |
 
-#### 🎮 Game Module (native DOM-based)
-
-- [ ] Manage game lifecycle (init, start, stop)
-- [ ] Generate map (walls, destructibles, spawn zones)
-- [ ] Implement player entities (movement, input, animation)
-- [ ] Handle bomb mechanics (placement, timer, explosion)
-- [ ] Add power-up mechanics (pickup, apply effects)
-- [ ] Detect and respond to collisions
-- [ ] Sync client game state with server
-- [ ] Animate and render game using the DOM
-- [ ] Create event system (input, ticks, collisions, etc.)
-
----
-
-### 📦 Optimization & Extras
-
-- [ ] Use object pooling for DOM element reuse (performance)
-- [ ] Build asset manager for preloading images/sounds
-- [ ] Handle disconnects and reconnects gracefully
-- [ ] Display scoreboard and announce winner
-- [ ] Add developer tools (logging, debugging helpers)
-
----
