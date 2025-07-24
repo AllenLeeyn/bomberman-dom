@@ -11,6 +11,7 @@ import (
 )
 
 func (l *Lobby) handleConnection(pl *player) {
+
 	defer func() {
 		pl.Conn.Close()
 		l.playerQueue <- action{"offline", pl}
@@ -82,3 +83,5 @@ func checkMessage(message string) (bool, string) {
 	}
 	return true, html.EscapeString(message)
 }
+
+

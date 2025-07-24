@@ -167,6 +167,5 @@ export const JoinScreen = (state, onJoin) =>
         ])
       ])
     ]),
-
     h('p', { id: 'join-error' }, state.errorMessage || '')
   ]);

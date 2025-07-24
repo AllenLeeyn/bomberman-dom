@@ -62,7 +62,7 @@ type PlayerMini struct {
 	Y         *int    `json:"y"`
 	Direction *string `json:"d"`
 	//KeyPresses []string     `json:"-"`
-	//Lives      *int         `json:"l"`
+	Lives *int         `json:"l"`
 	State *PlayerState `json:"s"`
 }
 
@@ -71,6 +71,7 @@ func (p *Player) ToMini() *PlayerMini {
 		X:         &p.X,
 		Y:         &p.Y,
 		Direction: &p.Direction,
+		Lives:     &p.Lives,
 		State:     &p.State,
 	}
 }
