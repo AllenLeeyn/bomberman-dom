@@ -1,4 +1,10 @@
 import { getSocket } from '../../framework/domber.js'
+import { 
+  playBombPlace, 
+  playExplosion, 
+  playPowerup, 
+  playDeath 
+} from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
 const tileLayer = document.getElementById('tile-layer');
@@ -152,7 +158,7 @@ function drawPlayers(players) {
     if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
-          //playSound('death');
+          playDeath();
           img.style.display = 'block';
           img.classList.add('elongate-death');
         } else {
@@ -194,7 +200,10 @@ function drawPlayers(players) {
 
     if (grid[y][x].p_ups !== "") {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) powUpEl.remove();
+      if (powUpEl) {
+          playPowerup();
+          powUpEl.remove();
+      }
       grid[y][x].p_ups = ""
     }
   }
@@ -209,7 +218,7 @@ function drawBombs(bombs) {
 
     if (existing && bomb.e) {
       renderExplosion(bomb);
-      //playsound('explosion');
+      playExplosion();
       existing.remove();
     } else if (!existing) {
       const bombEl = document.createElement('div');
@@ -218,7 +227,7 @@ function drawBombs(bombs) {
       bombEl.style.gridRowStart = bomb.y + 1;
       bombEl.style.gridColumnStart = bomb.x + 1;
       bombLayer.appendChild(bombEl);
-      //playsound('bomb');
+      playBombPlace();
       grid[bomb.y][bomb.x].typ = TileBomb
     }
   }
