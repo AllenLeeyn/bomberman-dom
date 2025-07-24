@@ -15,10 +15,12 @@ class SoundManager {
         
         // Map of sound names to actual filenames
         const soundFiles = {
-        bombPlace: 'bombplace_2.mp3',     // When player places a bomb
-        explosion: 'explosion_1.mp3',       // When bomb explodes
-        powerup: 'powerup_1.mp3',          // When player collects power-up
-        death: 'death_2.mp3'               // When player dies
+        bombPlace: 'bombplace.mp3',     // When player places a bomb
+        explosion: 'explosion.mp3',       // When bomb explodes
+        powerup: 'powerup.mp3',          // When player collects power-up
+        death: 'death.mp3',              // When player dies
+        countdown: 'countdown.mp3',     // ← NEW: For countdown GO!
+        gameBGM: 'gameBGM.mp3'              // ← NEW: Background music
         };
 
         // Create Audio objects for each sound file
@@ -27,6 +29,11 @@ class SoundManager {
         audioElement.volume = this.volume;           // Set initial volume
         audioElement.preload = 'auto';               // Tell browser to preload
         this.sounds[soundName] = audioElement;       // Store in our sounds object
+
+        if (soundName === 'gameBGM') {
+        audioElement.loop = true;                // Make it loop automatically
+        audioElement.volume = 0.3;               // Lower volume for background
+        }
         
         // Optional: Log when sound is loaded (helpful for debugging)
         console.log(`[Sound] Loaded: ${soundName} from ${fileName}`);
@@ -129,6 +136,40 @@ export function isMuted() {
 export function getVolume() {
     return soundManager.getVolume();
 }
+
+export function playCountdown() {
+    soundManager.play('countdown');
+}
+
+export function startBackgroundMusic() {
+    if (soundManager.muted) return;
+    
+    const bgMusic = soundManager.sounds.gameBGM;
+    if (!bgMusic) {
+        console.warn('[Sound] Background music not found!');
+        return;
+    }
+    
+    try {
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(error => {
+            console.warn('[Sound] Could not start background music:', error.message);
+        });
+        console.log('[Sound] Background music started');
+    } catch (error) {
+        console.error('[Sound] Error starting background music:', error);
+    }
+}
+
+export function stopBackgroundMusic() {
+    const bgMusic = soundManager.sounds.gameBGM;
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        console.log('[Sound] Background music stopped');
+    }
+}
+
 
 // Export the manager itself for advanced usage (optional)
 export { soundManager };

@@ -131,7 +131,7 @@ export const JoinScreen = (state, onJoin) =>
           ]),
           h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-flame-up' }),
-            h('span', {}, 'Flame Up -> +1 Range')
+            h('span', {}, 'Flame Up -> +1 Explosion range')
           ]),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-speed-up' }),

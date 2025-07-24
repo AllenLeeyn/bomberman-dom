@@ -3,7 +3,9 @@ import {
   playBombPlace, 
   playExplosion, 
   playPowerup, 
-  playDeath 
+  playDeath,
+  startBackgroundMusic,
+  stopBackgroundMusic 
 } from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
@@ -69,6 +71,7 @@ export function startGameApp(data, playerName) {
   drawTiles(gameData);
   createPlayers(gameData.players);
   createPlayerHUD(gameData.players);
+  startBackgroundMusic();
 
   console.log('[Game] Initialized game container with dimensions:');
 
@@ -335,6 +338,12 @@ function handleKeyUp(e) {
 }
 
 export function stopGameApp(winnerName = "") {
+  if (winnerName) {
+    stopBackgroundMusic();
+  } else {
+    console.log('[Game] Game state change but match continues, keeping music');
+  }
+
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
