@@ -19,8 +19,9 @@ class SoundManager {
         explosion: 'explosion.mp3',       // When bomb explodes
         powerup: 'powerup.mp3',          // When player collects power-up
         death: 'death.mp3',              // When player dies
-        countdown: 'countdown.mp3',     // ← NEW: For countdown GO!
-        gameBGM: 'gameBGM.mp3'              // ← NEW: Background music
+        countdown: 'countdown.mp3',     // For countdown GO!
+        gameBGM: 'gameBGM.mp3',      // Background music for the game
+        victory: 'victory.mp3'         // When player wins the game     
         };
 
         // Create Audio objects for each sound file
@@ -168,6 +169,10 @@ export function stopBackgroundMusic() {
         bgMusic.currentTime = 0;
         console.log('[Sound] Background music stopped');
     }
+}
+
+export function playVictory() {
+    soundManager.play('victory');
 }
 
 

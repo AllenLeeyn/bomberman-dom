@@ -390,28 +390,20 @@ body.in-game #player-hud {
   z-index: 999;
   pointer-events: none;
   user-select: none;
+  animation: victory-celebration 3s ease-in-out;
 }
 
-/* For very small screens */
-/* @media (max-width: 720px) {
-    body {
-        overflow-x: auto; /* Allow horizontal scrolling 
-    }
-    
-    #game-root {
-        /* Game stays at minimum size 
-        width: 720px;
-        height: 624px;
-        margin: 10px auto;
-    }
+@keyframes victory-celebration {
+  0% { 
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  20% { 
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-
-@media (max-height: 624px) {
-    body {
-        overflow-y: auto; /* Allow vertical scrolling 
-    }
-    
-    #game-root {
-        margin-top: 10px;
-    }
-} */

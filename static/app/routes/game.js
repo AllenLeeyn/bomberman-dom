@@ -5,7 +5,8 @@ import {
   playPowerup, 
   playDeath,
   startBackgroundMusic,
-  stopBackgroundMusic 
+  stopBackgroundMusic,
+  playVictory 
 } from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
@@ -340,6 +341,7 @@ function handleKeyUp(e) {
 export function stopGameApp(winnerName = "") {
   if (winnerName) {
     stopBackgroundMusic();
+    playVictory();
   } else {
     console.log('[Game] Game state change but match continues, keeping music');
   }
@@ -364,7 +366,7 @@ export function stopGameApp(winnerName = "") {
     exploLayer.innerHTML = "";
     playerLayer.innerHTML = "";
     clearPlayerHUD();
-  }, 2000); 
+  }, 3000); 
 }
 
 export function updateGameMini(data) {

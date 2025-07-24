@@ -59,7 +59,7 @@ const handleMessage = (event) => {
     stopGameApp(data.winner)
     setTimeout(() => {
       state.state = 'in_lobby';
-    }, 2000); 
+    }, 3000); 
 
   } else if (data.action === "game_update"){
     updateGameState(data)
