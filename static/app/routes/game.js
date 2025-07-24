@@ -375,7 +375,10 @@ export function updateGameMini(data) {
     
     if (miniPlayer.l < oldLives) {
       console.log(`Player ${id} lost a life! ${oldLives} → ${miniPlayer.l}`);
-      playDeath(); 
+      if (id === currentPlayer) {
+        playDeath(); // Only YOU hear your own death sound
+        showFloatingText(miniPlayer.x, miniPlayer.y - 24, '-1 ❤️');
+      }
     }
     
     gameData.players[id].x = miniPlayer.x;
