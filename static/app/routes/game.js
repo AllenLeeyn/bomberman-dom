@@ -1,22 +1,24 @@
 import { getSocket } from '../../framework/domber.js'
+import { useLayers, renderTileLayer, createSpritePool, clearLayers } from '../layers.js';
+import assets from "../assets.js";
+import gameAssetList from "../gameAssets.js";
 
 const gameRoot = document.getElementById('game-root');
-const tileLayer = document.getElementById('tile-layer');
-const bombLayer = document.getElementById('bomb-layer');
-const blockLayer = document.getElementById('block-layer');
-const exploLayer = document.getElementById('explosion-layer');
-const playerLayer = document.getElementById('player-layer');
 
-const TileSize   = 48;
+const layers = useLayers(gameRoot);
+
+const TileSize = 48;
 const PlayerSize = 36;
 
-const TileEmpty   = "e";
-const TileWall    = "w";
-const TileBlock   = "bl";
-const TileBomb    = "b";
+const TileEmpty = "e";
+const TileWall = "w";
+const TileBlock = "bl";
+const TileBomb = "b";
 const TileDestroy = "d";
-const TilePowerUp = "p";
-const TileFlame   = "f";
+const TileFlame = "f";
+
+let bombPool = [];
+let exploPool = [];
 
 let socket = null;
 let currentPlayer = "";
@@ -24,9 +26,28 @@ let gameData = {};
 let animationFrameId = null;
 let flameGrid = null
 
+export async function launchGame(data, playerName) {
+  const loadingDiv = showLoadingOverlay(gameRoot);
+
+  try {
+    await assets.load(gameAssetList, (progress, key) => {
+      loadingDiv.textContent = `Loaded ${key} (${Math.round(progress * 100)}%)`;
+    });
+  } catch (err) {
+    loadingDiv.textContent = 'Failed to load game assets!';
+    return;
+  }
+
+  loadingDiv.parentNode.removeChild(loadingDiv);
+  startGameApp(data, playerName);
+}
+
 export function startGameApp(data, playerName) {
+  gameRoot.removeEventListener('keydown', handleKeyDown);
+  gameRoot.removeEventListener('keyup', handleKeyUp);
+
   socket = getSocket('lobby')
-  if (!gameRoot || !tileLayer || !playerLayer || !socket) {
+  if (!gameRoot || !socket) {
     console.error('[Game] Missing elements');
     return;
   }
@@ -43,20 +64,53 @@ export function startGameApp(data, playerName) {
   gameRoot.addEventListener('keydown', handleKeyDown, { passive: false });
   gameRoot.addEventListener('keyup', handleKeyUp);
 
-  drawTiles(gameData)
-  createPlayers(gameData.players)
+  const board = assets.getAsset('board');
+  const bomb = assets.getAsset('b');
+  const explo = assets.getAsset('boom');
 
-  // TODO: Implement real game rendering logic here using gameData state
-  console.log('[Game] Initialized game container with dimensions:');
+  if (!board) {
+    console.error('Missing board asset!');
+    return;
+  }
+  if (!bomb) {
+    console.error('Missing bomb asset!');
+    return;
+  }
+  if (!explo) {
+    console.error('Missing explosion asset!');
+    return;
+  }
 
-  // Start render loop
+  renderTileLayer(layers.tileLayer, board.src);
+  drawTiles(gameData, layers.blockLayer, layers.bombLayer);
+  createPlayers(gameData.players, layers.playerLayer)
+
+  bombPool = createSpritePool(layers.poolLayer, 20, 'b', assets, 'tile b');
+  exploPool = createSpritePool(layers.poolLayer, 120, 'boom', assets, 'tile f');
+
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 
-function drawTiles(gameData) {
-  tileLayer.innerHTML = '';
+function showLoadingOverlay(parent) {
+  let div = document.getElementById('loading-overlay');
+  if (!div) {
+    div = document.createElement('div');
+    div.id = 'loading-overlay';
+    parent.appendChild(div);
+  }
+  div.classList.remove('hidden');
+  div.textContent = 'Loading game assets...';
+  return div;
+}
+
+function drawTiles(gameData, blockLayer, bombLayer) {
   blockLayer.innerHTML = '';
-  bombLayer.innerHTML = '';
+  bombLayer.innerHTML = "";
+
+  if (!gameData.map || !Array.isArray(gameData.map.grid)) {
+    console.error("drawTiles: missing or invalid gameData.map/grid", gameData.map);
+    return;
+  }
 
   const gridWidth = gameData.map.w || 15;
   const gridHeight = gameData.map.h || 13;
@@ -64,7 +118,7 @@ function drawTiles(gameData) {
   flameGrid = Array.from({ length: gridHeight }, () =>
     Array(gridWidth).fill(0)
   );
-  
+
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
       const tile = document.createElement('div');
@@ -87,13 +141,13 @@ function drawTiles(gameData) {
         powerUp.style.gridRowStart = y + 1;
         powerUp.style.gridColumnStart = x + 1;
 
-        bombLayer.appendChild(powerUp);
+        layers.tileLayer.appendChild(powerUp);
       }
     }
   }
 }
 
-function createPlayers(players) {
+function createPlayers(players, playerLayer) {
   playerLayer.innerHTML = '';
 
   for (const id in players) {
@@ -103,28 +157,22 @@ function createPlayers(players) {
     el.id = `player_${id}`;
 
     el.style.transform = `translate(${player.x}px, ${player.y}px)`;
-    
-    // Validate color or fallback to 'blue'
-    const allowedColors = ['red', 'blue', 'green', 'yellow'];
-    const color = allowedColors.includes(player.col) ? player.col : 'blue';
 
-    // Create images for each direction
     const directions = ['front', 'back', 'left', 'right', 'dead'];
     directions.forEach(dir => {
       const img = document.createElement('img');
-      img.src = `./static/app/bot_${color}_${dir}.png`;
+      img.src = `./static/app/assets/bot_${player.col}_${dir}.png`;
       img.className = `player-img dir-${dir}`;
       img.style.display = (dir === 'front') ? '' : 'none';
       el.appendChild(img);
     });
-
     playerLayer.appendChild(el);
   }
 }
 
 function drawPlayers(players) {
   const grid = gameData.map.grid
-
+  
   for (const id in players) {
     const dirMap = {
       u: "back",
@@ -148,7 +196,6 @@ function drawPlayers(players) {
       el.style.transform = newTransform;
     }
 
-    
     if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
@@ -179,17 +226,8 @@ function drawPlayers(players) {
       }
     });
 
-    let y = playerTileBottom
-    let x= playerTileLeft
-    
-    if (player.dir == "u") {
-      y = playerTileTop
-      x= playerTileLeft
-
-    } else if (player.dir == "r") {
-      y = playerTileTop
-      x= playerTileRight
-    }
+    let y = player.dir === "u" ? playerTileTop: playerTileBottom;
+    let x = player.dir === "r" ? playerTileRight: playerTileLeft;
 
     if (grid[y][x].p_ups !== "") {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
@@ -199,27 +237,34 @@ function drawPlayers(players) {
   }
 }
 
+let bombPoolIndex = 0;
 function drawBombs(bombs) {
   const grid = gameData.map.grid
+
   for (const bomb of bombs) {
     const id = `bomb_${bomb.x}_${bomb.y}`;
-
     const existing = document.getElementById(id);
 
     if (existing && bomb.e) {
+      existing.id = '';
+      existing.style.display = 'none';
+      existing.className = '';
+      layers.poolLayer.appendChild(existing)
       renderExplosion(bomb);
-      existing.remove();
+
     } else if (!existing) {
-      const bombEl = document.createElement('div');
-      bombEl.className = 'tile b';
+      const bombEl = bombPool[bombPoolIndex];
+      bombPoolIndex = (bombPoolIndex + 1) % bombPool.length;
       bombEl.id = id;
       bombEl.style.gridRowStart = bomb.y + 1;
       bombEl.style.gridColumnStart = bomb.x + 1;
-      bombLayer.appendChild(bombEl);
-      grid[bomb.y][bomb.x].typ = TileBomb
+      bombEl.className = 'tile b';
+      bombEl.style.display = '';
+      grid[bomb.y][bomb.x].typ = TileBomb;
+      layers.bombLayer.appendChild(bombEl);
     }
   }
-  
+
   for (let i = bombs.length - 1; i >= 0; i--) {
     if (bombs[i].e) {
       bombs.splice(i, 1);
@@ -231,11 +276,10 @@ export function updateGameState(data) {
   gameData = data;
 }
 
-// Rendering function
 function renderLoop() {
   drawPlayers(gameData.players);
   drawBombs(gameData.map.bombs);
-  // Schedule next frame
+
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 
@@ -244,11 +288,11 @@ const validKeys = [
   'ArrowDown',
   'ArrowLeft',
   'ArrowRight',
-  'w','a', 's', 'd',
+  'w', 'a', 's', 'd',
   'W', 'A', 'S', 'D',
   ' ', 'Space'
 ];
-const  keysPressed = [];
+const keysPressed = [];
 
 function handleKeyDown(e) {
   const key = e.key;
@@ -259,7 +303,7 @@ function handleKeyDown(e) {
   e.preventDefault();
   if (!keysPressed.includes(key)) {
     keysPressed.push(key);
-    
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
         action: 'game',
@@ -277,7 +321,7 @@ function handleKeyUp(e) {
   const index = keysPressed.indexOf(key);
   if (index > -1) {
     keysPressed.splice(index, 1);  // Remove the key
-    
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
         action: 'game',
@@ -303,12 +347,8 @@ export function stopGameApp(winnerName = "") {
 
   setTimeout(() => {
     winnerOverlay.remove();
-    tileLayer.innerHTML = "";
-    blockLayer.innerHTML = "";
-    bombLayer.innerHTML = "";
-    exploLayer.innerHTML = "";
-    playerLayer.innerHTML = "";
-  }, 2000); 
+    clearLayers(gameRoot);
+  }, 2000);
 }
 
 export function updateGameMini(data) {
@@ -324,6 +364,10 @@ export function updateGameMini(data) {
   }
 
   for (const [id, miniPlayer] of Object.entries(data.p)) {
+    if (!gameData.players[id]) {
+      console.warn(`Skipping update for unknown player id ${id}`);
+      continue;
+    }
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;
@@ -333,7 +377,7 @@ export function updateGameMini(data) {
 
   const updatedBombs = [];
 
-  for (const newBomb of  data.b) {
+  for (const newBomb of data.b) {
     const match = gameData.map.bombs.find(
       (b) => b.x === newBomb.x && b.y === newBomb.y
     );
@@ -358,7 +402,7 @@ export function updateGameMini(data) {
 }
 
 function renderExplosion(bomb) {
-  const grid = gameData.map.grid
+  const grid = gameData.map.grid;
 
   const { x, y, r } = bomb;
   const width = grid[0].length;
@@ -366,13 +410,13 @@ function renderExplosion(bomb) {
   grid[y][x].typ = TileFlame
 
   const tiles = [];
-  tiles.push({x, y});
+  tiles.push({ x, y });
 
   const directions = [
-    { dx: 0, dy: -1 }, // up
-    { dx: 0, dy: 1 },  // down
-    { dx: -1, dy: 0 }, // left
-    { dx: 1, dy: 0 }   // right
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 },
+    { dx: -1, dy: 0 },
+    { dx: 1, dy: 0 }
   ];
 
   for (const { dx, dy } of directions) {
@@ -390,7 +434,7 @@ function renderExplosion(bomb) {
         grid[ny][nx].typ = TileDestroy
         const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
-        tiles.push({x: nx, y: ny});
+        tiles.push({ x: nx, y: ny });
         break;
 
       } else if (tileType === TileEmpty || tileType == TileFlame ||
@@ -408,23 +452,7 @@ function renderExplosion(bomb) {
   }
 
   for (const tile of tiles) {
-    const { x, y } = tile;
-    flameGrid[y][x]++;
-    let flame = document.getElementById(`flame_${x}_${y}`);
-
-    if (!flame) {
-      flame = document.createElement('div');
-      flame.className = 'tile f';
-      flame.style.gridRowStart = y + 1;
-      flame.style.gridColumnStart = x + 1;
-      flame.id = `flame_${x}_${y}`;
-      exploLayer.appendChild(flame);
-
-    } else {
-      flame.classList.remove('f');
-      void flame.offsetWidth;
-      flame.classList.add('f');
-    }
+    placeExplosion(tile.x, tile.y);
   }
 
   setTimeout(() => {
@@ -434,10 +462,36 @@ function renderExplosion(bomb) {
       flameGrid[y][x]--;
       if (flameGrid[y][x] <= 0) {
         const flame = document.getElementById(`flame_${x}_${y}`);
-        if (flame) flame.remove();
+        flame.id = ``;
+        flame.style.display = 'none';
+        flame.className = '';
+        layers.poolLayer.appendChild(flame)
         flameGrid[y][x] = 0;
-        grid[y][x].typ = TileEmpty
+        grid[y][x].typ = TileEmpty;
       }
     }
   }, 450);
+}
+
+let exploPoolIndex = 0;
+function placeExplosion(x, y) {
+  flameGrid[y][x]++;
+  let flame = document.getElementById(`flame_${x}_${y}`);
+  
+  if (!flame) {
+    exploPoolIndex = (exploPoolIndex + 1) % exploPool.length;
+    const exploEl = exploPool[exploPoolIndex];
+    
+    exploEl.id = `flame_${x}_${y}`;
+    exploEl.style.gridRowStart = y + 1;
+    exploEl.style.gridColumnStart = x + 1;
+    exploEl.style.display = '';
+    exploEl.className = 'tile f';
+    layers.exploLayer.appendChild(exploEl);
+
+  } else {
+    flame.classList.remove("f");
+    void flame.offsetWidth;
+    flame.classList.add("f");
+  }
 }

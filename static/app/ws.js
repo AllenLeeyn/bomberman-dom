@@ -1,6 +1,6 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
-import { startGameApp, updateGameState, updateGameMini, stopGameApp } from './routes/game.js';
+import {  stopGameApp, launchGame, updateGameState, updateGameMini } from './routes/game.js';
 
 export const joinLobby = (name) => {
   if (!name) {
@@ -47,9 +47,6 @@ const safeParse = (data) => {
 };
 
 const handleMessage = (event) => {
-  //const dataSizeBytes = new TextEncoder().encode(event.data).length;
-  //console.log(`event.data size: ${dataSizeBytes} bytes`);
-
   const data = safeParse(event.data);
   if (data.action === "game_mini"){
     updateGameMini(data)
@@ -65,7 +62,7 @@ const handleMessage = (event) => {
 
   } else if (data.action === "game_start"){
     state.state = 'in_game';
-    startGameApp(data, state.playerName);
+    launchGame(data, state.playerName);
 
   } else if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';
@@ -88,7 +85,7 @@ const handleMessage = (event) => {
     state.messages.push({ text: `Player left: ${data.player_name}`, system: true });
     const index = state.players.findIndex(p => p.name === data.player_name);
     if (index !== -1) {
-      state.players.splice(index, 1); // triggers reactivity
+      state.players.splice(index, 1);
     }
     
   } else if (data.player_name && data.content) {

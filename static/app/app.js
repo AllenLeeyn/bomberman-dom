@@ -3,11 +3,13 @@ import { joinLobby, sendMessage } from "./ws.js"
 import { router, update } from '../framework/domber.js'
 import { LobbyScreen } from './routes/chat.js';
 import { JoinScreen } from './routes/join.js';
+
+
 const root = document.getElementById('app');
 const gameRoot = document.getElementById('game-root');
 
-
 let oldVNode = null;
+
 
 function renderApp() {
   const newVNode = state.connected
@@ -55,4 +57,7 @@ router.setNotFoundHandler(() => {
 renderApp();
 subscribe(renderApp);
 
+
 router.start();
+
+

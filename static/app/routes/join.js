@@ -93,7 +93,7 @@ export const JoinScreen = (state, onJoin) =>
     h('div', { class: 'help-icons' }, [
       h('div', { class: 'icon-container' }, [
         h('img', {
-          src: 'static/app/ic_gameRules.png',
+          src: 'static/app/assets/ic_gameRules.png',
           class: 'help-icon'
         }),
         h('div', { class: 'tooltip' }, [
@@ -107,7 +107,7 @@ export const JoinScreen = (state, onJoin) =>
       
       h('div', { class: 'icon-container' }, [
         h('img', {
-          src: 'static/app/ic_controls.png',
+          src: 'static/app/assets/ic_controls.png',
           class: 'help-icon'
         }),
         h('div', { class: 'tooltip' }, [
@@ -120,7 +120,7 @@ export const JoinScreen = (state, onJoin) =>
       
       h('div', { class: 'icon-container' }, [
         h('img', {
-          src: 'static/app/ic_powerUps.png',
+          src: 'static/app/assets/ic_powerUps.png',
           class: 'help-icon'
         }),
         h('div', { class: 'tooltip' }, [
@@ -154,7 +154,7 @@ export const JoinScreen = (state, onJoin) =>
       
       h('div', { class: 'icon-container' }, [
         h('img', {
-          src: 'static/app/ic_victory.png',
+          src: 'static/app/assets/ic_victory.png',
           class: 'help-icon'
         }),
         h('div', { class: 'tooltip' }, [

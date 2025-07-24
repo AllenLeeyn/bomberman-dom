@@ -19,9 +19,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('bg.jpg');
-  background-color: rgba(0, 0, 0, 0.4);
-  background-blend-mode: overlay; 
+  background-image: url('assets/bg.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -126,7 +124,7 @@ button {
   border: none;
   border-radius: 10px;
   font-size: 1.3rem;
-  background-image: url('ic_bombPurple.png');
+  background-image: url('assets/BombIcon-purple.png');
   background-position: 10px 8px; 
   background-repeat: no-repeat;
   padding: 12px 15px 12px 60px;
@@ -411,12 +409,12 @@ h2 {
   flex-shrink: 0;
 }
 
-.icon-bomb-up { background-image: url('powUp_bombUp.png'); }
-.icon-flame-up { background-image: url('powUp_flameUp.png'); }
-.icon-speed-up { background-image: url('powUp_speedUp.png'); }
-.icon-bomb-pass { background-image: url('powUp_bombPass.png'); }
-.icon-block-pass { background-image: url('powUp_blockPass.png'); }
-.icon-live-up { background-image: url('powUp_liveUp.png'); }
+.icon-bomb-up { background-image: url('assets/powUp_bombUp.png'); }
+.icon-flame-up { background-image: url('assets/powUp_flameUp.png'); }
+.icon-speed-up { background-image: url('assets/powUp_speedUp.png'); }
+.icon-bomb-pass { background-image: url('assets/powUp_bombPass.png'); }
+.icon-block-pass { background-image: url('assets/powUp_blockPass.png'); }
+.icon-live-up { background-image: url('assets/powUp_liveUp.png'); }
 
 
 /* --------------Responsive------------ */
