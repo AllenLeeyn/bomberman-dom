@@ -6,12 +6,12 @@ import {
   playDeath 
 } from '../sound.js'
 
-const gameRoot = document.getElementById("game-root");
-const tileLayer = document.getElementById("tile-layer");
-const bombLayer = document.getElementById("bomb-layer");
-const blockLayer = document.getElementById("block-layer");
-const exploLayer = document.getElementById("explosion-layer");
-const playerLayer = document.getElementById("player-layer");
+const gameRoot = document.getElementById('game-root');
+const tileLayer = document.getElementById('tile-layer');
+const bombLayer = document.getElementById('bomb-layer');
+const blockLayer = document.getElementById('block-layer');
+const exploLayer = document.getElementById('explosion-layer');
+const playerLayer = document.getElementById('player-layer');
 
 const TileSize = 48;
 const PlayerSize = 36;
@@ -175,7 +175,7 @@ function drawPlayers(players) {
     if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
-          playDeath();
+          // playDeath();
           img.style.display = 'block';
           img.classList.add('elongate-death');
         } else {
@@ -371,10 +371,17 @@ export function updateGameMini(data) {
   }
 
   for (const [id, miniPlayer] of Object.entries(data.p)) {
+    const oldLives = gameData.players[id].lives;
+    
+    if (miniPlayer.l < oldLives) {
+      console.log(`Player ${id} lost a life! ${oldLives} → ${miniPlayer.l}`);
+      playDeath(); 
+    }
+    
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;
-    gameData.players[id].lives = miniPlayer.l;
+    gameData.players[id].lives = miniPlayer.l; 
     gameData.players[id].state = miniPlayer.s;
   }
 
@@ -404,7 +411,6 @@ export function updateGameMini(data) {
   gameData.map.bombs = updatedBombs;
   
   // Smart HUD update - only updates when lives actually change
- 
 }
 
 function renderExplosion(bomb) {
