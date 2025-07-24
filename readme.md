@@ -71,3 +71,12 @@ Dropped randomly from destroyed blocks:
 ## 🎮 Play the Game
 
 👉 [Click here to play Bomberman DOM](https://bomberman-dom-4lnj.onrender.com/)
+
+
+## 👥 Contributors
+
+- [Mayuree Reunsati](https://github.com/mreunsat)
+- [Joon Kim](https://github.com/jkim)
+- [Yuanneng Lee](https://github.com/ylee)
+- [Sergei Budaev](https://github.com/sbudaev)
+- [Geraldine Addamo](https://github.com/gaddamo)
