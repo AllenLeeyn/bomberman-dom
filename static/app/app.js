@@ -12,7 +12,7 @@ let oldVNode = null;
 
 
 function renderApp() {
-  const newVNode = state.connected
+  const newVNode = state.connected && state.state !== 'in_game'
     ? LobbyScreen(state, sendMessage)
     : JoinScreen(state, joinLobby);
     

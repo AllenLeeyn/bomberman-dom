@@ -20,11 +20,28 @@ const TileFlame = "f";
 let bombPool = [];
 let exploPool = [];
 
+const powerUpMessages = {
+  bombUp: "+1 Bomb",
+  flameUp: "+1 Range",
+  speedUp: "+1 Speed",
+  bombPass: "Bomb Pass",
+  blockPass: "Block Pass",
+  liveUp: "+1 Life",
+};
+
 let socket = null;
 let currentPlayer = "";
 let gameData = {};
 let animationFrameId = null;
-let flameGrid = null
+let flameGrid = null;
+
+// Track previous lives to detect changes
+let previousLives = {};
+
+// Generate hearts based on lives count
+function generateHearts(lives) {
+  return lives > 0 ? '❤️'.repeat(lives) : '💀';
+}
 
 export async function launchGame(data, playerName) {
   const loadingDiv = showLoadingOverlay(gameRoot);
@@ -52,17 +69,17 @@ export function startGameApp(data, playerName) {
     return;
   }
   if (!data) {
-    console.error('[Game] Invalid game data');
+    console.error("[Game] Invalid game data");
     return;
   }
   gameData = data;
-  currentPlayer = playerName
+  currentPlayer = playerName;
 
-  gameRoot.setAttribute('tabindex', '0');
+  gameRoot.setAttribute("tabindex", "0");
   gameRoot.focus();
 
-  gameRoot.addEventListener('keydown', handleKeyDown, { passive: false });
-  gameRoot.addEventListener('keyup', handleKeyUp);
+  gameRoot.addEventListener("keydown", handleKeyDown, { passive: false });
+  gameRoot.addEventListener("keyup", handleKeyUp);
 
   const board = assets.getAsset('board');
   const bomb = assets.getAsset('b');
@@ -84,9 +101,12 @@ export function startGameApp(data, playerName) {
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
   createPlayers(gameData.players, layers.playerLayer)
+  createPlayerHUD(gameData.players);
 
   bombPool = createSpritePool(layers.poolLayer, 20, 'b', assets, 'tile b');
   exploPool = createSpritePool(layers.poolLayer, 120, 'boom', assets, 'tile f');
+
+  console.log('[Game] Initialized game container with dimensions:');
 
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -104,7 +124,7 @@ function showLoadingOverlay(parent) {
 }
 
 function drawTiles(gameData, blockLayer, bombLayer) {
-  blockLayer.innerHTML = '';
+  blockLayer.innerHTML = "";
   bombLayer.innerHTML = "";
 
   if (!gameData.map || !Array.isArray(gameData.map.grid)) {
@@ -121,22 +141,22 @@ function drawTiles(gameData, blockLayer, bombLayer) {
 
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
-      const tile = document.createElement('div');
+      const tile = document.createElement("div");
 
-      if (gameData.map.grid[y][x].typ === TileBlock){
-        const block = document.createElement('div');
-        block.id = `block_${x}_${y}`; 
-        block.className = 'tile bl';
+      if (gameData.map.grid[y][x].typ === TileBlock) {
+        const block = document.createElement("div");
+        block.id = `block_${x}_${y}`;
+        block.className = "tile bl";
         block.style.gridRowStart = y + 1;
         block.style.gridColumnStart = x + 1;
         blockLayer.appendChild(block);
       }
 
       if (gameData.map.grid[y][x].p_ups !== "") {
-        const powerUp = document.createElement('div');
+        const powerUp = document.createElement("div");
         const type = gameData.map.grid[y][x].p_ups;
 
-        powerUp.id = `powup_${x}_${y}`; 
+        powerUp.id = `powup_${x}_${y}`;
         powerUp.className = `tile p p-${type}`;
         powerUp.style.gridRowStart = y + 1;
         powerUp.style.gridColumnStart = x + 1;
@@ -152,7 +172,7 @@ function createPlayers(players, playerLayer) {
 
   for (const id in players) {
     const player = players[id];
-    const el = document.createElement('div');
+    const el = document.createElement("div");
     el.className = `player`;
     el.id = `player_${id}`;
 
@@ -163,7 +183,7 @@ function createPlayers(players, playerLayer) {
       const img = document.createElement('img');
       img.src = `./static/app/assets/bot_${player.col}_${dir}.png`;
       img.className = `player-img dir-${dir}`;
-      img.style.display = (dir === 'front') ? '' : 'none';
+      img.style.display = dir === "front" ? "" : "none";
       el.appendChild(img);
     });
     playerLayer.appendChild(el);
@@ -183,12 +203,12 @@ function drawPlayers(players) {
     const player = players[id];
     const el = document.getElementById(`player_${id}`);
     const imgs = el.querySelectorAll(".player-img");
-    let activeDir = dirMap[player.dir]
+    let activeDir = dirMap[player.dir];
 
-    const playerTileTop = Math.floor(player.y / TileSize)
-    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize)
-    const playerTileLeft = Math.floor(player.x / TileSize)
-    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize)
+    const playerTileTop = Math.floor(player.y / TileSize);
+    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize);
+    const playerTileLeft = Math.floor(player.x / TileSize);
+    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize);
 
     const newTransform = `translate(${player.x}px, ${player.y}px)`;
 
@@ -202,14 +222,14 @@ function drawPlayers(players) {
           img.style.display = 'block';
           img.classList.add('elongate-death');
         } else {
-          img.style.display = 'none';
+          img.style.display = "none";
         }
       });
 
       setTimeout(() => {
-        el.style.display = 'none';
+        el.style.display = "none";
       }, 1000);
-      continue
+      continue;
     }
 
     if (player.state === "rs") {
@@ -217,8 +237,8 @@ function drawPlayers(players) {
     } else {
       el.classList.remove("flicker");
     }
-    
-    imgs.forEach(img => {
+
+    imgs.forEach((img) => {
       if (img.classList.contains(`dir-${activeDir}`)) {
         img.style.display = "";
       } else {
@@ -229,10 +249,18 @@ function drawPlayers(players) {
     let y = player.dir === "u" ? playerTileTop: playerTileBottom;
     let x = player.dir === "r" ? playerTileRight: playerTileLeft;
 
-    if (grid[y][x].p_ups !== "") {
+    if (grid[y][x].p_ups !== "" && grid[y][x].typ === TileEmpty ) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) powUpEl.remove();
-      grid[y][x].p_ups = ""
+      if (powUpEl) powUpEl.classList.add("float-up");
+
+      if (id === currentPlayer) {
+        const label = powerUpMessages[grid[y][x].p_ups] || "+1 Power-Up";
+        const px = x*48;
+        const py = y*48 + 24;
+        showFloatingText(px, py, label);
+      }
+
+      grid[y][x].p_ups = "";
     }
   }
 }
@@ -279,6 +307,7 @@ export function updateGameState(data) {
 function renderLoop() {
   drawPlayers(gameData.players);
   drawBombs(gameData.map.bombs);
+  updatePlayerHUD(gameData.players);
 
   animationFrameId = requestAnimationFrame(renderLoop);
 }
@@ -306,7 +335,7 @@ function handleKeyDown(e) {
 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
-        action: 'game',
+        action: "game",
         player_name: currentPlayer,
         content: JSON.stringify(keysPressed),
       });
@@ -320,11 +349,11 @@ function handleKeyUp(e) {
 
   const index = keysPressed.indexOf(key);
   if (index > -1) {
-    keysPressed.splice(index, 1);  // Remove the key
+    keysPressed.splice(index, 1);
 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.sendMessage({
-        action: 'game',
+        action: "game",
         player_name: currentPlayer,
         content: JSON.stringify(keysPressed),
       });
@@ -348,12 +377,13 @@ export function stopGameApp(winnerName = "") {
   setTimeout(() => {
     winnerOverlay.remove();
     clearLayers(gameRoot);
+    clearPlayerHUD();
   }, 2000);
 }
 
 export function updateGameMini(data) {
-  gameData.ticks = data.t
-
+  gameData.ticks = data.t;
+  
   const incomingIds = new Set(Object.keys(data.p));
   for (const id in gameData.players) {
     if (!incomingIds.has(id)) {
@@ -399,6 +429,9 @@ export function updateGameMini(data) {
     }
   }
   gameData.map.bombs = updatedBombs;
+  
+  // Smart HUD update - only updates when lives actually change
+ 
 }
 
 function renderExplosion(bomb) {
@@ -407,7 +440,7 @@ function renderExplosion(bomb) {
   const { x, y, r } = bomb;
   const width = grid[0].length;
   const height = grid.length;
-  grid[y][x].typ = TileFlame
+  grid[y][x].typ = TileFlame;
 
   const tiles = [];
   tiles.push({ x, y });
@@ -429,23 +462,24 @@ function renderExplosion(bomb) {
 
       if (tileType === TileWall || tileType == TileBomb) {
         break;
-
       } else if (tileType === TileBlock) {
-        grid[ny][nx].typ = TileDestroy
+        grid[ny][nx].typ = TileDestroy;
         const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
         tiles.push({ x: nx, y: ny });
         break;
-
-      } else if (tileType === TileEmpty || tileType == TileFlame ||
-        tileType == TileDestroy) {
-        grid[ny][nx].typ = TileFlame
-        tiles.push({x: nx, y: ny});
+      } else if (
+        tileType === TileEmpty ||
+        tileType == TileFlame ||
+        tileType == TileDestroy
+      ) {
+        grid[ny][nx].typ = TileFlame;
+        tiles.push({ x: nx, y: ny });
 
         if (grid[ny][nx].p_ups !== "") {
           const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
           if (powUpEl) powUpEl.remove();
-          grid[ny][nx].p_ups = ""
+          grid[ny][nx].p_ups = "";
         }
       }
     }
@@ -494,4 +528,88 @@ function placeExplosion(x, y) {
     void flame.offsetWidth;
     flame.classList.add("f");
   }
+}
+
+function showFloatingText(x, y, text) {
+  const floatText = document.createElement("div");
+  floatText.className = "floating-text";
+  floatText.textContent = text;
+  floatText.style.left = `${x}px`;
+  floatText.style.top = `${y}px`;
+
+  gameRoot.appendChild(floatText);
+
+  setTimeout(() => floatText.remove(), 1000);
+}
+
+// Create HUD with player info
+function createPlayerHUD(players) {
+  console.log('[HUD] Creating HUD for players:', Object.keys(players));
+  const hud = document.getElementById('player-hud');
+  if (!hud) {
+    console.error('[HUD] player-hud element not found!');
+    return;
+  }
+  
+  // Clear existing content
+  hud.innerHTML = '';
+  
+  // Add each player's info
+  Object.keys(players).forEach(id => {
+    const player = players[id];
+    console.log(`[HUD] Adding player: ${player.name} (${player.col}) - Lives: ${player.lives}`);
+    
+    const playerDiv = document.createElement('div');
+    playerDiv.className = `player-info ${player.col}`;
+    playerDiv.innerHTML = `
+      <div class="player-name">${player.name}</div>
+      <div class="player-lives">${generateHearts(player.lives)}</div>
+    `;
+    hud.appendChild(playerDiv);
+  });
+  
+  // Update tracking object
+  previousLives = {};
+  Object.keys(players).forEach(id => {
+    previousLives[id] = players[id].lives;
+  });
+  
+  console.log('[HUD] HUD created successfully');
+}
+
+// Update HUD with current player data - only if lives changed
+function updatePlayerHUD(players) {
+  let hasChanges = false;
+  
+  // Check if lives changed for any player
+  Object.keys(players).forEach(id => {
+    if (previousLives[id] !== players[id].lives) {
+      console.log(`[HUD] Lives changed for ${players[id].name}: ${previousLives[id]} -> ${players[id].lives}`);
+      hasChanges = true;
+    }
+  });
+  
+  // Check if new players joined or left
+  const currentPlayerIds = Object.keys(players);
+  const previousPlayerIds = Object.keys(previousLives);
+  if (currentPlayerIds.length !== previousPlayerIds.length) {
+    console.log('[HUD] Player count changed');
+    hasChanges = true;
+  }
+  
+  // Only update if there are actual changes
+  if (hasChanges) {
+    console.log('[HUD] Updating HUD due to changes');
+    createPlayerHUD(players);
+  }
+}
+
+// Clear HUD
+function clearPlayerHUD() {
+  console.log('[HUD] Clearing HUD');
+  const hud = document.getElementById('player-hud');
+  if (hud) {
+    hud.innerHTML = '';
+  }
+  previousLives = {};
 }
