@@ -6,7 +6,6 @@ Multiplayer Bomberman-style game built **without canvas or WebGL**, powered pure
 ## 🚀 Overview
 
 This is a multiplayer web-based Bomberman game created using only DOM elements and the custom framework developed during the 'mini-framework' project.
-
 Players can join in real-time, plant bombs, collect power-ups, and compete to be the last one standing — all running at a **smooth 60 FPS**.
 
 
@@ -69,3 +68,6 @@ Dropped randomly from destroyed blocks:
 | WebSockets   | Multiplayer sync and real-time communication|
 | DOM APIs     | Movement, collision, explosion rendering    |
 
+## 🎮 Play the Game
+
+👉 [Click here to play Bomberman DOM](https://bomberman-dom-4lnj.onrender.com/)
