@@ -175,7 +175,7 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 			return
 		}
 		player.State = PlayerRespawning
-		player.StateReset = now.Add(time.Millisecond * 1500)
+		player.StateReset = now.Add(time.Millisecond * 2000)
 		log.Println(player.State)
 	}
 }
