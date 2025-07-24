@@ -16,6 +16,118 @@
   display: inline-block;
 }
 
+/* Player HUD positioned above game area */
+#player-hud {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90vw, 720px);
+  max-width: 720px;
+  height: auto;
+  min-height: 50px;
+  display: none;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  color: whitesmoke;
+  font-weight: 500;
+  z-index: 1000;
+}
+
+/* Show HUD when game is active */
+body.in-game #player-hud {
+  display: flex;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  padding: 6px 6px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  color: black; /* Black text like in lobby */
+  font-weight: bold;
+}
+
+.player-info:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.player-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: black; /* Always black text */
+}
+
+.player-lives {
+  font-size: 1.2rem;
+  font-weight: 600;
+  width: 150px;
+  color: black; /* Black text instead of gold */
+  background-color: black;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* Player color classes - now apply to background, not text */
+.player-info.red { background-color: #FF1493; }
+.player-info.blue { background-color: #00BFFF; }
+.player-info.green { background-color: #2ecc71; }
+.player-info.yellow { background-color: #f1c40f; }
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  #player-hud {
+    font-size: 1rem;
+    padding: 10px 12px;
+    top: 10px;
+  }
+  
+  .player-name {
+    font-size: 1rem;
+  }
+  
+  .player-lives {
+    font-size: 1.1rem;
+  }
+  
+  .player-info {
+    gap: 6px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  #player-hud {
+    flex-direction: column;
+    gap: 8px;
+    height: auto;
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .player-info {
+    width: 100%;
+    justify-content: space-between;
+    padding: 8px 12px;
+  }
+  
+  .player-name {
+    font-size: 0.9rem;
+  }
+  
+  .player-lives {
+    font-size: 1rem;
+  }
+}
+
 #game-root:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -133,7 +245,7 @@
   background-position: center;
   background-image: url("explosion.gif");
 
-  animation: flame-glow 0.45s linear infinite;
+  filter: drop-shadow(0 0 4px orange);
   will-change: opacity, filter;
 }
 
@@ -210,7 +322,6 @@
   }
   25% {
     opacity: 0.3;
-    filter: brightness(1.5) drop-shadow(0 0 8px red);
   }
   50% {
     opacity: 1;
@@ -218,7 +329,6 @@
   }
   75% {
     opacity: 0.4;
-    filter: brightness(1.8) drop-shadow(0 0 10px red);
   }
   100% {
     opacity: 1;
@@ -229,35 +339,18 @@
 @keyframes bomb-pulse {
   0% {
     transform: scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 0px red);
   }
   25% {
     transform: scale(1.03) rotate(5deg);
-    filter: drop-shadow(0 0 3px red);
   }
   50% {
     transform: scale(1.1) rotate(-5deg);
-    filter: drop-shadow(0 0 5px red);
   }
   75% {
     transform: scale(1.03) rotate(5deg);
-    filter: drop-shadow(0 0 3px red);
   }
   100% {
     transform: scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 0px red);
-  }
-}
-
-@keyframes flame-glow {
-  0% {
-    filter: drop-shadow(0 0 4px orange);
-  }
-  50% {
-    filter: drop-shadow(0 0 12px orange);
-  }
-  100% {
-    filter: drop-shadow(0 0 6px orange);
   }
 }
 
