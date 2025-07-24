@@ -2,7 +2,6 @@ package gameLobby
 
 import (
 	"log"
-
 	"github.com/gorilla/websocket"
 )
 

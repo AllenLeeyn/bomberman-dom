@@ -200,7 +200,7 @@ function drawPlayers(players) {
 
     if (grid[y][x].p_ups !== "" && grid[y][x].typ === TileEmpty ) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) powUpEl.remove();
+      if (powUpEl) powUpEl.classList.add("float-up");
 
       if (id === currentPlayer) {
         const label = powerUpMessages[grid[y][x].p_ups] || "+1 Power-Up";
