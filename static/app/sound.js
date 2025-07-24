@@ -1,4 +1,4 @@
-    // sound.js - Complete Sound Management System for Bomberman Game
+// sound.js - Complete Sound Management System for Bomberman Game
 
 class SoundManager {
     constructor() {
@@ -18,7 +18,8 @@ class SoundManager {
         powerup: 'powerup.mp3',        
         death: 'death.mp3',            
         countdown: 'countdown.mp3',     
-        gameBGM: 'gameBGM.mp3',     
+        gameBGM: 'gameBGM.mp3',  
+        lobbyBGM: 'lobbyBGM.mp3',   
         victory: 'victory.mp3',
         defeat: 'defeat.mp3'            
         };
@@ -124,6 +125,27 @@ export function stopBackgroundMusic() {
     }
 }
 
+
+export function startLobbyMusic() {
+    if (soundManager.muted) return;
+    const bgMusic = soundManager.sounds.lobbyBGM;
+    if (!bgMusic) {
+        return;
+    }
+    if (bgMusic.paused) {
+        // no reset
+        autoPlay(bgMusic);
+    }
+}
+
+export function stopLobbyMusic() {
+    const bgMusic = soundManager.sounds.lobbyBGM;
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+    }
+}
+
 export function playVictory() {
     soundManager.play('victory');
 }
@@ -148,3 +170,39 @@ export function getVolume() {
     return soundManager.getVolume();
 }
 
+export function fadeOutLobbyMusic(duration) {
+    const bgMusic = soundManager.sounds.lobbyBGM;
+    if (!bgMusic) return;
+    const startVolume = bgMusic.volume;
+    const steps = 20;
+    let step = 0;
+    const fade = setInterval(() => {
+        step++;
+        bgMusic.volume = Math.max(0, startVolume * (1 - step / steps));
+        if (step >= steps) {
+            clearInterval(fade);
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            bgMusic.volume = startVolume; // reset for next time
+        }
+    }, duration / steps);
+}
+
+// auto-play policy workaround
+function autoPlay(audio) {
+    if (!audio) return;
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.catch(() => {
+            // if blocked, wait for interaction
+            const unlock = () => {
+                audio.play();
+                window.removeEventListener('pointerdown', unlock);
+                window.removeEventListener('keydown', unlock);
+            };
+            window.addEventListener('pointerdown', unlock);
+            window.addEventListener('keydown', unlock);
+        });
+    }
+}

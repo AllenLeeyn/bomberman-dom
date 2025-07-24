@@ -7,7 +7,9 @@ import {
   startBackgroundMusic,
   stopBackgroundMusic,
   playVictory,
-  playDefeat 
+  playDefeat, 
+  stopLobbyMusic,
+  fadeOutLobbyMusic,
 } from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
@@ -52,6 +54,7 @@ function generateHearts(lives) {
 }
 
 export function startGameApp(data, playerName) {
+
   socket = getSocket("lobby");
   if (!gameRoot || !tileLayer || !playerLayer || !socket) {
     console.error("[Game] Missing elements");
