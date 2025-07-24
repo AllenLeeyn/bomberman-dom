@@ -3,7 +3,7 @@ import { joinLobby, sendMessage } from "./ws.js"
 import { router, update } from '../framework/domber.js'
 import { LobbyScreen } from './routes/chat.js';
 import { JoinScreen } from './routes/join.js';
-import { startLobbyMusic, stopLobbyMusic, fadeOutLobbyMusic } from './sound.js';
+import { startLobbyMusic } from './sound.js';
 const root = document.getElementById('app');
 const gameRoot = document.getElementById('game-root');
 
@@ -13,23 +13,13 @@ let prevState = null;
 
 function renderApp() {
 
-  
-  if ((state.state === "in_game" && prevState !== "in_game")) {
-    fadeOutLobbyMusic(9000); 
-  }
-
-  if (state.state === "in_game") {
-    stopLobbyMusic();
-  } else {
+  if (state.state !== "in_game") {
     if (prevState === "in_game") {
-      // returned from game, restart music
-      startLobbyMusic(true); // pass true to force reset
+      startLobbyMusic(true); // restart from 0
     } else {
-      startLobbyMusic(false); // don't reset
+      startLobbyMusic(false); // continue if already playing
     }
   }
-
-
 
   const newVNode = state.connected && state.state !== 'in_game'
     ? LobbyScreen(state, sendMessage)

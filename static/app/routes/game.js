@@ -8,8 +8,6 @@ import {
   stopBackgroundMusic,
   playVictory,
   playDefeat, 
-  stopLobbyMusic,
-  fadeOutLobbyMusic,
 } from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');

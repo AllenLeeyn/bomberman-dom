@@ -181,6 +181,7 @@ export function fadeOutLobbyMusic(duration) {
         bgMusic.volume = Math.max(0, startVolume * (1 - step / steps));
         if (step >= steps) {
             clearInterval(fade);
+            // console.log("LobbyBGM paused")
             bgMusic.pause();
             bgMusic.currentTime = 0;
             bgMusic.volume = startVolume; // reset for next time

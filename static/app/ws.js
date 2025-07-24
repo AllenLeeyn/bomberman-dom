@@ -1,7 +1,7 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
 import { startGameApp, updateGameState, updateGameMini, stopGameApp } from './routes/game.js';
-import { playCountdown } from './sound.js'
+import { playCountdown, fadeOutLobbyMusic } from './sound.js'
 
 export const joinLobby = (name) => {
   if (!name) {
@@ -115,6 +115,7 @@ function setTimerState(newState, duration) {
 
   if (newState === 'starting' && duration > 0) {
     playCountdown(); // Play the complete countdown sequence
+    fadeOutLobbyMusic(10000);
   }
 
   timerInterval = setInterval(() => {
