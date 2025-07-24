@@ -19,9 +19,9 @@ const TilePowerUp = "p";
 const TileFlame = "f";
 
 const powerUpMessages = {
-  bombUp: "+1 Bomb Up",
-  flameUp: "+1 Flame Range",
-  speedUp: "+1 Speed Up",
+  bombUp: "+1 Bomb",
+  flameUp: "+1 Range",
+  speedUp: "+1 Speed",
   bombPass: "Bomb Pass",
   blockPass: "Block Pass",
   liveUp: "+1 Life",
@@ -38,7 +38,7 @@ let previousLives = {};
 
 // Generate hearts based on lives count
 function generateHearts(lives) {
-  return '❤️'.repeat(lives);
+  return lives > 0 ? '❤️'.repeat(lives) : '💀';
 }
 
 export function startGameApp(data, playerName) {
@@ -212,8 +212,8 @@ function drawPlayers(players) {
 
       if (id === currentPlayer) {
         const label = powerUpMessages[grid[y][x].p_ups] || "+1 Power-Up";
-        const px = player.x + PlayerSize / 2;
-        const py = player.y;
+        const px = x*48;
+        const py = y*48 + 24;
         showFloatingText(px, py, label);
       }
 
@@ -509,8 +509,8 @@ function createPlayerHUD(players) {
     const playerDiv = document.createElement('div');
     playerDiv.className = `player-info ${player.col}`;
     playerDiv.innerHTML = `
-      <span class="player-name">${player.name}</span>
-      <span class="player-lives">${generateHearts(player.lives)}</span>
+      <div class="player-name">${player.name}</div>
+      <div class="player-lives">${generateHearts(player.lives)}</div>
     `;
     hud.appendChild(playerDiv);
   });
