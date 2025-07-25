@@ -32,9 +32,11 @@ const (
 type PlayerState string
 
 const (
-	PlayerAlive      PlayerState = "al"
-	PlayerRespawning PlayerState = "rs"
-	PlayerDead       PlayerState = "dd"
+	PlayerAlive        PlayerState = "al"
+	PlayerRespawning   PlayerState = "rs"
+	PlayerGhost        PlayerState = "gh"
+	PlayerGhostRespawn PlayerState = "gr"
+	PlayerDead         PlayerState = "dd"
 )
 
 type Player struct {

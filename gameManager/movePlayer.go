@@ -168,9 +168,9 @@ func isBlockingTile(player *Player, t string) bool {
 	case TileWall:
 		return true
 	case TileBlock, TileDestroy:
-		return !player.blockPass
+		return !(player.blockPass || player.State == PlayerGhost)
 	case TileBomb:
-		return !player.bombPass
+		return !(player.bombPass || player.State == PlayerGhost)
 	default:
 		return false
 	}

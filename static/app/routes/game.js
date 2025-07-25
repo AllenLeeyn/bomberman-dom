@@ -227,8 +227,11 @@ function drawPlayers(players) {
     if (el.style.transform !== newTransform) {
       el.style.transform = newTransform;
     }
+    
+    if (player.state === "rs") {
+      el.classList.add("flicker");
 
-    if (player.state === 'dd') {
+    } else if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
           // playDeath();
@@ -243,13 +246,19 @@ function drawPlayers(players) {
         el.style.display = "none";
       }, 1000);
       continue;
-    }
 
-    if (player.state === "rs") {
-      el.classList.add("flicker");
-    } else {
+    } else if (player.state === 'gh') {
       el.classList.remove("flicker");
-    }
+      el.style.opacity = "50%";
+
+    } else if (player.state === 'gr') {
+      el.classList.add("flicker");
+      el.style.opacity = "50%";
+
+    } else {
+      el.style.opacity = "100%";
+      el.classList.remove("flicker");
+    } 
 
     imgs.forEach((img) => {
       if (img.classList.contains(`dir-${activeDir}`)) {
@@ -266,10 +275,11 @@ function drawPlayers(players) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
       if (powUpEl) {
           playPowerup();
+          powUpEl.classList.add("float-up")
+
           setTimeout(() => {
             powUpEl.remove();
           }, 500);
-          powUpEl.classList.add("float-up")
       }
 
       if (id === currentPlayer) {

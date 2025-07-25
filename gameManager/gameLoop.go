@@ -48,7 +48,9 @@ func (g *Game) CheckWinner() {
 	livingPlayers := make([]string, 0, len(g.Players))
 
 	for id, player := range g.Players {
-		if player.State != PlayerDead {
+		if player.State != PlayerDead &&
+			player.State != PlayerGhost &&
+			player.State != PlayerGhostRespawn {
 			livingPlayers = append(livingPlayers, id)
 		}
 	}

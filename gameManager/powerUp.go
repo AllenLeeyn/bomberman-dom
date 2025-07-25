@@ -20,6 +20,9 @@ func (g *Game) collectPowerUp(player *Player, tileY, tileX int) {
 			player.MovementSpeed += 1
 		case PowerUpLiveUp:
 			player.Lives++
+			if player.State == PlayerGhost {
+				player.State = PlayerAlive
+			}
 		case PowerUpBlockPass:
 			player.blockPass = true
 		case PowerUpBombPass:

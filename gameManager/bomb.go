@@ -6,7 +6,7 @@ import (
 )
 
 func (g *Game) placeBomb(player *Player) {
-	if player.State == PlayerDead {
+	if player.State != PlayerAlive {
 		return
 	}
 	now := time.Now()
@@ -154,7 +154,10 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 	if player.State == PlayerRespawning && now.After(player.StateReset) {
 		player.State = PlayerAlive
 	}
-	if player.State != PlayerAlive {
+	if player.State == PlayerGhostRespawn && now.After(player.StateReset) {
+		player.State = PlayerGhost
+	}
+	if player.State != PlayerAlive && player.State != PlayerGhost {
 		return
 	}
 
@@ -170,7 +173,13 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 	if isHit {
 		player.Lives--
 		if player.Lives <= 0 {
-			player.State = PlayerDead
+			if player.State == PlayerGhost {
+				player.State = PlayerDead
+			} else {
+				player.State = PlayerGhostRespawn
+				player.StateReset = now.Add(time.Millisecond * 2000)
+				player.MovementSpeed = 6
+			}
 			g.CheckWinner()
 			return
 		}
