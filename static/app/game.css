@@ -332,13 +332,13 @@ body.in-game #player-hud {
     transform: scale(1) rotate(0deg);
   }
   25% {
-    transform: scale(1.03) rotate(5deg);
+    transform: scale(1.05) rotate(7deg);
   }
   50% {
-    transform: scale(1.1) rotate(-5deg);
+    transform: scale(1.2) rotate(-7deg);
   }
   75% {
-    transform: scale(1.03) rotate(5deg);
+    transform: scale(1.05) rotate(7deg);
   }
   100% {
     transform: scale(1) rotate(0deg);

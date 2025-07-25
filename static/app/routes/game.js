@@ -10,7 +10,8 @@ import {
   startBackgroundMusic,
   stopBackgroundMusic,
   playVictory,
-  playDefeat, 
+  playDefeat,
+  stopLobbyMusic,
 } from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
@@ -66,6 +67,7 @@ export async function launchGame(data, playerName) {
   }
 
   loadingDiv.parentNode.removeChild(loadingDiv);
+  stopLobbyMusic();
   startGameApp(data, playerName);
 }
 
