@@ -279,6 +279,11 @@ body.in-game #player-hud {
   will-change: opacity, filter;
 }
 
+.ghost-flicker {
+  animation: ghost-flicker 0.5s infinite alternate;
+  will-change: opacity, filter;
+}
+
 /* Assign colors via class or inline style */
 
 .player.red {
@@ -326,6 +331,14 @@ body.in-game #player-hud {
   50%  { opacity: 1; }
   75%  { opacity: 0.2; }
   100% { opacity: 1; }
+}
+
+@keyframes ghost-flicker {
+  0%   { opacity: 0.5; }
+  25%  { opacity: 0.1; }
+  50%  { opacity: 0.5; }
+  75%  { opacity: 0.2; }
+  100% { opacity: 0.5; }
 }
 
 @keyframes bomb-pulse {

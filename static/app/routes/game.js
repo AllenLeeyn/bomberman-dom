@@ -252,7 +252,7 @@ function drawPlayers(players) {
       el.style.opacity = "50%";
 
     } else if (player.state === 'gr') {
-      el.classList.add("flicker");
+      el.classList.add("ghosst-flicker");
       el.style.opacity = "50%";
 
     } else {
@@ -274,12 +274,12 @@ function drawPlayers(players) {
     if (grid[y][x].p_ups !== "" && grid[y][x].typ === TileEmpty ) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
       if (powUpEl) {
-          playPowerup();
-          powUpEl.classList.add("float-up")
+        playPowerup();
+        powUpEl.classList.add("float-up")
 
-          setTimeout(() => {
-            powUpEl.remove();
-          }, 500);
+        setTimeout(() => {
+          powUpEl.remove();
+        }, 500);
       }
 
       if (id === currentPlayer) {
@@ -590,7 +590,7 @@ function showFloatingText(x, y, text) {
   floatText.style.left = `${x}px`;
   floatText.style.top = `${y}px`;
 
-  layers.playerLayer.appendChild(floatText);
+  layers.blockLayer.appendChild(floatText);
 
   setTimeout(() => floatText.remove(), 1000);
 }

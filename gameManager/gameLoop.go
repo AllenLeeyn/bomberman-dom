@@ -27,6 +27,7 @@ func (g *Game) gameLoop() {
 		g.updateBombs()
 		g.updatePlayersAction()
 		g.updateFlames()
+		g.checkPlayerCollisions()
 		g.TickCount++
 
 		miniCopy := *g.Mini
