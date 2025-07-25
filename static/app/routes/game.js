@@ -266,7 +266,9 @@ function drawPlayers(players) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
       if (powUpEl) {
           playPowerup();
-          powUpEl.remove();
+          setTimeout(() => {
+            powUpEl.remove();
+          }, 500);
           powUpEl.classList.add("float-up")
       }
 
