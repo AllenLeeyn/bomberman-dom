@@ -271,6 +271,7 @@ body.in-game #player-hud {
   height: 48px; /* actual image height */
   pointer-events: none;
   user-select: none;
+  will-change: opacity, filter;
 }
 
 .flicker {
