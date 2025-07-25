@@ -1,6 +1,7 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
-import {  stopGameApp, launchGame, updateGameState, updateGameMini } from './routes/game.js';
+import { launchGame, updateGameState, updateGameMini, stopGameApp } from './routes/game.js';
+import { playCountdown, fadeOutLobbyMusic } from './sound.js'
 
 export const joinLobby = (name) => {
   if (!name) {
@@ -55,7 +56,7 @@ const handleMessage = (event) => {
     stopGameApp(data.winner)
     setTimeout(() => {
       state.state = 'in_lobby';
-    }, 2000); 
+    }, 3000); 
 
   } else if (data.action === "game_update"){
     updateGameState(data)
@@ -108,6 +109,11 @@ function setTimerState(newState, duration) {
 
   state.state = newState;
   state.timerDuration = duration;
+
+  if (newState === 'starting' && duration > 0) {
+    playCountdown(); // Play the complete countdown sequence
+    fadeOutLobbyMusic(10000);
+  }
 
   timerInterval = setInterval(() => {
     if (state.timerDuration > 0) {

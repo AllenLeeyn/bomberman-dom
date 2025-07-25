@@ -127,27 +127,27 @@ export const JoinScreen = (state, onJoin) =>
           h('div', { class: 'tooltip-title' }, '⚡ Power-ups'),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-bomb-up' }),
-            h('span', {}, 'Bomb Up - Max bombs +1')
+            h('span', {}, 'Bomb Up -> +1 Bomb')
           ]),
           h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-flame-up' }),
-            h('span', {}, 'Flame Up - Explosion range +1')
+            h('span', {}, 'Flame Up -> +1 Explosion range')
           ]),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-speed-up' }),
-            h('span', {}, 'Speed Up - Speed +1')
+            h('span', {}, 'Speed Up -> +1 Speed')
           ]),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-bomb-pass' }),
-            h('span', {}, 'Bomb Pass - Walk through bombs')
+            h('span', {}, 'Bomb Pass -> Walk through bombs')
           ]),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-block-pass' }),
-            h('span', {}, 'Block Pass - Walk through blocks')
+            h('span', {}, 'Block Pass -> Walk through blocks')
           ]),
             h('div', { class: 'powerup-line' }, [
             h('div', { class: 'powerup-icon icon-live-up' }),
-            h('span', {}, 'Live Up - Max live +1')
+            h('span', {}, 'Live Up -> +1 Life')
           ])
         ])
       ]),
