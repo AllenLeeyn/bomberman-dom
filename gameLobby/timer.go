@@ -10,7 +10,7 @@ func (l *Lobby) timerController() {
 	for action := range l.timerCh {
 
 		if action == gameEndSignal {
-			time.Sleep(2500 * time.Millisecond)
+			time.Sleep(3000 * time.Millisecond)
 			l.state = StateInLobby
 		}
 		if l.state == StateInGame {

@@ -2,6 +2,16 @@ import { getSocket } from '../../framework/domber.js'
 import { useLayers, renderTileLayer, createSpritePool, clearLayers } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
+import { 
+  playBombPlace, 
+  playExplosion, 
+  playPowerup, 
+  playDeath,
+  startBackgroundMusic,
+  stopBackgroundMusic,
+  playVictory,
+  playDefeat, 
+} from '../sound.js'
 
 const gameRoot = document.getElementById('game-root');
 
@@ -102,6 +112,7 @@ export function startGameApp(data, playerName) {
   drawTiles(gameData, layers.blockLayer, layers.bombLayer);
   createPlayers(gameData.players, layers.playerLayer)
   createPlayerHUD(gameData.players);
+  startBackgroundMusic();
 
   bombPool = createSpritePool(layers.poolLayer, 20, 'b', assets, 'tile b');
   exploPool = createSpritePool(layers.poolLayer, 120, 'boom', assets, 'tile f');
@@ -160,6 +171,7 @@ function drawTiles(gameData, blockLayer, bombLayer) {
         powerUp.className = `tile p p-${type}`;
         powerUp.style.gridRowStart = y + 1;
         powerUp.style.gridColumnStart = x + 1;
+        powerUp.style.display = "none";
 
         layers.tileLayer.appendChild(powerUp);
       }
@@ -216,9 +228,11 @@ function drawPlayers(players) {
       el.style.transform = newTransform;
     }
 
+    
     if (player.state === 'dd') {
       imgs.forEach(img => {
         if (img.classList.contains('dir-dead')) {
+          // playDeath();
           img.style.display = 'block';
           img.classList.add('elongate-death');
         } else {
@@ -251,7 +265,11 @@ function drawPlayers(players) {
 
     if (grid[y][x].p_ups !== "" && grid[y][x].typ === TileEmpty ) {
       const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) powUpEl.classList.add("float-up");
+      if (powUpEl) {
+          playPowerup();
+          powUpEl.remove();
+          powUpEl.classList.add("float-up")
+      }
 
       if (id === currentPlayer) {
         const label = powerUpMessages[grid[y][x].p_ups] || "+1 Power-Up";
@@ -259,7 +277,6 @@ function drawPlayers(players) {
         const py = y*48 + 24;
         showFloatingText(px, py, label);
       }
-
       grid[y][x].p_ups = "";
     }
   }
@@ -279,7 +296,8 @@ function drawBombs(bombs) {
       existing.className = '';
       layers.poolLayer.appendChild(existing)
       renderExplosion(bomb);
-
+      playExplosion();
+      
     } else if (!existing) {
       const bombEl = bombPool[bombPoolIndex];
       bombPoolIndex = (bombPoolIndex + 1) % bombPool.length;
@@ -290,6 +308,7 @@ function drawBombs(bombs) {
       bombEl.style.display = '';
       grid[bomb.y][bomb.x].typ = TileBomb;
       layers.bombLayer.appendChild(bombEl);
+      playBombPlace();
     }
   }
 
@@ -362,6 +381,14 @@ function handleKeyUp(e) {
 }
 
 export function stopGameApp(winnerName = "") {
+  if (winnerName === currentPlayer) {
+    stopBackgroundMusic();
+    playVictory();
+  } else {
+    stopBackgroundMusic();
+    playDefeat();
+  }
+
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
@@ -378,7 +405,7 @@ export function stopGameApp(winnerName = "") {
     winnerOverlay.remove();
     clearLayers(gameRoot);
     clearPlayerHUD();
-  }, 2000);
+  }, 3000); 
 }
 
 export function updateGameMini(data) {
@@ -398,10 +425,20 @@ export function updateGameMini(data) {
       console.warn(`Skipping update for unknown player id ${id}`);
       continue;
     }
+    const oldLives = gameData.players[id].lives;
+    
+    if (miniPlayer.l < oldLives) {
+      console.log(`Player ${id} lost a life! ${oldLives} → ${miniPlayer.l}`);
+      if (id === currentPlayer) {
+        playDeath(); // Only YOU hear your own death sound
+        showFloatingText(miniPlayer.x, miniPlayer.y - 24, '-1 ❤️');
+      }
+    }
+    
     gameData.players[id].x = miniPlayer.x;
     gameData.players[id].y = miniPlayer.y;
     gameData.players[id].dir = miniPlayer.d;
-    gameData.players[id].lives = miniPlayer.l;
+    gameData.players[id].lives = miniPlayer.l; 
     gameData.players[id].state = miniPlayer.s;
   }
 
@@ -431,7 +468,6 @@ export function updateGameMini(data) {
   gameData.map.bombs = updatedBombs;
   
   // Smart HUD update - only updates when lives actually change
- 
 }
 
 function renderExplosion(bomb) {
@@ -467,7 +503,14 @@ function renderExplosion(bomb) {
         const blockEl = document.getElementById(`block_${nx}_${ny}`);
         if (blockEl) blockEl.classList.add('hidden');
         tiles.push({ x: nx, y: ny });
+
+        if (grid[ny][nx].p_ups !== "") {
+          const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
+          powUpEl.style.display = "";
+        }
+        
         break;
+
       } else if (
         tileType === TileEmpty ||
         tileType == TileFlame ||
@@ -537,7 +580,7 @@ function showFloatingText(x, y, text) {
   floatText.style.left = `${x}px`;
   floatText.style.top = `${y}px`;
 
-  gameRoot.appendChild(floatText);
+  layers.playerLayer.appendChild(floatText);
 
   setTimeout(() => floatText.remove(), 1000);
 }
