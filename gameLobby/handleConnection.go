@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// handleConnection() receives player messages and handle them accordingly
 func (l *Lobby) handleConnection(pl *player) {
 
 	defer func() {
@@ -57,6 +58,7 @@ func (l *Lobby) handleConnection(pl *player) {
 	}
 }
 
+// processMessage() handles simple chat messages
 func (l *Lobby) processMessage(msgData *Message) error {
 	isValidMsg, sanitizeMsg := checkMessage(msgData.Content)
 	if !isValidMsg {
@@ -74,6 +76,7 @@ func (l *Lobby) processMessage(msgData *Message) error {
 	return nil
 }
 
+// checkMessage() checks length and sanitize messages
 func checkMessage(message string) (bool, string) {
 	message = strings.TrimSpace(message)
 	if len(message) == 0 {
@@ -83,5 +86,3 @@ func checkMessage(message string) (bool, string) {
 	}
 	return true, html.EscapeString(message)
 }
-
-

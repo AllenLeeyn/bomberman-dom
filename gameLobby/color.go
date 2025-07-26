@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// newColorSet() returns a new color set for each lobby
 func newColorSet() map[string]bool {
 	return map[string]bool{
 		"red":    false,
@@ -14,19 +15,22 @@ func newColorSet() map[string]bool {
 	}
 }
 
+// getNextAvailableColor() to assign to next player
 func (l *Lobby) getNextAvailableColor() (string, bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
 	for color, used := range l.colorSet {
 		if !used {
-			l.colorSet[color] = true // Mark it as used
+			l.colorSet[color] = true
 			return color, true
 		}
 	}
-	return "", false // No available colors
+	return "", false
 }
 
+// processColorChange() handles color change request
+// not yet tested and implemented
 func (l *Lobby) processColorChange(msgData *Message) error {
 	newColor := msgData.Content
 
