@@ -2,6 +2,7 @@ package gameManager
 
 import "log"
 
+// collectPowerUp() checks current tile power up if any and assigns to target player
 func (g *Game) collectPowerUp(player *Player, tileY, tileX int) {
 	tile := g.GMap.Grid[tileY][tileX]
 	if tile.Type != TileEmpty {
@@ -27,7 +28,6 @@ func (g *Game) collectPowerUp(player *Player, tileY, tileX int) {
 		}
 		log.Println(player)
 
-		// Clear the power-up from the tile after collection
 		tile.PowUp = ""
 	}
 }

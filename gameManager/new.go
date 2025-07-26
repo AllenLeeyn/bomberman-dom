@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// NewGame() uses Lobby player list, and channels for communication.
+// Sets new game state, creates game mini state, and resets player parameters.
 func NewGame(players map[string]*Player, stateQueue chan message, endQueue chan struct{}) *Game {
 	g := &Game{
 		Players:    players,
@@ -18,6 +20,7 @@ func NewGame(players map[string]*Player, stateQueue chan message, endQueue chan 
 		endQueue:   endQueue,
 	}
 
+	// miniState keeps track of players and bombs
 	g.Mini = &MiniState{
 		Action:    gameMini,
 		Players:   NewPlayerMini(players),
@@ -35,12 +38,10 @@ func NewGame(players map[string]*Player, stateQueue chan message, endQueue chan 
 		player.Reset(PlayerStartTiles[i][0], PlayerStartTiles[i][1])
 		i++
 	}
-
-	go g.gameLoop()
-
 	return g
 }
 
+// Start() the game and send the first state to clients
 func (g *Game) Start() {
 	log.Println("game start")
 	g.mu.Lock()
@@ -49,6 +50,8 @@ func (g *Game) Start() {
 	if g.State != Waiting {
 		return
 	}
+
+	go g.gameLoop()
 
 	g.Action = gameStart
 	g.State = Playing

@@ -33,7 +33,7 @@ type Lobby struct {
 type timerAction string
 
 const (
-	waitDuration  int           = 5
+	waitDuration  int           = 20
 	startDuration int           = 10
 	EndDuration   time.Duration = time.Second * 4
 

@@ -4,6 +4,8 @@ import (
 	"math/rand/v2"
 )
 
+// NewGMap() creates a standard grid map with fixed walls,
+// randomize blocks and power ups.
 func NewGMap(width, height int) *GMap {
 	grid := make([][]*Tile, height)
 	blocks := []*Tile{}
