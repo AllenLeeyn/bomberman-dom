@@ -36,7 +36,7 @@ export function renderTileLayer(tileLayer, imageUrl, width = 720, height = 624) 
     tileLayer.appendChild(img);
 }
 
-export function createSpritePool(layer, max, assetKey, assets, className, w = 48, h = 48) {
+export function createSpritePool(layer, max, assetKey, assets, w = 48, h = 48) {
     const pool = [];
     const asset = assets.getAsset(assetKey);
     const src = asset && asset.src ? asset.src : "";

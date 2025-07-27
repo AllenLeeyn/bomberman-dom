@@ -1,9 +1,9 @@
 import { state } from "./store.js"
 import { connectWebSocket, getSocket } from '../framework/domber.js'
 import { launchGame, updateGameState, updateGameMini, stopGameApp } from './routes/game.js';
-import { playCountdown, fadeOutLobbyMusic } from './sound.js'
+import { setTimerState } from "./timer.js";
 
-export const joinLobby = (name) => {
+export function joinLobby(name) {
   if (!name) {
     state.errorMessage = 'Please enter a nickname.';
     return;
@@ -30,7 +30,7 @@ export const joinLobby = (name) => {
   });
 };
 
-export const sendMessage = (msg) => {
+export function sendMessage(msg) {
   if (!msg) return;
 
   const socket = getSocket('lobby');
@@ -39,7 +39,7 @@ export const sendMessage = (msg) => {
   }
 };
 
-const safeParse = (data) => {
+function safeParse(data) {
   try {
     return JSON.parse(data);
   } catch {
@@ -47,7 +47,7 @@ const safeParse = (data) => {
   }
 };
 
-const handleMessage = (event) => {
+function handleMessage(event) {
   const data = safeParse(event.data);
   if (data.action === "game_mini"){
     updateGameMini(data)
@@ -72,22 +72,10 @@ const handleMessage = (event) => {
     setTimerState(data.state, data.duration);
 
   }else if (data.action === 'join') {
-    const players = [];
-    const names = data.allPlayersNames || [];
-    const colors = data.allPlayerColors || [];
-
-    for (let i = 0; i < names.length; i++) {
-      players.push({ name: names[i], color: colors[i] || 'black' });
-    }
-    state.players = players;
-    state.messages.push({ text: 'New player joined', system: true });
+    handleJoin(data)
 
   } else if (data.action === 'offline') {
-    state.messages.push({ text: `Player left: ${data.player_name}`, system: true });
-    const index = state.players.findIndex(p => p.name === data.player_name);
-    if (index !== -1) {
-      state.players.splice(index, 1);
-    }
+    handleOffline(data)
     
   } else if (data.player_name && data.content) {
     if (data.player_name === state.playerName) {
@@ -97,33 +85,22 @@ const handleMessage = (event) => {
   }
 };
 
-let timerInterval = null;
+function handleJoin(data) {
+    const players = [];
+    const names = data.allPlayersNames || [];
+    const colors = data.allPlayerColors || [];
 
-function setTimerState(newState, duration) {
-  if (state.state ===  'in_game') return;
-
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-
-  state.state = newState;
-  state.timerDuration = duration;
-
-  if (newState === 'starting' && duration > 0) {
-    playCountdown(); // Play the complete countdown sequence
-    fadeOutLobbyMusic(10000);
-  }
-
-  timerInterval = setInterval(() => {
-    if (state.timerDuration > 0) {
-      state.timerDuration--;
-    } else {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      if (state.state === 'starting') {
-        state.state = 'in_game';
-      }
+    for (let i = 0; i < names.length; i++) {
+      players.push({ name: names[i], color: colors[i] || 'black' });
     }
-  }, 1000);
+    state.players = players;
+    state.messages.push({ text: 'New player joined', system: true });
+}
+
+function handleOffline(data) {
+    state.messages.push({ text: `Player left: ${data.player_name}`, system: true });
+    const index = state.players.findIndex(p => p.name === data.player_name);
+    if (index !== -1) {
+      state.players.splice(index, 1);
+    }
 }

@@ -1,11 +1,13 @@
-import { getSocket } from '../../framework/domber.js'
+
 import { useLayers, renderTileLayer, createSpritePool, clearLayers } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
-import { 
-  playBombPlace, 
-  playExplosion, 
-  playPowerup, 
+import { drawBombs } from './game/bomb.js';
+import { drawTiles } from './game/tile.js';
+import { AddKeyEvents } from './game/handleKeyEvents.js';
+import { createPlayerHUD, updatePlayerHUD, clearPlayerHUD, showFloatingText } from './game/hud.js';
+import { createPlayers, drawPlayers } from './game/player.js';
+import {
   playDeath,
   startBackgroundMusic,
   stopBackgroundMusic,
@@ -16,42 +18,25 @@ import {
 
 const gameRoot = document.getElementById('game-root');
 
-const layers = useLayers(gameRoot);
+export const layers = useLayers(gameRoot);
+export let currentPlayer = "";
+export let bombPool = [];
+export let exploPool = [];
+export let flameGrid = null;
 
-const TileSize = 48;
-const PlayerSize = 36;
-
-const TileEmpty = "e";
-const TileWall = "w";
-const TileBlock = "bl";
-const TileBomb = "b";
-const TileDestroy = "d";
-const TileFlame = "f";
-
-let bombPool = [];
-let exploPool = [];
-
-const powerUpMessages = {
-  bombUp: "+1 Bomb",
-  flameUp: "+1 Range",
-  speedUp: "+1 Speed",
-  bombPass: "Bomb Pass",
-  blockPass: "Block Pass",
-  liveUp: "+1 Life",
-};
-
-let socket = null;
-let currentPlayer = "";
 let gameData = {};
 let animationFrameId = null;
-let flameGrid = null;
 
-// Track previous lives to detect changes
-let previousLives = {};
-
-// Generate hearts based on lives count
-function generateHearts(lives) {
-  return lives > 0 ? '❤️'.repeat(lives) : '💀';
+function showLoadingOverlay(parent) {
+  let div = document.getElementById('loading-overlay');
+  if (!div) {
+    div = document.createElement('div');
+    div.id = 'loading-overlay';
+    parent.appendChild(div);
+  }
+  div.classList.remove('hidden');
+  div.textContent = 'Loading game assets...';
+  return div;
 }
 
 export async function launchGame(data, playerName) {
@@ -72,11 +57,7 @@ export async function launchGame(data, playerName) {
 }
 
 export function startGameApp(data, playerName) {
-  gameRoot.removeEventListener('keydown', handleKeyDown);
-  gameRoot.removeEventListener('keyup', handleKeyUp);
-
-  socket = getSocket('lobby')
-  if (!gameRoot || !socket) {
+  if (!gameRoot) {
     console.error('[Game] Missing elements');
     return;
   }
@@ -86,12 +67,13 @@ export function startGameApp(data, playerName) {
   }
   gameData = data;
   currentPlayer = playerName;
+  flameGrid = Array.from({ length: gameData.map.h }, () =>
+    Array(gameData.map.w).fill(0)
+  );
 
   gameRoot.setAttribute("tabindex", "0");
   gameRoot.focus();
-
-  gameRoot.addEventListener("keydown", handleKeyDown, { passive: false });
-  gameRoot.addEventListener("keyup", handleKeyUp);
+  AddKeyEvents(gameRoot, playerName)
 
   const board = assets.getAsset('board');
   const bomb = assets.getAsset('b');
@@ -111,7 +93,7 @@ export function startGameApp(data, playerName) {
   }
 
   renderTileLayer(layers.tileLayer, board.src);
-  drawTiles(gameData, layers.blockLayer, layers.bombLayer);
+  drawTiles(gameData, layers);
   createPlayers(gameData.players, layers.playerLayer)
   createPlayerHUD(gameData.players);
   startBackgroundMusic();
@@ -122,262 +104,11 @@ export function startGameApp(data, playerName) {
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 
-function showLoadingOverlay(parent) {
-  let div = document.getElementById('loading-overlay');
-  if (!div) {
-    div = document.createElement('div');
-    div.id = 'loading-overlay';
-    parent.appendChild(div);
-  }
-  div.classList.remove('hidden');
-  div.textContent = 'Loading game assets...';
-  return div;
-}
-
-function drawTiles(gameData, blockLayer, bombLayer) {
-  blockLayer.innerHTML = "";
-  bombLayer.innerHTML = "";
-
-  if (!gameData.map || !Array.isArray(gameData.map.grid)) {
-    console.error("drawTiles: missing or invalid gameData.map/grid", gameData.map);
-    return;
-  }
-
-  const gridWidth = gameData.map.w || 15;
-  const gridHeight = gameData.map.h || 13;
-
-  flameGrid = Array.from({ length: gridHeight }, () =>
-    Array(gridWidth).fill(0)
-  );
-
-  for (let y = 0; y < gridHeight; y++) {
-    for (let x = 0; x < gridWidth; x++) {
-      const tile = document.createElement("div");
-
-      if (gameData.map.grid[y][x].typ === TileBlock) {
-        const block = document.createElement("div");
-        block.id = `block_${x}_${y}`;
-        block.className = "tile bl";
-        block.style.gridRowStart = y + 1;
-        block.style.gridColumnStart = x + 1;
-        blockLayer.appendChild(block);
-      }
-
-      if (gameData.map.grid[y][x].p_ups !== "") {
-        const powerUp = document.createElement("div");
-        const type = gameData.map.grid[y][x].p_ups;
-
-        powerUp.id = `powup_${x}_${y}`;
-        powerUp.className = `tile p p-${type}`;
-        powerUp.style.gridRowStart = y + 1;
-        powerUp.style.gridColumnStart = x + 1;
-        powerUp.style.display = "none";
-
-        layers.tileLayer.appendChild(powerUp);
-      }
-    }
-  }
-}
-
-function createPlayers(players, playerLayer) {
-  playerLayer.innerHTML = '';
-
-  for (const id in players) {
-    const player = players[id];
-    const el = document.createElement("div");
-    el.className = `player`;
-    el.id = `player_${id}`;
-
-    el.style.transform = `translate(${player.x}px, ${player.y}px)`;
-
-    const directions = ['front', 'back', 'left', 'right', 'dead'];
-    directions.forEach(dir => {
-      const img = document.createElement('img');
-      img.src = `./static/app/assets/bot_${player.col}_${dir}.png`;
-      img.className = `player-img dir-${dir}`;
-      img.style.display = dir === "front" ? "" : "none";
-      el.appendChild(img);
-    });
-    playerLayer.appendChild(el);
-  }
-}
-
-function drawPlayers(players) {
-  const grid = gameData.map.grid
-  
-  for (const id in players) {
-    const dirMap = {
-      u: "back",
-      d: "front",
-      l: "left",
-      r: "right",
-    };
-    const player = players[id];
-    const el = document.getElementById(`player_${id}`);
-    const imgs = el.querySelectorAll(".player-img");
-    let activeDir = dirMap[player.dir];
-
-    const playerTileTop = Math.floor(player.y / TileSize);
-    const playerTileBottom = Math.floor((player.y + PlayerSize - 1) / TileSize);
-    const playerTileLeft = Math.floor(player.x / TileSize);
-    const playerTileRight = Math.floor((player.x + PlayerSize - 1) / TileSize);
-
-    const newTransform = `translate(${player.x}px, ${player.y}px)`;
-
-    if (el.style.transform !== newTransform) {
-      el.style.transform = newTransform;
-    }
-
-    if (player.state === 'dd') {
-      imgs.forEach(img => {
-        if (img.classList.contains('dir-dead')) {
-          // playDeath();
-          img.style.display = 'block';
-          img.classList.add('elongate-death');
-        } else {
-          img.style.display = "none";
-        }
-      });
-
-      setTimeout(() => {
-        el.style.display = "none";
-      }, 1000);
-      continue;
-    }
-
-    if (player.state === "rs") {
-      el.classList.add("flicker");
-    } else {
-      el.classList.remove("flicker");
-    }
-
-    imgs.forEach((img) => {
-      if (img.classList.contains(`dir-${activeDir}`)) {
-        img.style.display = "";
-      } else {
-        img.style.display = "none";
-      }
-    });
-
-    let y = player.dir === "u" ? playerTileTop: playerTileBottom;
-    let x = player.dir === "r" ? playerTileRight: playerTileLeft;
-
-    if (grid[y][x].p_ups !== "" && grid[y][x].typ === TileEmpty ) {
-      const powUpEl = document.getElementById(`powup_${x}_${y}`);
-      if (powUpEl) {
-          playPowerup();
-          setTimeout(() => {
-            powUpEl.remove();
-          }, 500);
-          powUpEl.classList.add("float-up")
-      }
-
-      if (id === currentPlayer) {
-        const label = powerUpMessages[grid[y][x].p_ups] || "+1 Power-Up";
-        const px = x*48;
-        const py = y*48 + 24;
-        showFloatingText(px, py, label);
-      }
-      grid[y][x].p_ups = "";
-    }
-  }
-}
-
-let bombPoolIndex = 0;
-function drawBombs(bombs) {
-  const grid = gameData.map.grid
-
-  for (const bomb of bombs) {
-    const id = `bomb_${bomb.x}_${bomb.y}`;
-    const existing = document.getElementById(id);
-
-    if (existing && bomb.e) {
-      existing.id = '';
-      existing.style.display = 'none';
-      existing.className = '';
-      layers.poolLayer.appendChild(existing)
-      renderExplosion(bomb);
-      playExplosion();
-      
-    } else if (!existing) {
-      const bombEl = bombPool[bombPoolIndex];
-      bombPoolIndex = (bombPoolIndex + 1) % bombPool.length;
-      bombEl.id = id;
-      bombEl.style.gridRowStart = bomb.y + 1;
-      bombEl.style.gridColumnStart = bomb.x + 1;
-      bombEl.className = 'tile b';
-      bombEl.style.display = '';
-      grid[bomb.y][bomb.x].typ = TileBomb;
-      layers.bombLayer.appendChild(bombEl);
-      playBombPlace();
-    }
-  }
-
-  for (let i = bombs.length - 1; i >= 0; i--) {
-    if (bombs[i].e) {
-      bombs.splice(i, 1);
-    }
-  }
-}
-
-export function updateGameState(data) {
-  gameData = data;
-}
-
 function renderLoop() {
-  drawPlayers(gameData.players);
-  drawBombs(gameData.map.bombs);
+  drawPlayers(gameData.players, gameData.map.grid);
+  drawBombs(gameData.map.bombs, gameData.map.grid);
   updatePlayerHUD(gameData.players);
   animationFrameId = requestAnimationFrame(renderLoop);
-}
-
-const validKeys = [
-  'ArrowUp',
-  'ArrowDown',
-  'ArrowLeft',
-  'ArrowRight',
-  'w', 'a', 's', 'd',
-  'W', 'A', 'S', 'D',
-  ' ', 'Space'
-];
-const keysPressed = [];
-
-function handleKeyDown(e) {
-  const key = e.key;
-  if (!validKeys.includes(key)) {
-    return;
-  }
-
-  e.preventDefault();
-  if (!keysPressed.includes(key)) {
-    keysPressed.push(key);
-
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.sendMessage({
-        action: "game",
-        player_name: currentPlayer,
-        content: JSON.stringify(keysPressed),
-      });
-    }
-  }
-}
-
-function handleKeyUp(e) {
-  const key = e.key;
-  if (!validKeys.includes(key)) return;
-
-  const index = keysPressed.indexOf(key);
-  if (index > -1) {
-    keysPressed.splice(index, 1);
-
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.sendMessage({
-        action: "game",
-        player_name: currentPlayer,
-        content: JSON.stringify(keysPressed),
-      });
-    }
-  }
 }
 
 export function stopGameApp(winnerName = "") {
@@ -408,6 +139,10 @@ export function stopGameApp(winnerName = "") {
   }, 3000); 
 }
 
+export function updateGameState(data) {
+  gameData = data;
+}
+
 export function updateGameMini(data) {
   gameData.ticks = data.t;
   
@@ -430,7 +165,7 @@ export function updateGameMini(data) {
     if (miniPlayer.l < oldLives) {
       console.log(`Player ${id} lost a life! ${oldLives} → ${miniPlayer.l}`);
       if (id === currentPlayer) {
-        playDeath(); // Only YOU hear your own death sound
+        playDeath();
         showFloatingText(miniPlayer.x, miniPlayer.y - 24, '-1 ❤️');
       }
     }
@@ -466,193 +201,4 @@ export function updateGameMini(data) {
     }
   }
   gameData.map.bombs = updatedBombs;
-  
-  // Smart HUD update - only updates when lives actually change
-}
-
-function renderExplosion(bomb) {
-  const grid = gameData.map.grid;
-
-  const { x, y, r } = bomb;
-  const width = grid[0].length;
-  const height = grid.length;
-  grid[y][x].typ = TileFlame;
-
-  const tiles = [];
-  tiles.push({ x, y });
-
-  const directions = [
-    { dx: 0, dy: -1 },
-    { dx: 0, dy: 1 },
-    { dx: -1, dy: 0 },
-    { dx: 1, dy: 0 }
-  ];
-
-  for (const { dx, dy } of directions) {
-    for (let i = 1; i <= r; i++) {
-      const nx = x + dx * i;
-      const ny = y + dy * i;
-
-      if (nx < 0 || ny < 0 || nx >= width || ny >= height) break;
-      const tileType = grid[ny][nx].typ;
-
-      if (tileType === TileWall || tileType == TileBomb) {
-        break;
-      } else if (tileType === TileBlock) {
-        grid[ny][nx].typ = TileDestroy;
-        const blockEl = document.getElementById(`block_${nx}_${ny}`);
-        if (blockEl) blockEl.classList.add('hidden');
-        tiles.push({ x: nx, y: ny });
-
-        if (grid[ny][nx].p_ups !== "") {
-          const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
-          powUpEl.style.display = "";
-        }
-        
-        break;
-
-      } else if (
-        tileType === TileEmpty ||
-        tileType == TileFlame ||
-        tileType == TileDestroy
-      ) {
-        grid[ny][nx].typ = TileFlame;
-        tiles.push({ x: nx, y: ny });
-
-        if (grid[ny][nx].p_ups !== "") {
-          const powUpEl = document.getElementById(`powup_${nx}_${ny}`);
-          if (powUpEl) powUpEl.remove();
-          grid[ny][nx].p_ups = "";
-        }
-      }
-    }
-  }
-
-  for (const tile of tiles) {
-    placeExplosion(tile.x, tile.y);
-  }
-
-  setTimeout(() => {
-    for (const tile of tiles) {
-      const { x, y } = tile;
-
-      flameGrid[y][x]--;
-      if (flameGrid[y][x] <= 0) {
-        const flame = document.getElementById(`flame_${x}_${y}`);
-        flame.id = ``;
-        flame.style.display = 'none';
-        flame.className = '';
-        layers.poolLayer.appendChild(flame)
-        flameGrid[y][x] = 0;
-        grid[y][x].typ = TileEmpty;
-      }
-    }
-  }, 450);
-}
-
-let exploPoolIndex = 0;
-function placeExplosion(x, y) {
-  flameGrid[y][x]++;
-  let flame = document.getElementById(`flame_${x}_${y}`);
-  
-  if (!flame) {
-    exploPoolIndex = (exploPoolIndex + 1) % exploPool.length;
-    const exploEl = exploPool[exploPoolIndex];
-    
-    exploEl.id = `flame_${x}_${y}`;
-    exploEl.style.gridRowStart = y + 1;
-    exploEl.style.gridColumnStart = x + 1;
-    exploEl.style.display = '';
-    exploEl.className = 'tile f';
-    layers.exploLayer.appendChild(exploEl);
-
-  } else {
-    flame.classList.remove("f");
-    void flame.offsetWidth;
-    flame.classList.add("f");
-  }
-}
-
-function showFloatingText(x, y, text) {
-  const floatText = document.createElement("div");
-  floatText.className = "floating-text";
-  floatText.textContent = text;
-  floatText.style.left = `${x}px`;
-  floatText.style.top = `${y}px`;
-
-  layers.playerLayer.appendChild(floatText);
-
-  setTimeout(() => floatText.remove(), 1000);
-}
-
-// Create HUD with player info
-function createPlayerHUD(players) {
-  console.log('[HUD] Creating HUD for players:', Object.keys(players));
-  const hud = document.getElementById('player-hud');
-  if (!hud) {
-    console.error('[HUD] player-hud element not found!');
-    return;
-  }
-  
-  // Clear existing content
-  hud.innerHTML = '';
-  
-  // Add each player's info
-  Object.keys(players).forEach(id => {
-    const player = players[id];
-    console.log(`[HUD] Adding player: ${player.name} (${player.col}) - Lives: ${player.lives}`);
-    
-    const playerDiv = document.createElement('div');
-    playerDiv.className = `player-info ${player.col}`;
-    playerDiv.innerHTML = `
-      <div class="player-name">${player.name}</div>
-      <div class="player-lives">${generateHearts(player.lives)}</div>
-    `;
-    hud.appendChild(playerDiv);
-  });
-  
-  // Update tracking object
-  previousLives = {};
-  Object.keys(players).forEach(id => {
-    previousLives[id] = players[id].lives;
-  });
-  
-  console.log('[HUD] HUD created successfully');
-}
-
-// Update HUD with current player data - only if lives changed
-function updatePlayerHUD(players) {
-  let hasChanges = false;
-  
-  // Check if lives changed for any player
-  Object.keys(players).forEach(id => {
-    if (previousLives[id] !== players[id].lives) {
-      console.log(`[HUD] Lives changed for ${players[id].name}: ${previousLives[id]} -> ${players[id].lives}`);
-      hasChanges = true;
-    }
-  });
-  
-  // Check if new players joined or left
-  const currentPlayerIds = Object.keys(players);
-  const previousPlayerIds = Object.keys(previousLives);
-  if (currentPlayerIds.length !== previousPlayerIds.length) {
-    console.log('[HUD] Player count changed');
-    hasChanges = true;
-  }
-  
-  // Only update if there are actual changes
-  if (hasChanges) {
-    console.log('[HUD] Updating HUD due to changes');
-    createPlayerHUD(players);
-  }
-}
-
-// Clear HUD
-function clearPlayerHUD() {
-  console.log('[HUD] Clearing HUD');
-  const hud = document.getElementById('player-hud');
-  if (hud) {
-    hud.innerHTML = '';
-  }
-  previousLives = {};
 }
