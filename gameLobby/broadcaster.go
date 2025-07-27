@@ -2,9 +2,11 @@ package gameLobby
 
 import (
 	"log"
+
 	"github.com/gorilla/websocket"
 )
 
+// broadcaster() send messages to all connected clients
 func (l *Lobby) broadcaster() {
 	for {
 		msg := <-l.msgQueue

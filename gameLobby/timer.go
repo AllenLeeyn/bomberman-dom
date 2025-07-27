@@ -6,11 +6,12 @@ import (
 	"time"
 )
 
+// timeController() to handle timerActions
 func (l *Lobby) timerController() {
 	for action := range l.timerCh {
 
 		if action == gameEndSignal {
-			time.Sleep(3300 * time.Millisecond)
+			time.Sleep(EndDuration)
 			l.state = StateInLobby
 		}
 		if l.state == StateInGame {
@@ -35,6 +36,8 @@ func (l *Lobby) timerController() {
 	}
 }
 
+// setTimerState() checks for number of player and send timerAction to timerController()
+// centralized function to determine what action to carry out
 func (l *Lobby) setTimerState() {
 	if playerCount := len(l.GetAllPlayerInfos()); playerCount == 4 {
 		l.timerCh <- gameStartTimer
@@ -45,6 +48,7 @@ func (l *Lobby) setTimerState() {
 	}
 }
 
+// startWaitingTimer() set lobby.state and send message to clients for waiting timer
 func (l *Lobby) startWaitingTimer() {
 	l.state = StateWaiting
 	l.timer = time.AfterFunc(time.Duration(waitDuration)*time.Second, l.timerCallback)
@@ -53,6 +57,7 @@ func (l *Lobby) startWaitingTimer() {
 	log.Println("Waiting timer started")
 }
 
+// gameStartTimerHandler() set lobby.state and send message to clients for game start timer
 func (l *Lobby) gameStartTimerHandler() {
 	l.state = StateStarting
 	l.timer = time.AfterFunc(time.Duration(startDuration)*time.Second, l.timerCallback)
@@ -61,12 +66,14 @@ func (l *Lobby) gameStartTimerHandler() {
 	log.Println("Starting timer started")
 }
 
+// stopTimerHandler() set lobby.state and send message to clients for stop timer
 func (l *Lobby) stopTimerHandler() {
 	l.state = StateInLobby
 	l.queuePublicMessage(`{"action":"timer","state":"stopped"}`)
 	log.Println("Timer stopped, back to in_lobby state")
 }
 
+// timerCallback() to check current lobby state and carry out relevant actions
 func (l *Lobby) timerCallback() {
 	l.mu.Lock()
 	defer l.mu.Unlock()

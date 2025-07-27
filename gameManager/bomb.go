@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// placeBomb() checks player state, tile type before creating a new instance of bomb
 func (g *Game) placeBomb(player *Player) {
 	if player.State != PlayerAlive {
 		return
@@ -39,6 +40,17 @@ func (g *Game) placeBomb(player *Player) {
 	g.Mini.Bombs = append(g.Mini.Bombs, newBomb.ToMini())
 }
 
+// findBombTile() based on player center to place it
+func (g *Game) findBombTile(player *Player) (int, int) {
+	playerCenterY := player.Y + PlayerSize/2
+	playerCenterX := player.X + PlayerSize/2
+
+	return playerCenterY / TileSize, playerCenterX / TileSize
+}
+
+// updateBombs() checks current bomb list.
+// if bomb has exloded, remove it.
+// if bomb timer is up, explode it.
 func (g *Game) updateBombs() {
 	now := time.Now()
 	activeBombs := make([]*Bomb, 0)
@@ -62,6 +74,7 @@ func (g *Game) updateBombs() {
 	g.GMap.Bombs, g.Mini.Bombs = activeBombs, activeMiniBombs
 }
 
+// explodeBomb() checks bomb radius and tile to change tile type to flame or destroy
 func (g *Game) explodeBomb(bomb *Bomb) {
 	x, y := bomb.X, bomb.Y
 	Radius := bomb.Radius
@@ -119,6 +132,8 @@ func (g *Game) explodeBomb(bomb *Bomb) {
 	}
 }
 
+// updateFlames() check each tile for flame or detroy and their expiry.
+// checks if player is in contact with flame too.
 func (g *Game) updateFlames() {
 	now := time.Now()
 
@@ -141,13 +156,8 @@ func (g *Game) updateFlames() {
 	}
 }
 
-func (g *Game) findBombTile(player *Player) (int, int) {
-	playerCenterY := player.Y + PlayerSize/2
-	playerCenterX := player.X + PlayerSize/2
-
-	return playerCenterY / TileSize, playerCenterX / TileSize
-}
-
+// checkFlames() chceks if player touches flame and register hit.
+// if player is dead after hot, check for winner
 func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRight int) {
 	now := time.Now()
 

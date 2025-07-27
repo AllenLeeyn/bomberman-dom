@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// listener() listen to play action and carry out relevant actions
 func (l *Lobby) listener() {
 	for action := range l.playerQueue {
 		switch action.kind {
@@ -33,6 +34,7 @@ func (l *Lobby) listener() {
 	}
 }
 
+// sendClientList() with user name and color
 func (l *Lobby) sendClientList(action string) {
 	type data struct {
 		Action          string   `json:"action"`

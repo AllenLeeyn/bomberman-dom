@@ -105,7 +105,7 @@ func (b *Bomb) ToMini() *BombMini {
 	}
 }
 
-// powerups
+// powerups struct and const
 type PowerUpType string
 
 const (
@@ -126,6 +126,7 @@ var PowerUpSetting = map[PowerUpType]int{
 	PowerUpLiveUp:    2,
 }
 
+// GetPowerSlice() creates a slice of PowerUpTypes for randomization and assignment
 func GetPowerUpsSlice(counts map[PowerUpType]int) []PowerUpType {
 	var powerUps []PowerUpType
 	for puType, count := range counts {

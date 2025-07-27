@@ -105,7 +105,7 @@ export const LobbyScreen = (state, onSend) =>
 
 // // Helper function to get player color by name
 function getPlayerColor(players, name) {
-  const player = players.find((p) => p.name === name);
+  const player = players.find((p) => p && typeof p === 'object' && p.name === name);
   const colorName = player?.color || "black";
   return themeColorMap[colorName] ?? "black";
 }

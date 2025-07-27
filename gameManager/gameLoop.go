@@ -9,6 +9,8 @@ import (
 
 const TickRate = time.Second / 60 // ~16.67ms per tick
 
+// gameLoop() on each tick/frame update bombs, players and flames if state is Playing
+// And send mini game state to clients
 func (g *Game) gameLoop() {
 	ticker := time.NewTicker(TickRate)
 	defer ticker.Stop()
@@ -45,6 +47,8 @@ func (g *Game) gameLoop() {
 	}
 }
 
+// CheckWinner() checks the number of living players.
+// And end game if 1 or less player is living
 func (g *Game) CheckWinner() {
 	livingPlayers := make([]string, 0, len(g.Players))
 

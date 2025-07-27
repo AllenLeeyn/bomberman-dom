@@ -33,8 +33,9 @@ type Lobby struct {
 type timerAction string
 
 const (
-	waitDuration  int = 5
-	startDuration int = 10
+	waitDuration  int           = 20
+	startDuration int           = 10
+	EndDuration   time.Duration = time.Second * 4
 
 	stopTimer      timerAction = "stop"
 	resetTimer     timerAction = "reset"
@@ -52,12 +53,14 @@ const (
 	StateEndGame  LobbyState = "end_game"
 )
 
+// AddPlayer() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) AddPlayer(p *player) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.players[p.PlayerName] = p
 }
 
+// RemovePlayer() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) RemovePlayer(playerName string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -69,18 +72,21 @@ func (l *Lobby) RemovePlayer(playerName string) {
 	}
 }
 
+// GetPlayer() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) GetPlayer(playerName string) *player {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.players[playerName]
 }
 
+// GetState() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) GetState() LobbyState {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.state
 }
 
+// GetAllPlayerInfos() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) GetAllPlayerInfos() [][]string {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -93,6 +99,7 @@ func (l *Lobby) GetAllPlayerInfos() [][]string {
 	return infos
 }
 
+// HasPlayer() with mutex.Lock to ensure concurrency safety
 func (l *Lobby) HasPlayer(playerName string) bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()

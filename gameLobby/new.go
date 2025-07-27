@@ -17,6 +17,8 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// New() to create a new instance of lobby.
+// Starts the listener, braodcaster and timerController
 func New() *Lobby {
 	l := &Lobby{
 		colorSet: newColorSet(),
@@ -34,6 +36,7 @@ func New() *Lobby {
 	return l
 }
 
+// WebSocketUpgrade() upgrades a http request to webSocket connection
 func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -58,6 +61,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 	go l.handleConnection(pl)
 }
 
+// validateJoinRequest() validates name and and check lobby status
 func (l *Lobby) validateJoinRequest(name string) (string, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
@@ -83,6 +87,7 @@ func (l *Lobby) validateJoinRequest(name string) (string, error) {
 	return color, nil
 }
 
+// sendError() using webSocket.Conn
 func sendError(conn *websocket.Conn, reason string) {
 	message := map[string]string{
 		"action": "reject",
@@ -93,6 +98,7 @@ func sendError(conn *websocket.Conn, reason string) {
 	}
 }
 
+// queuePublicMessage() to send to all users
 func (l *Lobby) queuePublicMessage(content string) {
 	l.msgQueue <- Message{
 		Action:     "chat",
@@ -101,6 +107,8 @@ func (l *Lobby) queuePublicMessage(content string) {
 	}
 }
 
+// StartGame() create a new game instance and start it.
+// Waits for end signal and queue the next game
 func (l *Lobby) startGame() {
 	l.game = gameManager.NewGame(l.players, l.msgQueue, l.endQueue)
 	l.game.Start()
