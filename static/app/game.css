@@ -4,10 +4,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(90vw, 720px);
-  height: min(80vh, 624px);
-  max-width: 720px;
-  max-height: 624px;
+  width: 720px;
+  height: 624px;
 
   aspect-ratio: 15/13;
 
@@ -87,7 +85,7 @@ body.in-game #player-hud {
   #player-hud {
     font-size: 1rem;
     padding: 10px 12px;
-    top: 10px;
+    top: 0px;
   }
   
   .player-name {
@@ -104,27 +102,22 @@ body.in-game #player-hud {
   }
 }
 
-@media (max-width: 480px) {
-  #player-hud {
-    flex-direction: column;
-    gap: 8px;
-    height: auto;
-    padding: 12px;
-    font-size: 0.9rem;
+@media (max-height: 437px) {
+  #game-root {
+    margin-top: 240px;
   }
-  
-  .player-info {
-    width: 100%;
-    justify-content: space-between;
-    padding: 8px 12px;
+
+  #player-hud {
+    gap: 8px;
+    top: -120px;
   }
   
   .player-name {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
   .player-lives {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 }
 

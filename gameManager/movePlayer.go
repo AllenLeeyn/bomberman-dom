@@ -11,20 +11,17 @@ func (g *Game) movePlayer(player *Player, lastKey string) {
 	playerTileRight := (player.X + PlayerSize - 1) / TileSize
 
 	switch lastKey {
-	case "ArrowUp", "w", "W":
+	case "ArrowUp", "w", "W", "up":
 		g.moveUp(player, playerTileTop, playerTileLeft, playerTileRight)
 
-	case "ArrowDown", "s", "S":
+	case "ArrowDown", "s", "S", "down":
 		g.moveDown(player, playerTileBottom, playerTileLeft, playerTileRight)
 
-	case "ArrowLeft", "a", "A":
+	case "ArrowLeft", "a", "A", "left":
 		g.moveLeft(player, playerTileTop, playerTileBottom, playerTileLeft)
 
-	case "ArrowRight", "d", "D":
+	case "ArrowRight", "d", "D", "right":
 		g.moveRight(player, playerTileTop, playerTileBottom, playerTileRight)
-
-	default:
-		player.Direction = ""
 	}
 }
 

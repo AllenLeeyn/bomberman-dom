@@ -83,7 +83,7 @@ func (g *Game) updatePlayersAction() {
 		lastIndex := len(player.KeyPresses) - 1
 		lastKey := player.KeyPresses[lastIndex]
 
-		if lastKey == " " || lastKey == "Space" {
+		if lastKey == " " || lastKey == "Space" || lastKey == "bomb" {
 			g.placeBomb(player)
 
 			player.KeyPresses = player.KeyPresses[:lastIndex]

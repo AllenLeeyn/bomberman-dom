@@ -7,6 +7,7 @@ import { drawTiles } from './game/tile.js';
 import { AddKeyEvents } from './game/handleKeyEvents.js';
 import { createPlayerHUD, updatePlayerHUD, clearPlayerHUD, showFloatingText } from './game/hud.js';
 import { createPlayers, drawPlayers } from './game/player.js';
+import { isMobileDevice, initMobileControls } from '../mobile.js';
 import {
   playDeath,
   startBackgroundMusic,
@@ -74,6 +75,11 @@ export function startGameApp(data, playerName) {
   gameRoot.setAttribute("tabindex", "0");
   gameRoot.focus();
   AddKeyEvents(gameRoot, playerName)
+
+  console.warn(isMobileDevice())
+  if (isMobileDevice()) {
+    initMobileControls()
+  }
 
   const board = assets.getAsset('board');
   const bomb = assets.getAsset('b');

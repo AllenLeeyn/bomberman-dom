@@ -8,33 +8,45 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="./static/app/style.css" />
   <link rel="stylesheet" href="./static/app/game.css" />
+  <link rel="stylesheet" href="./static/app/mobile.css" />
 </head>
 <body>
-  <!-- Player HUD - positioned above game area -->
-  <div id="player-hud"></div>
-  
-  <div id="game-root">
-    <div id="pool-layer">
+  <div id="game-wrapper">
+
+    <!-- Player HUD - positioned above game area -->
+    <div id="player-hud"></div>
+    
+    <div id="game-root">
+      <div id="pool-layer">
+      </div>
+
+      <div id="tile-layer">
+      </div>
+
+      <div id="bomb-layer">
+      </div>
+
+      <div id="block-layer">
+      </div>
+
+      <div id="explosion-layer">
+      </div>
+
+      <div id="player-layer">
+      </div>
+    </div> 
+
+    <div id="mobile-controls" style="display: none;">
+      <div id="joystick-container">
+        <div id="joystick"></div>
+      </div>
+      <div id="bomb-button">💣</div>
     </div>
 
-    <div id="tile-layer">
+    <div id="app">
     </div>
+    <script type="module" src="./static/app/app.js"></script>
 
-    <div id="bomb-layer">
-    </div>
-
-    <div id="block-layer">
-    </div>
-
-    <div id="explosion-layer">
-    </div>
-
-    <div id="player-layer">
-    </div>
-  </div> 
-
-  <div id="app">
   </div>
-  <script type="module" src="./static/app/app.js"></script>
 </body>
 </html>

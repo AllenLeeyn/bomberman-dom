@@ -463,14 +463,24 @@ h2 {
 }
 /* --------------Responsive------------ */
 
-@media (max-width: 1200px) and (min-width: 650px) {
-  body {
-    margin: 40px;
-  }
-  
+#game-wrapper {
+  transform: scale(1);
+}
+
+@media (max-height: 623px) {
   #app {
-    width: 90vw;
-    max-width: 720px;
-    min-height: 624px;
+    margin-top: 200px; 
+  }
+  #game-wrapper {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-height: 437px) {
+  #app {
+    margin-top: 150px; 
+  }
+  #game-wrapper {
+    transform: scale(0.55);
   }
 }

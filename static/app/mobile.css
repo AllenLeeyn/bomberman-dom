@@ -1,0 +1,45 @@
+#mobile-controls {
+  transform: translate(-50%, 90%);
+  position: absolute;
+  z-index: 7;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+#joystick-container {
+  position: absolute;
+  left: -150px;
+  width: 180px;
+  height: 180px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  touch-action: none;
+  pointer-events: auto;
+}
+#joystick {
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 50%;
+  position: relative;
+  left: 65px;
+  top: 65px;
+}
+
+#bomb-button {
+  position: absolute;
+  right: -50px;
+  top: 60px;
+  width: 80px;
+  height: 80px;
+  font-size: 32px;
+  background: #ff4d4d;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  pointer-events: auto;
+}
