@@ -12,6 +12,12 @@ let oldVNode = null;
 let prevState = null;
 
 function renderApp() {
+  if (isMobileDevice()) {
+    document.addEventListener("touchstart", function onFirstTouch() {
+      requestFullscreen();
+      document.removeEventListener("touchstart", onFirstTouch);
+    });
+  }
 
   if (state.state !== "in_game") {
     if (prevState === "in_game") {
@@ -64,11 +70,4 @@ function requestFullscreen() {
   } else if (elem.msRequestFullscreen) { // IE/Edge
     elem.msRequestFullscreen();
   }
-}
-
-if (isMobileDevice()) {
-  document.addEventListener("touchstart", function onFirstTouch() {
-    requestFullscreen();
-    document.removeEventListener("touchstart", onFirstTouch);
-  });
 }
