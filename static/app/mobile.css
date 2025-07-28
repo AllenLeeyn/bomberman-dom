@@ -1,5 +1,5 @@
 #mobile-controls {
-  transform: translate(-50%, 90%);
+  transform: translate(-50%, 60%);
   position: absolute;
   z-index: 7;
   width: 100vw;
@@ -9,7 +9,7 @@
 
 #joystick-container {
   position: absolute;
-  left: -150px;
+  left: -200px;
   width: 180px;
   height: 180px;
   background: rgba(255,255,255,0.1);
@@ -29,7 +29,7 @@
 
 #bomb-button {
   position: absolute;
-  right: -80px;
+  right: -200px;
   top: 60px;
   width: 120px;
   height: 120px;
