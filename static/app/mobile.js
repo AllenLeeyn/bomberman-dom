@@ -75,7 +75,7 @@ export function initMobileControls() {
   bombTouchHandler = function() {
     socket.sendMessage({
       action: "game",
-      content: JSON.stringify(["bomb", currentDirection]),
+      content: JSON.stringify(["bomb"]),
     });
   };
 
