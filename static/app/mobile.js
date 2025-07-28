@@ -42,7 +42,7 @@ export function initMobileControls() {
     let dx = touch.clientX - touchStart.x;
     let dy = touch.clientY - touchStart.y;
 
-    let threshold = 5;
+    let threshold = 10;
     let direction = null;
 
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -59,8 +59,8 @@ export function initMobileControls() {
         action: "game",
         content: JSON.stringify([currentDirection]),
       });
+      touchStart = { x: touch.clientX, y: touch.clientY };
     }
-    touchStart = { x: touch.clientX, y: touch.clientY };
   };
 
   joystickEndHandler = function(e) {

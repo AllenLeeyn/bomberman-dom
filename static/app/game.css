@@ -17,7 +17,7 @@
 /* Player HUD positioned above game area */
 #player-hud {
   position: fixed;
-  top: 20px;
+  top: -50px;
   left: 50%;
   transform: translateX(-50%);
   width: min(90vw, 720px);

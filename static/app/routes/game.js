@@ -130,6 +130,9 @@ export function stopGameApp(winnerName = "") {
     animationFrameId = null;
   }
 
+  const controls = document.getElementById('mobile-controls');
+  controls.style.display = 'none';
+
   const winnerOverlay = document.createElement("div");
   winnerOverlay.className = "winner-overlay";
   winnerOverlay.textContent = winnerName
