@@ -59,8 +59,8 @@ export function initMobileControls() {
         action: "game",
         content: JSON.stringify([currentDirection]),
       });
+      touchStart = { x: touch.clientX, y: touch.clientY };
     }
-    touchStart = { x: touch.clientX, y: touch.clientY };
   };
 
   joystickEndHandler = function(e) {
