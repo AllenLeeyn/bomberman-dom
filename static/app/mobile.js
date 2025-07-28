@@ -62,7 +62,7 @@ export function initMobileControls() {
     }
   };
 
-  joystickEndHandler = function() {
+  joystickEndHandler = function(e) {
     if (e.touches && e.touches.length > 0) return;
     currentDirection = null;
     socket.sendMessage({
