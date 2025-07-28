@@ -42,7 +42,7 @@ export function initMobileControls() {
     let dx = touch.clientX - touchStart.x;
     let dy = touch.clientY - touchStart.y;
 
-    let threshold = 5;
+    let threshold = 2;
     let direction = null;
 
     if (Math.abs(dx) > Math.abs(dy)) {
