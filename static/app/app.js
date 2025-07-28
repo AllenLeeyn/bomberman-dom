@@ -71,3 +71,16 @@ function requestFullscreen() {
     elem.msRequestFullscreen();
   }
 }
+
+function resetViewportScale() {
+  // Force a slight scroll and back to trigger repaint
+  window.scrollTo(0, 1);
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener("orientationchange", () => {
+  // Wait for the layout to settle
+  setTimeout(() => {
+    resetViewportScale();
+  }, 300);
+});
