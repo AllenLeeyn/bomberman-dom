@@ -4,6 +4,7 @@ import { router, update } from '../framework/domber.js'
 import { LobbyScreen } from './routes/chat.js';
 import { JoinScreen } from './routes/join.js';
 import { startLobbyMusic } from './sound.js';
+import { isMobileDevice } from "./mobile.js";
 const root = document.getElementById('app');
 const gameRoot = document.getElementById('game-root');
 
@@ -11,6 +12,12 @@ let oldVNode = null;
 let prevState = null;
 
 function renderApp() {
+  if (isMobileDevice()) {
+    document.addEventListener("touchstart", function onFirstTouch() {
+      requestFullscreen();
+      document.removeEventListener("touchstart", onFirstTouch);
+    });
+  }
 
   if (state.state !== "in_game") {
     if (prevState === "in_game") {
@@ -52,3 +59,15 @@ renderApp();
 subscribe(renderApp);
 
 router.start();
+
+function requestFullscreen() {
+  const elem = document.documentElement; // or a specific container
+
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { // Safari
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { // IE/Edge
+    elem.msRequestFullscreen();
+  }
+}

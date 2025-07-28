@@ -76,7 +76,6 @@ export function startGameApp(data, playerName) {
   gameRoot.focus();
   AddKeyEvents(gameRoot, playerName)
 
-  console.warn(isMobileDevice())
   if (isMobileDevice()) {
     initMobileControls()
   }
