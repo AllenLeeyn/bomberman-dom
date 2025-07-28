@@ -9,7 +9,7 @@ const themeColorMap = {
   yellow: "#f1c40f",
 };
 
-export const LobbyScreen = (state, onSend) =>
+export const LobbyScreen = (state, onSend, onColorChange) =>
   h("div", { id: "lobby-screen", class: state.connected ? "active" : "" }, [
     // Timer display if active
     state.timerDuration > 0
@@ -33,6 +33,11 @@ export const LobbyScreen = (state, onSend) =>
                 state.players,
                 player.name
               )}`,
+              onclick: () => {
+                if (player.name === state.playerName) {
+                  onColorChange();
+                }
+              }
             },
             player.name
           )

@@ -1,7 +1,6 @@
 package gameLobby
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -32,18 +31,13 @@ func (l *Lobby) getNextAvailableColor() (string, bool) {
 // processColorChange() handles color change request
 // not yet tested and implemented
 func (l *Lobby) processColorChange(msgData *Message) error {
-	newColor := msgData.Content
+	newColor, _ := l.getNextAvailableColor()
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.state != StateInLobby {
+	if l.state != StateInLobby && l.state != StateWaiting {
 		return nil
-	}
-	if taken, exists := l.colorSet[newColor]; !exists {
-		return fmt.Errorf("color %s does not exist", newColor)
-	} else if taken {
-		return fmt.Errorf("color %s is already taken", newColor)
 	}
 
 	p := l.players[msgData.PlayerName]

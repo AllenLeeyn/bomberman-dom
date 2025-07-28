@@ -1,5 +1,5 @@
 import { state, subscribe } from "./store.js"
-import { joinLobby, sendMessage } from "./ws.js"
+import { joinLobby, sendMessage, sendColorChange } from "./ws.js"
 import { router, update } from '../framework/domber.js'
 import { LobbyScreen } from './routes/chat.js';
 import { JoinScreen } from './routes/join.js';
@@ -21,7 +21,7 @@ function renderApp() {
   }
 
   const newVNode = state.connected
-    ? LobbyScreen(state, sendMessage)
+    ? LobbyScreen(state, sendMessage, sendColorChange)
     : JoinScreen(state, joinLobby);
     
     if (state.state === "in_game") {

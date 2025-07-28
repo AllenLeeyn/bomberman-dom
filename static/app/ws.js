@@ -39,6 +39,13 @@ export function sendMessage(msg) {
   }
 };
 
+export function sendColorChange() {
+  const socket = getSocket('lobby');
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.sendMessage({ action: "colorChange" });
+  }
+};
+
 function safeParse(data) {
   try {
     return JSON.parse(data);
@@ -71,7 +78,7 @@ function handleMessage(event) {
   } else if (data.action === 'timer') {
     setTimerState(data.state, data.duration);
 
-  }else if (data.action === 'join') {
+  }else if (data.action === 'join' || data.action === "colorChange") {
     handleJoin(data)
 
   } else if (data.action === 'offline') {
