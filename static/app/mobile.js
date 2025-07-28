@@ -42,7 +42,7 @@ export function initMobileControls() {
     let dx = touch.clientX - touchStart.x;
     let dy = touch.clientY - touchStart.y;
 
-    let threshold = 15;
+    let threshold = 10;
     let direction = null;
 
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -63,6 +63,8 @@ export function initMobileControls() {
   };
 
   joystickEndHandler = function() {
+    if (e.touches.length > 0) return;
+
     currentDirection = null;
     socket.sendMessage({
       action: "game",
@@ -79,8 +81,8 @@ export function initMobileControls() {
   };
 
   // 🎯 Add new listeners
-  joystick.addEventListener('touchstart', joystickStartHandler);
-  joystick.addEventListener('touchmove', joystickMoveHandler);
-  joystick.addEventListener('touchend', joystickEndHandler);
-  bomb.addEventListener('touchstart', bombTouchHandler);
+  joystick.addEventListener('touchstart', joystickStartHandler, { passive: false });
+  joystick.addEventListener('touchmove', joystickMoveHandler, { passive: false });
+  joystick.addEventListener('touchend', joystickEndHandler, { passive: false });
+  bomb.addEventListener('touchstart', bombTouchHandler, { passive: false });
 }
