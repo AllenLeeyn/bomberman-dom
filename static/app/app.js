@@ -12,14 +12,6 @@ let oldVNode = null;
 let prevState = null;
 
 function renderApp() {
-  if (isMobileDevice()) {
-    document.addEventListener("touchstart", function onFirstTouch() {
-      requestFullscreen();
-      requestLandscape();
-      document.removeEventListener("touchstart", onFirstTouch);
-    });
-  }
-
   if (state.state !== "in_game") {
     if (prevState === "in_game") {
       startLobbyMusic(true); // restart from 0
@@ -56,6 +48,7 @@ router.setNotFoundHandler(() => {
   };
 });
 
+setupMobileInteraction();
 renderApp();
 subscribe(renderApp);
 
@@ -94,3 +87,15 @@ window.addEventListener("orientationchange", () => {
     resetViewportScale();
   }, 300);
 });
+
+function setupMobileInteraction() {
+  if (!isMobileDevice()) return;
+
+  const onFirstTouch = () => {
+    requestFullscreen();
+    requestLandscape();
+    document.removeEventListener("touchend", onFirstTouch);
+  };
+
+  document.addEventListener("touchend", onFirstTouch, { passive: true });
+}
