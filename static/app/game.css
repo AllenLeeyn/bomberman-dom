@@ -278,7 +278,6 @@ body.in-game #player-hud {
 }
 
 /* Assign colors via class or inline style */
-
 .player.red {
   background-color: #ff1493;
 }
@@ -290,6 +289,19 @@ body.in-game #player-hud {
 }
 .player.yellow {
   background-color: #f1c40f;
+}
+
+.player-arrow {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid red;
+  z-index: 5;
 }
 
 .floating-text {

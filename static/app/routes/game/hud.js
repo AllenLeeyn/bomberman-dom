@@ -9,7 +9,7 @@ function generateHearts(lives) {
 }
 
 // Create HUD with player info
-export function createPlayerHUD(players) {
+export function createPlayerHUD(players, curPlayer) {
   console.log('[HUD] Creating HUD for players:', Object.keys(players));
   const hud = document.getElementById('player-hud');
   if (!hud) {
@@ -23,12 +23,14 @@ export function createPlayerHUD(players) {
   // Add each player's info
   Object.keys(players).forEach(id => {
     const player = players[id];
+    const isCurrentPlayer = player.name === curPlayer;
     console.log(`[HUD] Adding player: ${player.name} (${player.col}) - Lives: ${player.lives}`);
     
     const playerDiv = document.createElement('div');
     playerDiv.className = `player-info ${player.col}`;
+
     playerDiv.innerHTML = `
-      <div class="player-name">${player.name}</div>
+      <div class="player-name">${isCurrentPlayer ? `⮞ ${player.name} ⮜` : player.name}</div>
       <div class="player-lives">${generateHearts(player.lives)}</div>
     `;
     hud.appendChild(playerDiv);

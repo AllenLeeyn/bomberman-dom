@@ -24,24 +24,24 @@ export const LobbyScreen = (state, onSend, onColorChange) =>
       h(
         "ul",
         { id: "player-list" },
-        state.players.map((player) =>
-          // h('li', { class: `player ${player.color}` }, player.name)
-          h(
+        state.players.map((player) =>{
+          const color = getPlayerColor(state.players, player.name);
+          const isCurrentPlayer = player.name === state.playerName;
+          const style = `background-color: ${color};`;
+
+          return h(
             "li",
             {
-              style: `background-color: ${getPlayerColor(
-                state.players,
-                player.name
-              )}`,
+              style: style,
               onclick: () => {
                 if (player.name === state.playerName) {
                   onColorChange();
                 }
               }
             },
-            player.name
+            isCurrentPlayer ? `⮞ ${player.name} ⮜` : player.name
           )
-        )
+        })
       ),
     ]),
     h(

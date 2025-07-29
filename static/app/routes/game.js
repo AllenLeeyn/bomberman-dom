@@ -99,8 +99,8 @@ export function startGameApp(data, playerName) {
 
   renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers);
-  createPlayers(gameData.players, layers.playerLayer)
-  createPlayerHUD(gameData.players);
+  createPlayers(gameData.players, layers.playerLayer, playerName)
+  createPlayerHUD(gameData.players, playerName);
   startBackgroundMusic();
 
   bombPool = createSpritePool(layers.poolLayer, 20, 'b', assets, 'tile b');

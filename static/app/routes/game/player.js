@@ -16,13 +16,18 @@ const powerUpMessages = {
   liveUp: "+1 Life",
 };
 
-export function createPlayers(players, playerLayer) {
+export function createPlayers(players, playerLayer, curPlayer) {
   for (const id in players) {
     const player = players[id];
     const el = document.createElement("div");
     el.className = `player`;
     el.id = `player_${id}`;
 
+    if (id === curPlayer) {
+      const arrow = document.createElement('div');
+      arrow.className = 'player-arrow';
+      el.appendChild(arrow);
+    }
     el.style.transform = `translate(${player.x}px, ${player.y}px)`;
 
     const directions = ['front', 'back', 'left', 'right', 'dead'];
