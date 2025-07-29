@@ -120,10 +120,10 @@ const (
 var PowerUpSetting = map[PowerUpType]int{
 	PowerUpBomb:      11,
 	PowerUpFlame:     5,
-	PowerUpSpeed:     3,
+	PowerUpSpeed:     2,
 	PowerUpBombPass:  1,
 	PowerUpBlockPass: 1,
-	PowerUpLiveUp:    2,
+	PowerUpLiveUp:    3,
 }
 
 // GetPowerSlice() creates a slice of PowerUpTypes for randomization and assignment
@@ -203,7 +203,7 @@ const (
 	TileFlame   = "f"
 
 	DefaultBombCount      = 2
-	DefaultSpeed          = 5
+	DefaultSpeed          = 4
 	DefaultLives          = 3
 	DefaultBombRadius     = 2
 	BombFuseDuration      = 3 * time.Second
