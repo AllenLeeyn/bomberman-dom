@@ -15,6 +15,7 @@ function renderApp() {
   if (isMobileDevice()) {
     document.addEventListener("touchstart", function onFirstTouch() {
       requestFullscreen();
+      requestLandscape();
       document.removeEventListener("touchstart", onFirstTouch);
     });
   }
@@ -69,6 +70,15 @@ function requestFullscreen() {
     elem.webkitRequestFullscreen();
   } else if (elem.msRequestFullscreen) { // IE/Edge
     elem.msRequestFullscreen();
+  }
+}
+
+function requestLandscape() {
+  const screenOrientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
+  if (screenOrientation && screenOrientation.lock) {
+    screenOrientation.lock('landscape').catch((err) => {
+      console.warn("Orientation lock failed:", err);
+    });
   }
 }
 
