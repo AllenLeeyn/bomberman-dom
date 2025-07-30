@@ -30,7 +30,7 @@ export function createPlayerHUD(players, curPlayer) {
     playerDiv.className = `player-info ${player.col}`;
 
     playerDiv.innerHTML = `
-      <div class="player-name">${isCurrentPlayer ? `⮞ ${player.name} ⮜` : player.name}</div>
+      <div class="player-name">${isCurrentPlayer ? `→ ${player.name} ←` : player.name}</div>
       <div class="player-lives">${generateHearts(player.lives)}</div>
     `;
     hud.appendChild(playerDiv);

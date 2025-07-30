@@ -39,7 +39,7 @@ export const LobbyScreen = (state, onSend, onColorChange) =>
                 }
               }
             },
-            isCurrentPlayer ? `⮞ ${player.name} ⮜` : player.name
+            isCurrentPlayer ? `→ ${player.name} ←` : player.name
           )
         })
       ),
