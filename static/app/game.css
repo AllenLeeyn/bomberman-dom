@@ -371,18 +371,16 @@ body.in-game #player-hud {
 
 @keyframes elongate-fade-out {
   0% {
-    transform: scaleX(1);
-    transform-origin: center;
+    transform: scaleY(1);
   }
   100% {
-    transform: scaleX(0);
-    transform-origin: center;
+    transform: scaleY(0);
   }
 }
 
 .elongate-death {
   animation: elongate-fade-out 1s ease-out forwards;
-  transform-origin: center bottom; /* squash from the feet upward */
+  transform-origin: center;
 }
 
 /* Hide when not in use */
@@ -451,4 +449,15 @@ body.in-game #player-hud {
   background-repeat: no-repeat;
   animation: spike-rise 0.7s steps(6) forwards;
   background-size: 336px 48px;
+}
+
+.spike-warning {
+  background-color: rgba(255, 0, 0, 0.3);
+  animation: flash-red 0.3s ease-in-out infinite alternate;
+  pointer-events: none; /* optional: prevents interaction blocking */
+}
+
+@keyframes flash-red {
+  from { background-color: rgba(255, 0, 0, 0.3); }
+  to   { background-color: rgba(255, 0, 0, 0); }
 }

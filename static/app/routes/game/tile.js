@@ -77,3 +77,42 @@ function spikeTile(y, x, gameData) {
   spikeEl.style.gridRow = y + 1;
   document.getElementById('spike-layer').appendChild(spikeEl);
 }
+
+export function drawSpikeWarning(level, gameData) {
+  const tiles = [];
+  const rowStart = level;
+  const rowEnd = gameData.map.w - level - 1;
+  const colStart = level;
+  const colEnd = gameData.map.h - level - 1;
+
+  for (let y = colStart; y <= colEnd; y++) {
+    warnTile(y, rowStart, gameData);
+    warnTile(y, rowEnd, gameData);
+  }
+  for (let x = rowStart; x <= rowEnd; x++) {
+    warnTile(colStart, x, gameData);
+    warnTile(colEnd, x, gameData);
+  }
+
+  return tiles;
+}
+
+function warnTile(y, x, gameData) {
+  const grid = gameData.map.grid
+  const tile = grid[y][x];
+  if (tile.typ === TileWall) {
+    return;
+  }
+  const warnEl = document.getElementById(`warn${x}_${y}`);
+  if (!warnEl) {
+    const tileEl = document.createElement('div');
+    tileEl.id = `warn${x}_${y}`;
+    tileEl.classList.add("spike-warning");
+    tileEl.style.gridColumn = x + 1;
+    tileEl.style.gridRow = y + 1;
+    document.getElementById('spike-layer').appendChild(tileEl);
+    setTimeout(() => {
+      tileEl.remove();
+    }, 2500);
+  }
+}
