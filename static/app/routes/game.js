@@ -3,7 +3,7 @@ import { useLayers, renderTileLayer, createSpritePool, clearLayers } from '../la
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 import { drawBombs } from './game/bomb.js';
-import { drawTiles } from './game/tile.js';
+import { drawTiles, drawSpikeMap } from './game/tile.js';
 import { AddKeyEvents } from './game/handleKeyEvents.js';
 import { createPlayerHUD, updatePlayerHUD, clearPlayerHUD, showFloatingText } from './game/hud.js';
 import { createPlayers, drawPlayers } from './game/player.js';
@@ -113,6 +113,17 @@ function renderLoop() {
   drawPlayers(gameData.players, gameData.map.grid);
   drawBombs(gameData.map.bombs, gameData.map.grid);
   updatePlayerHUD(gameData.players);
+  switch (gameData.ticks) {
+    case 7200:
+      drawSpikeMap(1, gameData);
+      break;
+    case 8100:
+      drawSpikeMap(2, gameData);
+      break;
+    case 9000:
+      drawSpikeMap(3, gameData);
+      break;
+  }
   animationFrameId = requestAnimationFrame(renderLoop);
 }
 

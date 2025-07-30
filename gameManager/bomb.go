@@ -178,7 +178,11 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 		g.GMap.Grid[tileTop][tileLeft].Type == TileDestroy ||
 		g.GMap.Grid[tileTop][tileRight].Type == TileDestroy ||
 		g.GMap.Grid[tileBottom][tileLeft].Type == TileDestroy ||
-		g.GMap.Grid[tileBottom][tileRight].Type == TileDestroy
+		g.GMap.Grid[tileBottom][tileRight].Type == TileDestroy ||
+		g.GMap.Grid[tileTop][tileLeft].Type == TileSpike ||
+		g.GMap.Grid[tileTop][tileRight].Type == TileSpike ||
+		g.GMap.Grid[tileBottom][tileLeft].Type == TileSpike ||
+		g.GMap.Grid[tileBottom][tileRight].Type == TileSpike
 
 	if isHit {
 		player.Lives--

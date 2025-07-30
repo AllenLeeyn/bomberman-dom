@@ -30,6 +30,14 @@ func (g *Game) gameLoop() {
 		g.updatePlayersAction()
 		g.updateFlames()
 		g.checkPlayerCollisions()
+		switch g.TickCount {
+		case 7200:
+			g.spikeMap(1)
+		case 8100:
+			g.spikeMap(2)
+		case 9000:
+			g.spikeMap(3)
+		}
 		g.TickCount++
 
 		miniCopy := *g.Mini

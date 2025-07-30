@@ -128,6 +128,7 @@ body.in-game #player-hud {
 
 #pool-layer,
 #tile-layer,
+#spike-layer,
 #bomb-layer,
 #block-layer,
 #player-layer,
@@ -158,22 +159,26 @@ body.in-game #player-hud {
   z-index: 1;
 }
 
-#bomb-layer {
+#spike-layer {
   z-index: 2;
+}
+
+#bomb-layer {
+  z-index: 3;
   will-change: opacity, transform, filter;
 }
 
 #block-layer {
-  z-index: 3;
+  z-index: 4;
 }
 
 #explosion-layer {
-  z-index: 4;
+  z-index: 5;
   will-change: opacity, filter;
 }
 
 #player-layer {
-  z-index: 5; /* On top of everything */
+  z-index: 6; /* On top of everything */
   pointer-events: none;
 }
 
@@ -367,9 +372,11 @@ body.in-game #player-hud {
 @keyframes elongate-fade-out {
   0% {
     transform: scaleX(1);
+    transform-origin: center;
   }
   100% {
     transform: scaleX(0);
+    transform-origin: center;
   }
 }
 
@@ -426,4 +433,22 @@ body.in-game #player-hud {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
+}
+
+@keyframes spike-rise {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -288px 0; /* 6 * 48px (frame count - 1) */
+  }
+}
+
+.spike {
+  width: 48px;
+  height: 48px;
+  background-image: url('assets/spike.png');
+  background-repeat: no-repeat;
+  animation: spike-rise 0.7s steps(6) forwards;
+  background-size: 336px 48px;
 }

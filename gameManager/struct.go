@@ -201,6 +201,7 @@ const (
 	TileDestroy = "d"
 	TilePowerUp = "p"
 	TileFlame   = "f"
+	TileSpike   = "s"
 
 	DefaultBombCount      = 2
 	DefaultSpeed          = 4

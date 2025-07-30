@@ -1,6 +1,7 @@
 const LAYER_IDS = [
     'pool-layer',
     'tile-layer',
+    'spike-layer',
     'bomb-layer',
     'block-layer',
     'explosion-layer',
@@ -20,6 +21,7 @@ export function useLayers(gameRoot) {
     return {
         poolLayer:   gameRoot.querySelector('#pool-layer'),
         tileLayer:   gameRoot.querySelector('#tile-layer'),
+        spikeLayer:  gameRoot.querySelector('#spike-layer'),
         blockLayer:  gameRoot.querySelector('#block-layer'),
         bombLayer:   gameRoot.querySelector('#bomb-layer'),
         exploLayer:  gameRoot.querySelector('#explosion-layer'),

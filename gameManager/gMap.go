@@ -2,6 +2,7 @@ package gameManager
 
 import (
 	"math/rand/v2"
+	"time"
 )
 
 // NewGMap() creates a standard grid map with fixed walls,
@@ -57,4 +58,34 @@ func NewGMap(width, height int) *GMap {
 		Walls:  walls,
 		Bombs:  []*Bomb{},
 	}
+}
+
+func (g *Game) spikeMap(level int) {
+	rowStart, rowEnd := level, g.GMap.Width-level-1
+	colStart, colEnd := level, g.GMap.Height-level-1
+
+	for y := colStart; y <= colEnd; y++ {
+		g.spikeTile(y, rowStart)
+		g.spikeTile(y, rowEnd)
+	}
+	for x := rowStart; x <= rowEnd; x++ {
+		g.spikeTile(colStart, x)
+		g.spikeTile(colEnd, x)
+	}
+}
+
+func (g *Game) spikeTile(y, x int) {
+	if g.GMap.Grid[y][x].Type == TileWall || g.GMap.Grid[y][x].Type == TileSpike {
+		return
+	}
+	if g.GMap.Grid[y][x].Type == TileBomb {
+		for _, bomb := range g.GMap.Bombs {
+			if bomb.X == x && bomb.Y == y && !bomb.Exploded {
+				bomb.ExplosionTime = time.Now().Add(10 * time.Millisecond)
+				break
+			}
+		}
+	}
+	g.GMap.Grid[y][x].Type = TileSpike
+	g.GMap.Grid[y][x].PowUp = ""
 }

@@ -1,4 +1,6 @@
 const TileBlock = "bl";
+const TileWall = "w";
+const TileSpike = "s";
 
 export function drawTiles(gameData, layers) {
   
@@ -33,4 +35,45 @@ export function drawTiles(gameData, layers) {
       }
     }
   }
+}
+
+export function drawSpikeMap(level, gameData) {
+  const rowStart = level;
+  const rowEnd = gameData.map.w - level - 1;
+  const colStart = level;
+  const colEnd = gameData.map.h - level - 1;
+
+  for (let y = colStart; y <= colEnd; y++) {
+    spikeTile(y, rowStart, gameData);
+    spikeTile(y, rowEnd, gameData);
+  }
+  for (let x = rowStart; x <= rowEnd; x++) {
+    spikeTile(colStart, x, gameData);
+    spikeTile(colEnd, x, gameData);
+  }
+}
+
+function spikeTile(y, x, gameData) {
+  const grid = gameData.map.grid
+  const tile = grid[y][x];
+  if (tile.typ === TileWall || tile.typ === TileSpike) {
+    return;
+  }
+
+  if (tile.typ === TileBlock) {
+    const blockEl = document.getElementById(`block_${x}_${y}`);
+    if (blockEl) blockEl.classList.add('hidden');
+  }
+  if (tile.p_ups !== "") {
+    const powUpEl = document.getElementById(`powup_${x}_${y}`);
+    if (powUpEl) powUpEl.remove();
+    grid[y][x].p_ups = "";
+  }
+  tile.typ = TileSpike;
+
+  const spikeEl = document.createElement('div');
+  spikeEl.className = 'spike';
+  spikeEl.style.gridColumn = x + 1;
+  spikeEl.style.gridRow = y + 1;
+  document.getElementById('spike-layer').appendChild(spikeEl);
 }
