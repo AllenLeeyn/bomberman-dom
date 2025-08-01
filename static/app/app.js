@@ -25,24 +25,23 @@ async function checkStatus(url) {
   }
 }
 
-(async function checkServerAndRedirect() {
-  document.body.innerHTML = `
-    <div class="checking-server">
-      <h2>🔍 Checking server status...</h2>
-    </div>
-  `;
+const checkingDiv = document.getElementById("checking-server");
 
+(async function checkServerAndRedirect() {
   const currentOrigin = window.location.origin;
   const nextServers = serverList.filter(url => url !== currentOrigin);
 
   const isCurrentFree = await checkStatus(currentOrigin);
-  if (isCurrentFree) return; // Continue boot if current server is free
+  if (isCurrentFree) {
+    checkingDiv.style.display = "none";
+    renderApp();
+    return;
+  }
 
   for (const next of nextServers) {
     const isFree = await checkStatus(next);
     if (isFree) {
-      window.location.href = next; // Redirect to next available server
-      renderApp();
+      window.location.href = next;
       return;
     }
   }

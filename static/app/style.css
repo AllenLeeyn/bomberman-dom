@@ -523,3 +523,18 @@ h2 {
   color: #01f4ec;
   background-color: rgba(187, 30, 234, 1);
 }
+
+.checking-server {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  z-index: 9999;
+}
