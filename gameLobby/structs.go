@@ -106,3 +106,10 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	_, exists := l.players[playerName]
 	return exists
 }
+
+// IsFull() with mutex.Lock to ensure concurrency safety
+func (l *Lobby) IsFull() bool {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return len(l.players) >= 4
+}

@@ -8,6 +8,54 @@ import { isMobileDevice } from "./mobile.js";
 const root = document.getElementById('app');
 const gameRoot = document.getElementById('game-root');
 
+
+const serverList = [
+  'http://localhost:8080',
+  'https://bomberman-dom-4lnj.onrender.com/',
+  'http://localhost:8082'
+];
+
+async function checkStatus(url) {
+  try {
+    const res = await fetch(`${url}/status`, { cache: "no-store" });
+    const data = await res.json();
+    return data.status === 'free';
+  } catch (e) {
+    return false;
+  }
+}
+
+(async function checkServerAndRedirect() {
+  document.body.innerHTML = `
+    <div class="checking-server">
+      <h2>🔍 Checking server status...</h2>
+    </div>
+  `;
+
+  const currentOrigin = window.location.origin;
+  const nextServers = serverList.filter(url => url !== currentOrigin);
+
+  const isCurrentFree = await checkStatus(currentOrigin);
+  if (isCurrentFree) return; // Continue boot if current server is free
+
+  for (const next of nextServers) {
+    const isFree = await checkStatus(next);
+    if (isFree) {
+      window.location.href = next; // Redirect to next available server
+      renderApp();
+      return;
+    }
+  }
+
+  // If all are full, show message
+  document.body.innerHTML = `
+    <div class="server-full-message">
+      <h2>🚫 All servers are currently full.</h2>
+      <p>Please try again later.</p>
+    </div>
+  `;
+})();
+
 let oldVNode = null;
 let prevState = null;
 
@@ -49,7 +97,6 @@ router.setNotFoundHandler(() => {
 });
 
 setupMobileInteraction();
-renderApp();
 subscribe(renderApp);
 
 router.start();
