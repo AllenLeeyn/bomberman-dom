@@ -12,7 +12,10 @@ const gameRoot = document.getElementById('game-root');
 const serverList = [
   'http://localhost:8080',
   'https://bomberman-dom-4lnj.onrender.com',
-  'http://localhost:8082'
+  'https://bomberman-dom-1.onrender.com',
+  'https://bomberman-dom-2.onrender.com',
+  'https://bomberman-dom-3.onrender.com',
+  'https://bomberman-dom-4.onrender.com',
 ];
 
 async function checkStatus(url) {
