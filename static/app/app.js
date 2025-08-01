@@ -105,6 +105,19 @@ function setupMobileInteraction() {
   };
 
   document.addEventListener("touchend", onFirstTouch, { passive: true });
+  
+  const fullscreenBtn = document.getElementById("fullscreen-button");
+  fullscreenBtn.style.display = "block";
+
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      requestFullscreen();
+      requestLandscape(); // Optional: also lock orientation when button is pressed
+    }, { passive: false });
+  } else {
+    console.warn("Fullscreen button not found.");
+  }
 }
 
 function needsFullscreenLandscape() {
