@@ -157,6 +157,7 @@ body.in-game #player-hud {
 /* Z-index for stacking order */
 #tile-layer {
   z-index: 1;
+  background-image: url('assets/bg.png');
 }
 
 #spike-layer {

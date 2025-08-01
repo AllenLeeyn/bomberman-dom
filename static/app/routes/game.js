@@ -1,5 +1,5 @@
 
-import { useLayers, renderTileLayer, createSpritePool, clearLayers } from '../layers.js';
+import { useLayers, createSpritePool, clearLayers } from '../layers.js';
 import assets from "../assets.js";
 import gameAssetList from "../gameAssets.js";
 import { drawBombs } from './game/bomb.js';
@@ -80,14 +80,9 @@ export function startGameApp(data, playerName) {
     initMobileControls()
   }
 
-  const board = assets.getAsset('board');
   const bomb = assets.getAsset('b');
   const explo = assets.getAsset('boom');
 
-  if (!board) {
-    console.error('Missing board asset!');
-    return;
-  }
   if (!bomb) {
     console.error('Missing bomb asset!');
     return;
@@ -97,7 +92,6 @@ export function startGameApp(data, playerName) {
     return;
   }
 
-  renderTileLayer(layers.tileLayer, board.src);
   drawTiles(gameData, layers);
   createPlayers(gameData.players, layers.playerLayer, playerName)
   createPlayerHUD(gameData.players, playerName);

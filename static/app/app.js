@@ -91,6 +91,13 @@ window.addEventListener("orientationchange", () => {
 function setupMobileInteraction() {
   if (!isMobileDevice()) return;
 
+  if (needsFullscreenLandscape()) {
+    const mobileWarning = document.getElementById("mobile-warning");
+    if (mobileWarning) {
+      mobileWarning.style.display = "block";
+    }
+  }
+  
   const onFirstTouch = () => {
     requestFullscreen();
     requestLandscape();
@@ -98,4 +105,11 @@ function setupMobileInteraction() {
   };
 
   document.addEventListener("touchend", onFirstTouch, { passive: true });
+}
+
+function needsFullscreenLandscape() {
+  const isMobile = isMobileDevice();
+  const isFullscreen = document.fullscreenElement != null;
+  const isLandscape = window.innerWidth > window.innerHeight;
+  return isMobile && (!isFullscreen || !isLandscape);
 }

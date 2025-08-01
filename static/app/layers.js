@@ -29,15 +29,6 @@ export function useLayers(gameRoot) {
     };
 }
 
-export function renderTileLayer(tileLayer, imageUrl, width = 720, height = 624) {
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    img.style.width = width + 'px';
-    img.style.height = height + 'px';
-    img.alt = "Board";
-    tileLayer.appendChild(img);
-}
-
 export function createSpritePool(layer, max, assetKey, assets, w = 48, h = 48) {
     const pool = [];
     const asset = assets.getAsset(assetKey);

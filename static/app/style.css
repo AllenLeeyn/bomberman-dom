@@ -484,3 +484,16 @@ h2 {
     transform: scale(0.55);
   }
 }
+
+.mobile-warning {
+  color: #fbbf24;
+  font-size: 18px;
+  padding: 12px;
+  margin: 16px auto;
+  width: 60%;
+  top: -120px;
+  position: relative;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: bold;
+}
