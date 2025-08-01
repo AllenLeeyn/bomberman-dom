@@ -11,7 +11,7 @@ const gameRoot = document.getElementById('game-root');
 
 const serverList = [
   'http://localhost:8080',
-  'https://bomberman-dom-4lnj.onrender.com/',
+  'https://bomberman-dom-4lnj.onrender.com',
   'http://localhost:8082'
 ];
 

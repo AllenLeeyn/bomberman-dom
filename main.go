@@ -28,6 +28,7 @@ func setupRoutes(l *gameLobby.Lobby) {
 	})
 
 	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+
 		status := map[string]string{
 			"status": "free",
 		}
@@ -35,6 +36,7 @@ func setupRoutes(l *gameLobby.Lobby) {
 			status["status"] = "full"
 		}
 
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(status)
 	})
