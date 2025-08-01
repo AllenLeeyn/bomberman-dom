@@ -102,6 +102,7 @@ function setupMobileInteraction() {
     requestLandscape();
     document.removeEventListener("touchend", onFirstTouch);
     const mobileWarning = document.getElementById("mobile-warning");
+    mobileWarning.style.display = "none";
     mobileWarning.classList.remove("show")
   };
 
@@ -125,3 +126,8 @@ function needsFullscreenLandscape() {
   const isLandscape = window.innerWidth > window.innerHeight;
   return isMobile && (!isFullscreen || !isLandscape);
 }
+
+const preload01 = new Image();
+preload01.src = 'static/app/assets/bg.png';
+const preload02 = new Image();
+preload02.src = 'static/app/assets/spike.png';

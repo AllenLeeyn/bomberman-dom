@@ -472,7 +472,7 @@ h2 {
     margin-top: 200px; 
   }
   #game-wrapper {
-    transform: scale(0.9);
+    transform: scale(0.8);
   }
 }
 
@@ -481,7 +481,7 @@ h2 {
     margin-top: 150px; 
   }
   #game-wrapper {
-    transform: scale(0.55);
+    transform: scale(0.5);
   }
 }
 

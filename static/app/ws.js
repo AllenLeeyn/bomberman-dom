@@ -60,7 +60,9 @@ function handleMessage(event) {
     updateGameMini(data)
 
   } else if (data.action === "game_end"){
+    setTimeout(() => {
     stopGameApp(data.winner)
+    }, 200); 
     setTimeout(() => {
       state.state = 'in_lobby';
     }, 3000); 

@@ -372,16 +372,18 @@ body.in-game #player-hud {
 
 @keyframes elongate-fade-out {
   0% {
+    transform: translateX(-50%);
     transform: scaleY(1);
   }
   100% {
+    transform: translateX(-50%);
     transform: scaleY(0);
   }
 }
 
 .elongate-death {
+  transform-origin: bottom;
   animation: elongate-fade-out 1s ease-out forwards;
-  transform-origin: center;
 }
 
 /* Hide when not in use */
