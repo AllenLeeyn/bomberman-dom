@@ -101,6 +101,7 @@ function setupMobileInteraction() {
     requestFullscreen();
     requestLandscape();
     document.removeEventListener("touchend", onFirstTouch);
+    const mobileWarning = document.getElementById("mobile-warning");
     mobileWarning.classList.remove("show")
   };
 
