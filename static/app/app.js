@@ -24,15 +24,15 @@ function renderApp() {
     ? LobbyScreen(state, sendMessage, sendColorChange)
     : JoinScreen(state, joinLobby);
     
-    if (state.state === "in_game") {
-      document.body.classList.add('in-game');
-      gameRoot.classList.remove('hidden');
-      root.classList.add('hidden');
-    } else {
-      document.body.classList.remove('in-game');
-      gameRoot.classList.add('hidden');
-      root.classList.remove('hidden');
-    }
+  if (state.state === "in_game") {
+    document.body.classList.add('in-game');
+    gameRoot.classList.remove('hidden');
+    root.classList.add('hidden');
+  } else {
+    document.body.classList.remove('in-game');
+    gameRoot.classList.add('hidden');
+    root.classList.remove('hidden');
+  }
 
   oldVNode = update(root, oldVNode, newVNode);
   prevState = state.state;
@@ -93,15 +93,15 @@ function setupMobileInteraction() {
 
   if (needsFullscreenLandscape()) {
     const mobileWarning = document.getElementById("mobile-warning");
-    if (mobileWarning) {
-      mobileWarning.style.display = "block";
-    }
+    mobileWarning.style.display = "block";
+    setTimeout(() => mobileWarning.classList.add("show"), 10);
   }
-  
+
   const onFirstTouch = () => {
     requestFullscreen();
     requestLandscape();
     document.removeEventListener("touchend", onFirstTouch);
+    mobileWarning.classList.remove("show")
   };
 
   document.addEventListener("touchend", onFirstTouch, { passive: true });
@@ -113,10 +113,8 @@ function setupMobileInteraction() {
     fullscreenBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       requestFullscreen();
-      requestLandscape(); // Optional: also lock orientation when button is pressed
+      requestLandscape();
     }, { passive: false });
-  } else {
-    console.warn("Fullscreen button not found.");
   }
 }
 

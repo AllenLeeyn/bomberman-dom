@@ -491,11 +491,15 @@ h2 {
   padding: 12px;
   margin: 16px auto;
   width: 60%;
-  top: -120px;
+  top: -300px;
   position: relative;
   text-align: center;
   border-radius: 6px;
   font-weight: bold;
+  transition: top 1s ease-in-out;
+}
+.mobile-warning.show {
+  top: -180px;
 }
 
 #fullscreen-button {
