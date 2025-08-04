@@ -485,12 +485,24 @@ h2 {
   }
 }
 
+@media (max-width: 437px) {
+  #app {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  #game-wrapper {
+    transform: scale(0.55);
+  }
+}
+
 .mobile-warning {
   color: #fbbf24;
   font-size: 18px;
   padding: 12px;
   margin: 16px auto;
-  width: 60%;
+  width: 400px;
   top: -300px;
   position: relative;
   text-align: center;
@@ -499,7 +511,7 @@ h2 {
   transition: top 1s ease-in-out;
 }
 .mobile-warning.show {
-  top: -180px;
+  top: 0px;
 }
 
 #fullscreen-button {
