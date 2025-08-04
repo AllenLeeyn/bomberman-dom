@@ -60,7 +60,7 @@
   height: 120px;
 }
 
-#bomb-button, #joystick-container, #joystick {
+#bomb-button, #joystick-container, #joystick, #joystick-label, #bomb-label {
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
