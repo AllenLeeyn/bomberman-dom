@@ -478,10 +478,10 @@ h2 {
 
 @media (max-height: 437px) {
   #app {
-    margin-top: 150px; 
+    margin-top: 100px; 
   }
   #game-wrapper {
-    transform: scale(0.5);
+    transform: scale(0.48);
   }
 }
 
