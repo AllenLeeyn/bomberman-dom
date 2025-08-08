@@ -3,6 +3,7 @@ package gameLobby
 import (
 	"bomberman-dom/gameManager"
 	"errors"
+	"html"
 	"log"
 	"net/http"
 	"strings"
@@ -45,7 +46,7 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 	}
 
 	playerName := r.URL.Query().Get("name")
-	color, err := l.validateJoinRequest(playerName)
+	name, color, err := l.validateJoinRequest(playerName)
 	if err != nil {
 		sendError(conn, err.Error())
 		conn.Close()
@@ -53,38 +54,37 @@ func (l *Lobby) WebSocketUpgrade(w http.ResponseWriter, r *http.Request) {
 	}
 	playerID := uuid.NewString()
 
-	pl := gameManager.NewPlayer(playerName, playerID, color, conn)
+	pl := gameManager.NewPlayer(name, playerID, color, conn)
 
 	l.AddPlayer(pl)
 	l.playerQueue <- action{"join", pl}
-	log.Printf("Player %s connected with ID %s", pl.PlayerName, pl.PlayerID)
 	go l.handleConnection(pl)
 }
 
 // validateJoinRequest() validates name and and check lobby status
-func (l *Lobby) validateJoinRequest(name string) (string, error) {
-	name = strings.TrimSpace(name)
+func (l *Lobby) validateJoinRequest(name string) (string, string, error) {
+	name = html.EscapeString(strings.TrimSpace(name))
 	if name == "" {
-		return "", errors.New("missing player name")
+		return "", "", errors.New("missing player name")
 	}
 	if len(name) > 8 {
-		return "", errors.New("name too long (max 8 characters)")
+		return "", "", errors.New("name too long (max 8 characters)")
 	}
 
-	if state := l.GetState(); state != StateInLobby && state != StateWaiting {
-		return "", errors.New("lobby is not accepting new players")
+	if state := l.GetState(); state == StateInGame {
+		return "", "", errors.New("lobby is not accepting new players")
 	}
 	if l.HasPlayer(name) {
-		return "", errors.New("name already taken")
+		return "", "", errors.New("name already taken")
 	}
-	if len(l.GetAllPlayerInfos()) >= 4 {
-		return "", errors.New("lobby is full")
+	if l.PlayerCount() >= 4 {
+		return "", "", errors.New("lobby is full")
 	}
 	color, ok := l.getNextAvailableColor()
 	if !ok {
-		return "", errors.New("no available colors")
+		return "", "", errors.New("no available colors")
 	}
-	return color, nil
+	return name, color, nil
 }
 
 // sendError() using webSocket.Conn

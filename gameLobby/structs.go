@@ -33,7 +33,7 @@ type Lobby struct {
 type timerAction string
 
 const (
-	waitDuration  int           = 20
+	waitDuration  int           = 30
 	startDuration int           = 10
 	EndDuration   time.Duration = time.Second * 4
 
@@ -105,6 +105,12 @@ func (l *Lobby) HasPlayer(playerName string) bool {
 	defer l.mu.RUnlock()
 	_, exists := l.players[playerName]
 	return exists
+}
+
+func (l *Lobby) PlayerCount() int {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return len(l.players)
 }
 
 // IsFull() with mutex.Lock to ensure concurrency safety
