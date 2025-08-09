@@ -66,9 +66,19 @@ function handleMessage(event) {
     setTimeout(() => {
       state.state = 'in_lobby';
     }, 3000); 
+    
+    const SpectatingOverlay = document.getElementById("SpectatingOverlay");
+    SpectatingOverlay.remove();
 
   } else if (data.action === "game_update"){
-    updateGameState(data)
+    state.state = 'in_game';
+    launchGame(data, state.playerName);
+    const gameRoot = document.getElementById('game-root');
+    const SpectatingOverlay = document.createElement("div");
+    SpectatingOverlay.id = "SpectatingOverlay";
+    SpectatingOverlay.className = "spectating-overlay";
+    SpectatingOverlay.textContent = `Spectating`;
+    gameRoot.appendChild(SpectatingOverlay);
 
   } else if (data.action === "game_start"){
     state.state = 'in_game';

@@ -117,5 +117,5 @@ func (l *Lobby) PlayerCount() int {
 func (l *Lobby) IsFull() bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	return len(l.players) >= 4 || l.state == StateInGame
+	return len(l.players) >= 4
 }

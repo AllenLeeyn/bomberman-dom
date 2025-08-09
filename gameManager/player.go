@@ -20,7 +20,7 @@ func NewPlayer(name, id, color string, conn *websocket.Conn) *Player {
 		MovementSpeed: DefaultSpeed,
 		KeyPresses:    []string{},
 		Lives:         DefaultLives,
-		State:         PlayerAlive,
+		State:         PlayerDead,
 		MaxBombCount:  DefaultBombCount,
 		Radius:        DefaultBombRadius,
 		CurBombCount:  0,

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/gorilla/websocket"
 )
 
 // listener() listen to play action and carry out relevant actions
@@ -12,6 +14,20 @@ func (l *Lobby) listener() {
 		switch action.kind {
 		case "join":
 			l.sendClientList("join")
+			l.mu.Lock()
+			if l.state == StateInGame {
+				content, err := json.Marshal(l.game)
+				if err != nil {
+					log.Println("[error:abort] Error starting game:", err)
+					return
+				}
+				err = action.player.Conn.WriteMessage(websocket.TextMessage, []byte(content))
+				if err != nil {
+					log.Printf("Error sending message to %v: %v", action.player.PlayerName, err)
+				}
+				log.Printf("Sending message to %v: %v", action.player.PlayerName, l.game)
+			}
+			l.mu.Unlock()
 			l.setTimerState()
 
 		case "colorChange":

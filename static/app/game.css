@@ -372,12 +372,10 @@ body.in-game #player-hud {
 
 @keyframes elongate-fade-out {
   0% {
-    transform: translateX(-50%);
-    transform: scaleY(1);
+    transform: translateX(-50%) scaleY(1);
   }
   100% {
-    transform: translateX(-50%);
-    transform: scaleY(0);
+    transform: translateX(-50%) scaleY(0);
   }
 }
 
@@ -409,6 +407,25 @@ body.in-game #player-hud {
   pointer-events: none;
   user-select: none;
   animation: victory-celebration 3s ease-in-out;
+}
+
+.spectating-overlay {
+  position: absolute;
+  top: 0; /* start at top */
+  left: 0; /* start at left */
+  width: 100%; /* full width */
+  height: 100%; /* full height */
+  background: transparent; /* semi-transparent overlay */
+  color: gold;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border-radius: 10px;
+  z-index: 998;
+  pointer-events: none;
+  user-select: none;
 }
 
 @keyframes victory-celebration {

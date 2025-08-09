@@ -192,7 +192,7 @@ func (g *Game) checkFlames(player *Player, tileTop, tileBottom, tileLeft, tileRi
 			} else {
 				player.State = PlayerGhostRespawn
 				player.StateReset = now.Add(time.Millisecond * 2000)
-				player.MovementSpeed = 5
+				player.MovementSpeed = 3
 			}
 			g.CheckWinner()
 			return

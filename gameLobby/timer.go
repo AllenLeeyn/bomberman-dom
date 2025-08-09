@@ -39,9 +39,15 @@ func (l *Lobby) timerController() {
 // setTimerState() checks for number of player and send timerAction to timerController()
 // centralized function to determine what action to carry out
 func (l *Lobby) setTimerState() {
-	if playerCount := len(l.GetAllPlayerInfos()); playerCount == 4 {
+	if playerCount := l.PlayerCount(); playerCount == 4 {
+		if l.state == StateStarting {
+			return
+		}
 		l.timerCh <- gameStartTimer
 	} else if playerCount >= 2 {
+		if l.state == StateStarting {
+			return
+		}
 		l.timerCh <- resetTimer
 	} else if playerCount < 2 {
 		l.timerCh <- stopTimer

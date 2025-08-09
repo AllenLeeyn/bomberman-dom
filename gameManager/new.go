@@ -51,8 +51,6 @@ func (g *Game) Start() {
 		return
 	}
 
-	go g.gameLoop()
-
 	g.Action = gameStart
 	g.State = Playing
 	g.CreatedAt = time.Now()
@@ -67,4 +65,6 @@ func (g *Game) Start() {
 	g.stateQueue <- message{
 		Content: string(content),
 	}
+
+	go g.gameLoop()
 }

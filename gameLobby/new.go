@@ -71,9 +71,6 @@ func (l *Lobby) validateJoinRequest(name string) (string, string, error) {
 		return "", "", errors.New("name too long (max 8 characters)")
 	}
 
-	if state := l.GetState(); state == StateInGame {
-		return "", "", errors.New("lobby is not accepting new players")
-	}
 	if l.HasPlayer(name) {
 		return "", "", errors.New("name already taken")
 	}
