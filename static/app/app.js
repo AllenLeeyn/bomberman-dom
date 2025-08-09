@@ -16,6 +16,9 @@ const serverList = [
   'https://bomberman-dom-2.onrender.com',
   'https://bomberman-dom-3.onrender.com',
   'https://bomberman-dom-4.onrender.com',
+  'https://bomberman-dom-6.onrender.com',
+  'https://bomberman-dom-7.onrender.com',
+  'https://bomberman-dom-8.onrender.com',
 ];
 
 async function checkStatus(url) {
