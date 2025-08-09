@@ -68,7 +68,7 @@ function handleMessage(event) {
     }, 3000); 
     
     const SpectatingOverlay = document.getElementById("SpectatingOverlay");
-    SpectatingOverlay.remove();
+    if (SpectatingOverlay) SpectatingOverlay.remove();
 
   } else if (data.action === "game_update"){
     state.state = 'in_game';
