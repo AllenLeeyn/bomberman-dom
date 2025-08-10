@@ -54,7 +54,17 @@ function safeParse(data) {
   }
 };
 
-function handleMessage(event) {
+async function checkStatus(url) {
+  try {
+    const res = await fetch(`${url}/status`, { cache: "no-store" });
+    const data = await res.json();
+    return data.status === 'free';
+  } catch (e) {
+    return false;
+  }
+}
+
+async function handleMessage(event) {
   const data = safeParse(event.data);
   if (data.action === "game_mini"){
     updateGameMini(data)
@@ -86,6 +96,40 @@ function handleMessage(event) {
 
   } else if (data.action === 'reject') {
     state.errorMessage = data.reason || 'Connection rejected.';
+
+    if (data.reason == "lobby is full. looking for new server") {
+      const serverList = [
+        'http://localhost:8080',
+        'https://bomberman-dom-4lnj.onrender.com',
+        'https://bomberman-dom-1.onrender.com',
+        'https://bomberman-dom-2.onrender.com',
+        'https://bomberman-dom-3.onrender.com',
+        'https://bomberman-dom-4.onrender.com',
+        'https://bomberman-dom-6.onrender.com',
+        'https://bomberman-dom-7.onrender.com',
+        'https://bomberman-dom-8.onrender.com',
+      ];
+      const currentOrigin = window.location.origin;
+      const nextServers = serverList.filter(url => url !== currentOrigin);
+      for (const next of nextServers) {
+        const isFree = await checkStatus(next);
+        if (isFree) {
+          state.errorMessage = "server full. redirecting..."
+          setTimeout(() => {
+            window.location.href = next;
+          }, 3000);
+          return;
+        }
+      }
+      
+      // If all are full, show message
+      document.body.innerHTML = `
+        <div class="server-full-message">
+          <h2>🚫 All servers are currently full.</h2>
+          <p>Please try again later.</p>
+        </div>
+      `;
+    }
 
   } else if (data.action === 'timer') {
     setTimerState(data.state, data.duration);

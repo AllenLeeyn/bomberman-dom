@@ -75,7 +75,7 @@ func (l *Lobby) validateJoinRequest(name string) (string, string, error) {
 		return "", "", errors.New("name already taken")
 	}
 	if l.PlayerCount() >= 4 {
-		return "", "", errors.New("lobby is full. Refresh for new lobby")
+		return "", "", errors.New("lobby is full. looking for new server")
 	}
 	color, ok := l.getNextAvailableColor()
 	if !ok {
